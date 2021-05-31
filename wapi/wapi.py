@@ -40,9 +40,8 @@ class Wapi():
 
         # 公共地址
         self.common_save_path = (
-            '{root}/{version}-{{ftype}}-{cluster}-{target}-{service}-{request}.json'
+            '{root}/{version}-{{ftype}}-{service}-{request}.json'
         ).format(root = self.save_root, version = self.version,
-            cluster = utils.CLUSTER, target = utils.TARGET,
             service = self.service_name, request = self.request_name)
         # 返回数据地址
         self.response_path = self.common_save_path.format(ftype = 'response')
@@ -52,13 +51,13 @@ class Wapi():
     def _init_environ(self):
         '''初始化环境变量'''
         # 参数文件地址
-        os.environ['PARAMS_FILEPATH'] = (
-            'config/api/params/{}/{}/{}/{}.json'.format(
-                utils.CLUSTER, utils.TARGET, self.service_name,
-                self.request_name
-            )
-        )
-        self.logger.info('PARAMS_FILEPATH %s', os.getenv('PARAMS_FILEPATH'))
+        #  os.environ['PARAMS_FILEPATH'] = (
+            #  'config/api/params/{}/{}/{}/{}.json'.format(
+                #  utils.CLUSTER, utils.TARGET, self.service_name,
+                #  self.request_name
+            #  )
+        #  )
+        #  self.logger.info('PARAMS_FILEPATH %s', os.getenv('PARAMS_FILEPATH'))
 
     def get_request(self, service_name, request_name):
         self.service_name = service_name
@@ -69,9 +68,10 @@ class Wapi():
             api_config = yaml.safe_load(f)
         with open('config/api/{}.yml'.format(service_name), 'r') as f:
             service_config = yaml.safe_load(f)
-        with open('config/api/params/{}/{}/env.yml'.format(utils.CLUSTER,
-            utils.TARGET), 'r') as f:
-            env_config = yaml.safe_load(f)
+        env_config = {}
+        #  with open('config/api/params/{}/{}/env.yml'.format(utils.CLUSTER,
+            #  utils.TARGET), 'r') as f:
+            #  env_config = yaml.safe_load(f)
         api_config.update(service_config)
         env = api_config.get("env") or {}
         env.update(env_config)

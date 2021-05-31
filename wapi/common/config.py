@@ -8,11 +8,15 @@
 import yaml
 
 from enum import Enum
+from wapi.common import constants
 
 class ConfigName(Enum):
-    COOKIE_FILEPATH = 'cookie_filepath'
+    COOKIE_PATH = 'cookie_path'
 
 class Config():
+    env_path = ''
+    request_path = ''
+
     @classmethod
     def load(cls, filepath):
         item = cls()
@@ -25,9 +29,16 @@ class Config():
 
         return item
 
+    @classmethod
+    def get_config_path(cls):
+        return constants.CONFIG_USER_PATH
+
+    def get_env_path(self):
+        return self.env_path or constants.ENV_PATH
+
+    def get_request_path(self):
+        return self.request_path or constants.REQUEST_PATH
 
 if __name__ == "__main__":
-    config = Config.load('/Users/wenxiaoning/.config/wapi/config.yml')
+    config = Config.load(Config.get_config_path())
     print(config.cookie_filepath)
-
-
