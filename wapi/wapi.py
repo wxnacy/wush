@@ -88,8 +88,6 @@ class Wapi():
             request_name = request_name)
         request_model = self.get_request(self.service_name, self.request_name)
         domain = request_model.domain
-        if not domain:
-            domain = utils.make_domain()
         self.logger.info('Domain: %s', domain)
         url = 'http://{domain}{url}'.format(
             domain = domain, url = request_model.url
