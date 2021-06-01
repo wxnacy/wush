@@ -10,9 +10,8 @@ import os
 import re
 import subprocess
 import yaml
-import random
 
-from common.loggers import create_logger
+from wapi.common.loggers import create_logger
 
 class ConfigValue():
     logger = create_logger('ConfigValue')
@@ -22,7 +21,7 @@ class ConfigValue():
 
         self.REG_ENV = r'(\${.*?})'
         self.env = dict(os.environ)
-        self.functions = {'random': random.random}
+        self.functions = {}
 
     def set_env(self, **data):
         self.env.update(data)
@@ -34,7 +33,6 @@ class ConfigValue():
 
     def format(self):
         '''输出格式化信息'''
-
         if not self.value:
             # 为空，返回
             return self.value
@@ -93,11 +91,22 @@ class ConfigValue():
             return text
 
         for k in self.environ_names:
-            print(k)
+            # 处理函数的执行和替换
             orgl = '${' + k + '}'
-            if k.endswith('()'):
-                func_name = self.functions.get(k.strip('()'))
-                repl = func_name() if func_name else ''
+            if '(' in k and ')' in k:
+                k = k.strip(')').strip(' ')
+                func_name, args_str = k.split('(')
+                func = self.functions.get(func_name)
+                self.logger.info('func_name %s %s', func_name, func)
+
+                if not func:
+                    continue
+                if not args_str:
+                    args_str = '()'
+                else:
+                    args_str = '({},)'.format(args_str)
+                args = eval(args_str)
+                repl = func(*args)
                 repl = str(repl)
                 text = text.replace(orgl, repl)
             else:

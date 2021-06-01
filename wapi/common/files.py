@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# Author: 371032668@qq.com
+# Author: wxnacy@gmail.com
 """
 
 """
 
 import json
+import yaml
 
 class FileUtils:
 
@@ -16,5 +17,7 @@ class FileUtils:
         :param str filepath: 文件地址
         """
         with open(filepath, 'r') as f:
+            if filepath.endswith('.yml'):
+                return yaml.safe_load(f)
             lines = f.readlines()
         return json.loads(''.join(lines))

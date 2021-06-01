@@ -8,7 +8,7 @@
 import sys
 import json
 
-from common.files import FileUtils
+from wapi.common.files import FileUtils
 
 chrome = None
 try:

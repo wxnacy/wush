@@ -5,7 +5,5 @@
 
 """
 
-from .wapi import Wapi
-from .common import functions
-
-__all__ = ['Wapi', ]
+class RequestException():
+    pass

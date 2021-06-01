@@ -7,7 +7,7 @@ models
 import json
 import sys
 
-from common.config_value import ConfigValue
+from wapi.common.config_value import ConfigValue
 
 class BaseModel():
 
@@ -30,10 +30,12 @@ class BaseModel():
     @classmethod
     def _set_item_attr(cls, item, k, v):
         if hasattr(item, k):
-            value = ConfigValue(v).set_env(**item.env).format()
+            value = ConfigValue(v).set_env(**item.env).set_functions(
+                    **item.functions).format()
             if isinstance(value, dict):
                 for v_k, v_v in value.items():
-                    value[v_k] = ConfigValue(v_v).set_env(**item.env).format()
+                    value[v_k] = ConfigValue(v_v).set_env(**item.env
+                            ).set_functions(**item.functions).format()
             setattr(item, k, value)
 
     def __str__(self):
@@ -41,6 +43,10 @@ class BaseModel():
 
     def pretty_str(self):
         data = self.dict()
+        functions = data.get("functions")
+        if functions:
+            for k, v in functions.items():
+                functions[k] = k
         return json.dumps(data, indent=4)
 
     def dict(self):
@@ -53,8 +59,9 @@ class BaseModel():
             self._set_item_attr(self, k, v)
 
 
-class ServiceModel(BaseModel):
-    service = ''
+class ModuleModel(BaseModel):
+    parent = ''
+    module = ''
     cookies = {}
     env = {}
     url_prefix = ''
@@ -86,19 +93,22 @@ class ServiceModel(BaseModel):
 
 class RequestModel(BaseModel):
     _config = {}
-    service = ''
+    module = ''
     domain = ''
     url_prefix = ''
     cookies = {}
     env = {}
+    functions = {}
 
     name = ''
     title = ''
-    url = ''
+    path = ''
     method = 'get'
     data = {}
     json = {}
     params = {}
+
+    url = ''
 
     @classmethod
     def load(cls, config):
@@ -111,5 +121,11 @@ class RequestModel(BaseModel):
     def format(self):
         for k, v in self._config.items():
             self._set_item_attr(self, k, v)
-        self.url = self.url_prefix + self.url
+        # 如果不是完整地址，拼接出完整地址
+        self.url = self.path
+        if not self.path.startswith('http'):
+            self.url = self.url_prefix + self.path
+            self.url = 'http://{domain}{url}'.format(
+                domain = self.domain, url = self.url)
+
 

@@ -12,27 +12,35 @@ import requests
 import json
 
 from datetime import datetime
-from common import utils
-from common.loggers import create_logger
-from common.cookie import Cookie
+from wapi.common.files import FileUtils
+from wapi.common.loggers import create_logger
+from wapi.common.cookie import Cookie
+from wapi.common.config import Config
+from wapi.common.decorates import env_functions
+from wapi.common.exceptions import RequestException
 
-from api.models import ServiceModel
+from wapi.models import ModuleModel
 
 class Wapi():
     logger = create_logger('Wapi')
+    module_name = ''
+    request_name = ''
+    space_name = ''
+    request = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, module_name=None):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
-        #  self.params_temp_filepath = 'tmp/{}.params.{}.json'.format()
+        self.config = Config.load(Config.get_config_path())
+        self.init_config(module_name = module_name)
 
     def init_config(self,**kw):
         for k, v in kw.items():
             if v:
                 print(k, v)
                 setattr(self, k, v)
-        self.init_common_info()
+        #  self.init_common_info()
 
-    def init_common_info(self):
+    def _init_common_info(self):
         # 临时数据保存目录
         self.save_root = '{}/tmp/api'.format(os.getenv("YDWORK_HOME"))
         if not os.path.exists(self.save_root):
@@ -59,43 +67,39 @@ class Wapi():
         #  )
         #  self.logger.info('PARAMS_FILEPATH %s', os.getenv('PARAMS_FILEPATH'))
 
-    def get_request(self, service_name, request_name):
-        self.service_name = service_name
-        self.request_name = request_name
-        print(self.service_name, self.request_name)
-        self._init_environ()
-        with open('config/api/api.yml'.format(service_name), 'r') as f:
-            api_config = yaml.safe_load(f)
-        with open('config/api/{}.yml'.format(service_name), 'r') as f:
-            service_config = yaml.safe_load(f)
+    def _get_request(self):
+        """获取 request"""
+        # 获取 request 信息
+        request_path = self.config.get_request_path(self.module_name)
+        if not os.path.exists(request_path):
+            raise RequestException('can not found request config {}'.format(
+                request_path))
+        module_config = FileUtils.read_dict(request_path)
+        # 获取 env 信息
         env_config = {}
-        #  with open('config/api/params/{}/{}/env.yml'.format(utils.CLUSTER,
-            #  utils.TARGET), 'r') as f:
-            #  env_config = yaml.safe_load(f)
-        api_config.update(service_config)
-        env = api_config.get("env") or {}
-        env.update(env_config)
-        api_config['env'] = env
-        service = ServiceModel.load(api_config)
-        request = service.get_request(request_name)
+        env_path = self.config.get_env_path(self.space_name)
+        if os.path.exists(env_path):
+            env_config.update(FileUtils.read_dict(env_path))
+        module_config['functions'] = env_functions
+        # 加载并获取 request
+        module = ModuleModel.load(module_config)
+        request = module.get_request(self.request_name)
         return request
 
-    def request(self, service_name=None, request_name=None, json=None,
-            params = None):
+    def request(self,request_name=None, module_name=None, json=None, params = None):
+        if request_name:
+            self.request_name = request_name
+        if module_name:
+            self.module_name = module_name
+        self.request = self._get_request()
         _json = json
         # 初始化参数
-        self.init_config(service_name = service_name,
-            request_name = request_name)
-        request_model = self.get_request(self.service_name, self.request_name)
-        domain = request_model.domain
-        self.logger.info('Domain: %s', domain)
-        url = 'http://{domain}{url}'.format(
-            domain = domain, url = request_model.url
-        )
+        url = self.request.url
+        request_model = self.request
 
         # 获取  Cookie
         cookies = { }
-        cookies.update(request_model.cookies)
+        cookies.update(self.request.cookies)
         for k, v in cookies.items():
             self.logger.info('Cookie %s: %s', k, v)
 
@@ -104,7 +108,7 @@ class Wapi():
         }
 
         # 获取 json 参数
-        json_data = request_model.json
+        json_data = self.request.json
         if _json:
             json_data = _json
         if json_data:
