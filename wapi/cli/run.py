@@ -17,7 +17,7 @@ def run():
     request_name = args[1]
 
     client = Wapi()
-    client.init_config(service_name = service_name,
+    client.init_config(module_name = service_name,
         request_name = request_name)
 
     res = client.request()

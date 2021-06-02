@@ -11,6 +11,8 @@ import re
 import subprocess
 import yaml
 
+from functools import singledispatch
+
 from wapi.common.loggers import create_logger
 
 class ConfigValue():
@@ -36,14 +38,51 @@ class ConfigValue():
         if not self.value:
             # 为空，返回
             return self.value
+        #  self._format(self.value)
 
-        # 格式化响应格式数据
-        for t in (str,):
+        #  格式化响应格式数据
+        for t in (str, list, dict):
             if isinstance(self.value, t):
                 func_name = '_format_' + t.__name__
                 return getattr(self, func_name)(self.value)
-
         return self.value
+        #  return self._format(self.value)
+
+    @singledispatch
+    def _format(self, obj):
+        self.logger.info('type %s', type(obj))
+        return obj
+
+    @_format.register(dict)
+    def _(self, value):
+        """格式化字典"""
+        return self._format_dict(dict)
+
+    @_format.register(list)
+    def _(self, lines):
+        """格式化数组"""
+        self.logger.info('-' * 200)
+        return self._format_list(lines)
+
+    @_format.register(str)
+    def _(self, text):
+        """格式化字符窜"""
+        self.logger.info('-' * 200)
+        return self._format_str(text)
+
+    def _format_dict(self, value):
+        """格式化字典"""
+        for v_k, v_v in value.items():
+            value[v_k] = ConfigValue(v_v).set_env(**self.env
+                    ).set_functions(**self.functions).format()
+        return value
+
+    def _format_list(self, lines):
+        """格式化数组"""
+        for i in range(len(lines)):
+            lines[i] = ConfigValue(lines[i]).set_env(**self.env
+                    ).set_functions(**self.functions).format()
+        return lines
 
     def _format_str(self, text):
         '''格式化字符串'''

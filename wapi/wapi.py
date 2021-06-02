@@ -12,12 +12,14 @@ import requests
 import json
 
 from datetime import datetime
+from wapi.common import constants
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 from wapi.common.cookie import Cookie
 from wapi.common.config import Config
 from wapi.common.decorates import env_functions
 from wapi.common.exceptions import RequestException
+from wapi.common.functions import super_function
 
 from wapi.models import ModuleModel
 
@@ -28,17 +30,22 @@ class Wapi():
     space_name = ''
     request = None
 
-    def __init__(self, module_name=None):
+    def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
         self.config = Config.load(Config.get_config_path())
-        self.init_config(module_name = module_name)
+        self.init_config(**kw)
 
     def init_config(self,**kw):
         for k, v in kw.items():
             if v:
-                print(k, v)
                 setattr(self, k, v)
         #  self.init_common_info()
+        self.logger.info( 
+                    self.get_config().get_function().get_current_space_name())
+        if not self.space_name:
+            self.space_name = self.get_config().get_function().get_current_space_name()
+        if not self.module_name:
+            self.module_name = self.get_config().get_default_module_name()
 
     def _init_common_info(self):
         # 临时数据保存目录
@@ -69,18 +76,25 @@ class Wapi():
 
     def _get_request(self):
         """获取 request"""
+        # 如果 module 还没有赋值，给默认值
+        if not self.module_name:
+            self.module_name = self.get_config().get_default_module_name()
         # 获取 request 信息
-        request_path = self.config.get_request_path(self.module_name)
+        self.logger.info('Module: %s', self.module_name)
+        request_path = self.config.get_module_path(self.module_name)
+        self.logger.info('Request path: %s', request_path)
         if not os.path.exists(request_path):
             raise RequestException('can not found request config {}'.format(
                 request_path))
         module_config = FileUtils.read_dict(request_path)
         # 获取 env 信息
-        env_config = {}
+        env_config = module_config.get("env") or {}
         env_path = self.config.get_env_path(self.space_name)
+        self.logger.info('env_path %s', env_path)
         if os.path.exists(env_path):
-            env_config.update(FileUtils.read_dict(env_path))
+            env_config.update(FileUtils.read_dict(env_path) or {})
         module_config['functions'] = env_functions
+        module_config['env'] = env_config
         # 加载并获取 request
         module = ModuleModel.load(module_config)
         request = module.get_request(self.request_name)
@@ -122,6 +136,7 @@ class Wapi():
             kw['params'] = params_data
 
         self.request_data = kw
+        self.logger.info('Request data: %s', self.request_data)
 
         self.logger.info(request_model.pretty_str())
         self.logger.info('Url: %s', url)
@@ -129,9 +144,12 @@ class Wapi():
         self.response_content = res.content
         return res
 
+    def get_config(self):
+        """获取配置"""
+        return self.config
+
     def save(self):
         """保存请求配置"""
-        print(self.response_path)
         with open(self.response_path, 'w') as f:
             save_data = json.dumps(json.loads(self.response_content), indent=4, ensure_ascii=False)
             f.write(save_data.encode('utf-8'))

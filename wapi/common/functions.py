@@ -6,11 +6,12 @@
 """
 import random
 import importlib
-import inspect
 import sys
 import os
 
+from wapi.common import constants
 from wapi.common.decorates import env_func_register
+from wapi.common.decorates import env_functions
 
 @env_func_register()
 def random_int(length, min_int=None, max_int=None):
@@ -48,25 +49,38 @@ def random_str(length, source=None):
         #  res.append(str(n))
     return ''.join(res)
 
-def load_module(path):
-    #  dirname = os.path.dirname(path)
-    #  print(dirname)
-    #  if dirname not in sys.path:
-        #  sys.path.append(dirname)
-    #  module_name = os.path.basename(path)
-    #  print(module_name)
-    #  module_name = module_name[0:-3]
-    module_name = path
+def load_module(module_name):
+    """加载模块"""
     views_module = importlib.import_module(module_name)
-    for name, obj in inspect.getmembers(views_module):
-        print(name, obj)
-    from wapi.common.decorates import env_functions
-    print(env_functions)
+    return views_module
+
+@env_func_register()
+def get_current_space_name():
+    """获取当前 space 名称"""
+    return constants.DEFAULT_SPACE_NAME
+
+class Function:
+    get_current_space_name = None
+    random_int = None
+    random_str = None
+
+    def __init__(self):
+        for name, func in env_functions.items():
+            setattr(self, name, func)
+
+_function = Function()
+
+def get_super_function():
+    return _function
+
+super_function = get_super_function()
 
 if __name__ == "__main__":
     print(random_int(5, 4, 9))
     print(random_str(5))
-    print(load_module('/Users/wenxiaoning/Projects/ydwork/apis/functions.py'))
+    func = get_super_function()
+    print(func.random_int(2))
+
 
 
 
