@@ -114,7 +114,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'wapi=wapi.cli.run:run',
+            'wapi=wapi.cli.main:main',
         ],
     },
     install_requires=REQUIRED,

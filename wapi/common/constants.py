@@ -29,3 +29,6 @@ DEFAULT_CONFIG = {
     'body_root': 'body',
     'function_moduls': []
 }
+
+# request 请求方式
+METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')

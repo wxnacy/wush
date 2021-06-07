@@ -39,13 +39,14 @@ class Wapi():
         for k, v in kw.items():
             if v:
                 setattr(self, k, v)
-        #  self.init_common_info()
-        self.logger.info( 
-                    self.get_config().get_function().get_current_space_name())
+        self.logger.info('current_space_name %s',
+            self.get_config().get_function().get_current_space_name())
         if not self.space_name:
             self.space_name = self.get_config().get_function().get_current_space_name()
         if not self.module_name:
             self.module_name = self.get_config().get_default_module_name()
+
+        self._init_environ()
 
     def _init_common_info(self):
         # 临时数据保存目录
@@ -65,14 +66,13 @@ class Wapi():
 
     def _init_environ(self):
         '''初始化环境变量'''
-        # 参数文件地址
-        #  os.environ['PARAMS_FILEPATH'] = (
-            #  'config/api/params/{}/{}/{}/{}.json'.format(
-                #  utils.CLUSTER, utils.TARGET, self.service_name,
-                #  self.request_name
-            #  )
-        #  )
-        #  self.logger.info('PARAMS_FILEPATH %s', os.getenv('PARAMS_FILEPATH'))
+        current_body_name = self.get_config().get_current_body_name(
+                self.space_name, self.module_name,self.request_name)
+        current_body_path = self.get_config().get_body_path(current_body_name)
+        self.get_config().get_env().add(**dict(
+            body_path = current_body_path
+        ))
+
 
     def _get_request(self):
         """获取 request"""
@@ -89,6 +89,7 @@ class Wapi():
         module_config = FileUtils.read_dict(request_path)
         # 获取 env 信息
         env_config = module_config.get("env") or {}
+        env_config.update(self.get_config().get_env().dict())
         env_path = self.config.get_env_path(self.space_name)
         self.logger.info('env_path %s', env_path)
         if os.path.exists(env_path):
@@ -100,40 +101,17 @@ class Wapi():
         request = module.get_request(self.request_name)
         return request
 
-    def request(self,request_name=None, module_name=None, json=None, params = None):
-        if request_name:
-            self.request_name = request_name
-        if module_name:
-            self.module_name = module_name
+    def request(self):
         self.request = self._get_request()
-        _json = json
         # 初始化参数
         url = self.request.url
         request_model = self.request
 
-        # 获取  Cookie
-        cookies = { }
-        cookies.update(self.request.cookies)
-        for k, v in cookies.items():
-            self.logger.info('Cookie %s: %s', k, v)
-
-        kw = {
-            "cookies": cookies
-        }
-
-        # 获取 json 参数
-        json_data = self.request.json
-        if _json:
-            json_data = _json
-        if json_data:
-            kw['json'] = json_data
-
-        # 获取 params 参数
-        params_data = request_model.params
-        if params:
-            params_data = params
-        if params_data:
-            kw['params'] = params_data
+        kw = { }
+        for name in ('json', 'data', 'headers', 'cookies', 'params'):
+            value =  getattr(self.request, name)
+            if value:
+                kw[name] = value
 
         self.request_data = kw
         self.logger.info('Request data: %s', self.request_data)

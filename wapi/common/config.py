@@ -16,8 +16,21 @@ from wapi.common.functions import Function
 from wapi.common.loggers import create_logger
 from wapi.common.decorates import env_functions
 
-class ConfigName(Enum):
-    COOKIE_PATH = 'cookie_path'
+class Env():
+    # 参数地址
+    body_path = ''
+
+    def __init__(self, **kw):
+        self.add(**kw)
+
+    def add(self, **kw):
+        """添加环境变量"""
+        for k, v in kw.items():
+            setattr(self, k, v)
+
+    def dict(self):
+        data = self.__dict__
+        return data
 
 class Config():
     logger = create_logger('Config')
@@ -25,12 +38,14 @@ class Config():
     env_root = ''
     body_root = ''
     module_root = ''
-    function_moduls = []
+    function_modules = []
 
     function  = None
+    _env = Env()
 
     @classmethod
     def load(cls, filepath):
+        cls.logger.info('Config load path: %s', filepath)
         item = cls()
         with open(filepath, 'r') as f:
             data = yaml.safe_load(f)
@@ -43,36 +58,21 @@ class Config():
         for _root in ('env_root', 'module_root', 'body_root'):
             setattr(item, _root, cls.fmt_path(getattr(item, _root)))
 
-        item.load_functions()
-
+        item._load_functions()
         return item
 
-    def load_functions(self):
+    def _load_functions(self):
         """加载方法"""
-        self.logger.info('Config functions %s', self.function_moduls)
-        for module_name in self.function_moduls:
+        self.logger.info('Config functions %s', self.function_modules)
+        for module_name in self.function_modules:
             load_module(module_name)
 
         f = Function()
-        #  for name, func in env_functions.items():
-            #  setattr(f, name, func)
         self.function = f
 
-    @classmethod
-    def fmt_path(cls, path):
-        if not path:
-            return path
-        if os.path.isabs(path):
-            return path
-        return os.path.join(constants.CONFIG_ROOT, path)
-
-    @classmethod
-    def get_config_path(cls):
-        return constants.CONFIG_PATH
-
-    @classmethod
-    def get_config_root(cls):
-        return constants.CONFIG_PATH
+    def get_env(self):
+        """获取 env 信息"""
+        return self._env
 
     def get_env_path(self, space_name=None):
         """获取 env 配置地址"""
@@ -92,6 +92,22 @@ class Config():
 
     def get_function(self):
         return self.function
+
+    @classmethod
+    def get_config_path(cls):
+        return constants.CONFIG_PATH
+
+    @classmethod
+    def get_config_root(cls):
+        return constants.CONFIG_PATH
+
+    @classmethod
+    def fmt_path(cls, path):
+        if not path:
+            return path
+        if os.path.isabs(path):
+            return path
+        return os.path.join(constants.CONFIG_ROOT, path)
 
     @classmethod
     def get_current_body_name(cls, space_name, module_name, request_name):
@@ -114,6 +130,4 @@ class Config():
         """获取默认配置"""
         return constants.DEFAULT_CONFIG
 
-if __name__ == "__main__":
-    config = Config.load(Config.get_config_path())
-    print(config.cookie_filepath)
+global_config = Config.load(Config.get_config_path())

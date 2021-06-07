@@ -13,6 +13,7 @@ import yaml
 
 from functools import singledispatch
 
+from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 
 class ConfigValue():
@@ -22,6 +23,7 @@ class ConfigValue():
         self.value = value
 
         self.REG_ENV = r'(\${.*?})'
+        self.REG_PARSE = r'(^\b(json|yml|xml)\b@.*?)'
         self.env = dict(os.environ)
         self.functions = {}
 
@@ -38,7 +40,6 @@ class ConfigValue():
         if not self.value:
             # 为空，返回
             return self.value
-        #  self._format(self.value)
 
         #  格式化响应格式数据
         for t in (str, list, dict):
@@ -46,7 +47,6 @@ class ConfigValue():
                 func_name = '_format_' + t.__name__
                 return getattr(self, func_name)(self.value)
         return self.value
-        #  return self._format(self.value)
 
     @singledispatch
     def _format(self, obj):
@@ -101,16 +101,37 @@ class ConfigValue():
 
             return self._format_file_content(text)
 
+        parse_type = self._get_parse_type(text)
+        if parse_type:
+            text = text[len(parse_type) + 1:]
+            if self._is_file(text):
+                if parse_type == 'json':
+                    return FileUtils.read_dict(text)
+            else:
+                if parse_type == 'json':
+                    return json.loads(text)
+
         return text
+
+    def _get_parse_type(self, text):
+        """获取解析类型"""
+        lines = re.findall(self.REG_PARSE, text)
+        if not lines:
+            return None
+        return lines[0][-1]
 
     def _format_file_content(self, filepath):
         '''格式化文件内容'''
+        if filepath.endswith('.json') or filepath.endswith('.yml'):
+            return FileUtils.read_dict(filepath)
+
         with open(filepath, 'r') as f:
-            if filepath.endswith(".json"):
-                lines = f.readlines()
-                return json.loads(''.join(lines))
-            if filepath.endswith(".yml"):
-                return yaml.load(f)
+            lines = f.readlines()
+            if not lines:
+                return ''
+            if lines[0].startswith('{') and lines[-1].endswith('}'):
+                return FileUtils.read_dict(filepath)
+            return ''.join(lines)
 
     def _is_file(self, filepath):
         '''是否为文件'''

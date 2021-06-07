@@ -7,6 +7,7 @@
 import sys
 import os
 import argparse
+import shutil
 
 from wapi.common.functions import super_function
 from wapi.wapi import Wapi
@@ -39,15 +40,25 @@ def run(args):
 
 def body(args):
     client = Wapi()
-    logger.info(args.space)
     client.init_config(
         space_name = args.space,
         module_name = args.module,
         request_name = args.name)
+
     config = client.get_config()
+    default_body_name = config.get_current_body_name('default', client.module_name, client.request_name)
+    default_body_path = config.get_body_path(default_body_name)
     body_name = config.get_current_body_name(client.space_name, client.module_name, client.request_name)
     body_path = config.get_body_path(body_name)
+    logger.info('Default body path: %s', default_body_path)
+    logger.info('Body path: %s', body_path)
+    # 如果存在默认 body 文件，切不存在 space body 文件时，copy 默认文件
+    if os.path.exists(default_body_path) and not os.path.exists(body_path):
+        shutil.copy(default_body_path, body_path)
     os.system('vim {}'.format(body_path))
+    # 如果不存在默认文件，生成一份
+    if not os.path.exists(default_body_path):
+        shutil.copy(body_path, default_body_path)
 
 def env(args):
     client = Wapi()

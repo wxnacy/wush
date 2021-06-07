@@ -8,11 +8,14 @@ import json
 import sys
 import os
 
+from wapi.common import constants
 from wapi.common.config_value import ConfigValue
 from wapi.common.config import Config
+from wapi.common.config import global_config
 from wapi.common.cookie import Cookie
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
+import requests
 
 class BaseModel():
 
@@ -65,8 +68,10 @@ class ModuleModel(BaseModel):
     logger = create_logger('ModuleModel')
     parent = ''
     module = ''
+    protocol = 'http'
     cookie_domains = []
     cookies = {}
+    headers = {}
     env = {}
     url_prefix = ''
     requests = []
@@ -78,7 +83,7 @@ class ModuleModel(BaseModel):
         # 获取父配置信息
         parent = config.get("parent")
         if parent:
-            parent_path = Config.fmt_path(parent)
+            parent_path = global_config.get_module_path(parent)
             parent_config = FileUtils.read_dict(parent_path) or {}
             cls._merge_config(parent_config, config)
             config = parent_config
@@ -132,14 +137,16 @@ class RequestModel(BaseModel):
     domain = ''
     url_prefix = ''
     cookies = {}
+    headers = {}
     env = {}
     functions = {}
 
+    protocol = 'http'
     name = ''
     title = ''
     path = ''
     method = 'get'
-    data = {}
+    data = ''
     json = {}
     params = {}
 
@@ -157,12 +164,32 @@ class RequestModel(BaseModel):
     def format(self):
         for k, v in self._config.items():
             self._set_item_attr(self, k, v)
+        if not self.title:
+            self.title = self.name
+        if not self.domain:
+            self.domain = '127.0.0.1'
+
+        self.method = self.method.upper()
         # 如果不是完整地址，拼接出完整地址
         self.url = self.path
         if not self.path.startswith('http'):
             self.url = self.url_prefix + self.path
-            self.url = 'http://{domain}{url}'.format(
+            self.url = '{protocol}://{domain}{url}'.format(
+                protocol = self.protocol,
                 domain = self.domain, url = self.url)
         self.logger.info('Url: %s', self.url)
+
+        # 处理 headers
+        method_headers = self.headers.pop(self.method, None
+            ) or self.headers.pop(self.method.lower(), None)
+        remove_method_keys = []
+        for k, v in self.headers.items():
+            if k.upper() in constants.METHODS and isinstance(v, dict):
+                remove_method_keys.append(k)
+        for key in remove_method_keys:
+            self.headers.pop(key, None)
+
+        if isinstance(method_headers, dict):
+            self.headers.update(method_headers)
 
 
