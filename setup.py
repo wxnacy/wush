@@ -27,7 +27,9 @@ VERSION = None
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    # 'requests', 'maya', 'records',
+    'browsercookie',
+    'requests',
+    'pyyaml',
 ]
 
 # What packages are optional?
