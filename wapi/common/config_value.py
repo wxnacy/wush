@@ -41,6 +41,8 @@ class ConfigValue():
             # 为空，返回
             return self.value
 
+        self.logger.info('ConfigValue env %s', self.env)
+
         #  格式化响应格式数据
         for t in (str, list, dict):
             if isinstance(self.value, t):
@@ -149,6 +151,8 @@ class ConfigValue():
         '''格式化环境变量'''
         if not self.environ_names:
             return text
+
+        self.logger.info('environ_names %s', self.environ_names)
 
         for k in self.environ_names:
             # 处理函数的执行和替换
