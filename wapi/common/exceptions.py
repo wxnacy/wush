@@ -5,5 +5,8 @@
 
 """
 
-class RequestException():
+class RequestException(Exception):
+    pass
+
+class JsonException(Exception):
     pass

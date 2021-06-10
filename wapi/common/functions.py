@@ -8,6 +8,7 @@ import random
 import importlib
 import sys
 import os
+import subprocess
 
 from wapi.common import constants
 from wapi.common.decorates import env_func_register
@@ -49,15 +50,21 @@ def random_str(length, source=None):
         #  res.append(str(n))
     return ''.join(res)
 
-def load_module(module_name):
-    """加载模块"""
-    views_module = importlib.import_module(module_name)
-    return views_module
-
 @env_func_register()
 def get_current_space_name():
     """获取当前 space 名称"""
     return constants.DEFAULT_SPACE_NAME
+
+def run_shell(command):
+    """运行 shell 语句"""
+    res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+        stderr = subprocess.PIPE)
+    return res.communicate()
+
+def load_module(module_name):
+    """加载模块"""
+    views_module = importlib.import_module(module_name)
+    return views_module
 
 class Function:
     get_current_space_name = None
@@ -80,7 +87,3 @@ if __name__ == "__main__":
     print(random_str(5))
     func = get_super_function()
     print(func.random_int(2))
-
-
-
-
