@@ -25,18 +25,7 @@ def run(args):
         request_name = args.name)
 
     res = client.request()
-    print('Space:', client.space_name)
-    print('Module:', client.module_name)
-    print('Name:', client.request_name)
-    print("Status:", res.status_code)
-    try:
-        import json
-        print("Response Format:")
-        print(json.dumps(res.json(), indent=4, ensure_ascii=False))
-    except:
-        print('Response Content:')
-        print(res.content)
-        print('解析 json 失败')
+    client.print_response()
 
 def body(args):
     client = Wapi()

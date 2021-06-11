@@ -149,6 +149,7 @@ class RequestModel(BaseModel):
     data = ''
     json = {}
     params = {}
+    filters = []
 
     url = ''
 

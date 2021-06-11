@@ -13,6 +13,7 @@ import json
 
 from datetime import datetime
 from wapi.common import constants
+from wapi.common import utils
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 from wapi.common.cookie import Cookie
@@ -120,7 +121,27 @@ class Wapi():
         self.logger.info('Url: %s', url)
         res = requests.request(request_model.method, url, **kw)
         self.response_content = res.content
+        self.response = res
         return res
+
+    def print_response(self):
+        """打印返回结果"""
+        print('Space:', self.space_name)
+        print('Module:', self.module_name)
+        print('Name:', self.request_name)
+        print("Status:", self.response.status_code)
+        try:
+            data = self.response.json()
+            try:
+                data = utils.filter_json(data, self.request.filters)
+            except Exception as e:
+                pass
+            print("Format:")
+            print(json.dumps(data, indent=4, ensure_ascii=False))
+        except:
+            print('Content:')
+            print(self.response.content)
+            print('解析 json 失败')
 
     def get_config(self):
         """获取配置"""
