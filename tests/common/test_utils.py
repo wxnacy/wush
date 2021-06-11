@@ -20,3 +20,6 @@ def test_filter_json():
     data = { "id": 1, "name": "wxnacy" }
     with pytest.raises(JsonException) as excinfo:
         utils.filter_json(data, ['"name"}'])
+
+    res = utils.filter_json(data, [])
+    assert res, data

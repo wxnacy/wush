@@ -29,4 +29,5 @@ def filter_json(data, rules):
         if err:
             raise JsonException(err)
         return json.loads(content)
+    return data
 
