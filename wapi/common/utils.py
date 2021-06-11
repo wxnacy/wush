@@ -30,12 +30,3 @@ def filter_json(data, rules):
             raise JsonException(err)
         return json.loads(content)
 
-if __name__ == "__main__":
-    data = {
-            "id": 1,
-            "name": "wxnacy"
-            }
-    res = filter_json(data, ['{"name"}'])
-    print(res)
-
-
