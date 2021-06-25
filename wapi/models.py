@@ -95,7 +95,8 @@ class ModuleModel(BaseModel):
         item.format()
         # 装载 requests
         for req_item in item.requests:
-            req_item.update(item._config)
+            # 合并 module 设置
+            req_item = cls._merge_config(dict(item._config), req_item)
             reqs.append(req_item)
         item.requests = reqs
         return item
@@ -110,6 +111,7 @@ class ModuleModel(BaseModel):
                 parent_config[k] = pv
             else:
                 parent_config[k] = v
+        return parent_config
 
     def format(self):
         for k, v in self._config.items():

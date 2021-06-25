@@ -10,6 +10,7 @@ import yaml
 import os
 import requests
 import json
+import cgi
 
 from datetime import datetime
 from wapi.common import constants
@@ -30,6 +31,7 @@ class Wapi():
     request_name = ''
     space_name = ''
     request = None
+    response = None
 
     def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
@@ -48,6 +50,7 @@ class Wapi():
             self.module_name = self.get_config().get_default_module_name()
 
         self._init_environ()
+        #  self._init_common_info()
 
     def _init_common_info(self):
         # 临时数据保存目录
@@ -61,7 +64,7 @@ class Wapi():
         ).format(root = self.save_root, version = self.version,
             service = self.service_name, request = self.request_name)
         # 返回数据地址
-        self.response_path = self.common_save_path.format(ftype = 'response')
+        self.response_path = os.path.join(self.get_config().response_root, )
         # 请求数据地址
         self.request_path = self.common_save_path.format(ftype = 'request')
 
@@ -122,6 +125,10 @@ class Wapi():
         res = requests.request(request_model.method, url, **kw)
         self.response_content = res.content
         self.response = res
+        self.logger.info('Response')
+        response_data = {}
+        response_data['headers'] = dict(res.headers)
+        self.logger.info(json.dumps(response_data, indent=4))
         return res
 
     def print_response(self):
@@ -147,15 +154,37 @@ class Wapi():
         """获取配置"""
         return self.config
 
+    @property
+    def response_path(self):
+        """结果存储地址"""
+        path = None
+        if self.response:
+            headers = dict(self.response.headers)
+            #  headers = json.loads(json.dumps(headers, ensure_ascii=False))
+            content_type = headers.get("content-type")
+            if 'office' in content_type:
+                content_disposition = headers.get("content-disposition")
+                _, params = cgi.parse_header(content_disposition)
+                filename = params.get("filename")
+                print(filename)
+                print(type(filename))
+
+                path = os.path.join(self.config.response_root, '{}-{}'.format(
+                    self.version, filename))
+
+        self.logger.info('response_path %s', path)
+        return path
+
     def save(self):
         """保存请求配置"""
-        with open(self.response_path, 'w') as f:
-            save_data = json.dumps(json.loads(self.response_content), indent=4, ensure_ascii=False)
-            f.write(save_data.encode('utf-8'))
+        with open(self.response_path, 'bw') as f:
+            #  save_data = json.dumps(json.loads(self.response_content), indent=4, ensure_ascii=False)
+            #  f.write(save_data.encode('utf-8'))
+            f.write(self.response_content)
 
-        with open(self.request_path, 'w') as f:
-            save_data = json.dumps(self.request_data, indent=4, ensure_ascii=False)
-            f.write(save_data.encode('utf-8'))
+        #  with open(self.request_path, 'w') as f:
+            #  save_data = json.dumps(self.request_data, indent=4, ensure_ascii=False)
+            #  f.write(save_data.encode('utf-8'))
 
     def open(self):
         #  """打开请求信息"""

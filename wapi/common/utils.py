@@ -6,11 +6,10 @@
 """
 
 import json
+import os
 
 from wapi.common.functions import run_shell
 from wapi.common.exceptions import JsonException
-
-
 
 def filter_json(data, rules):
     """
@@ -30,4 +29,9 @@ def filter_json(data, rules):
             raise JsonException(err)
         return json.loads(content)
     return data
+
+def fmt_path(path):
+    """格式化地址"""
+    path = os.path.expanduser(path)
+    return path
 
