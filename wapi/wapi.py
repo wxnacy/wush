@@ -57,21 +57,21 @@ class Wapi():
         self._init_environ()
         #  self._init_common_info()
 
-    def _init_common_info(self):
-        # 临时数据保存目录
-        self.save_root = '{}/tmp/api'.format(os.getenv("YDWORK_HOME"))
-        if not os.path.exists(self.save_root):
-            os.makedirs(self.save_root)
+    #  def _init_common_info(self):
+        #  # 临时数据保存目录
+        #  self.save_root = '{}/tmp/api'.format(os.getenv("YDWORK_HOME"))
+        #  if not os.path.exists(self.save_root):
+            #  os.makedirs(self.save_root)
 
-        # 公共地址
-        self.common_save_path = (
-            '{root}/{version}-{{ftype}}-{service}-{request}.json'
-        ).format(root = self.save_root, version = self.version,
-            service = self.service_name, request = self.request_name)
-        # 返回数据地址
-        self.response_path = os.path.join(self.config.response_root, )
-        # 请求数据地址
-        self.request_path = self.common_save_path.format(ftype = 'request')
+        #  # 公共地址
+        #  self.common_save_path = (
+            #  '{root}/{version}-{{ftype}}-{service}-{request}.json'
+        #  ).format(root = self.save_root, version = self.version,
+            #  service = self.service_name, request = self.request_name)
+        #  # 返回数据地址
+        #  self.response_path = os.path.join(self.config.response_root, )
+        #  # 请求数据地址
+        #  self.request_path = self.common_save_path.format(ftype = 'request')
 
     def _init_environ(self):
         '''初始化环境变量'''
