@@ -34,7 +34,7 @@ def body(args):
         module_name = args.module,
         request_name = args.name)
 
-    config = client.get_config()
+    config = client.config
     default_body_name = config.get_current_body_name('default', client.module_name, client.request_name)
     default_body_path = config.get_body_path(default_body_name)
     body_name = config.get_current_body_name(client.space_name, client.module_name, client.request_name)
@@ -52,7 +52,7 @@ def body(args):
 def env(args):
     client = Wapi()
     client.init_config(space_name = args.space)
-    config = client.get_config()
+    config = client.config
     name = config.get_current_env_name(client.space_name)
     path = config.get_env_path(name)
     os.system('vim {}'.format(path))
@@ -60,7 +60,7 @@ def env(args):
 def module(args):
     client = Wapi()
     client.init_config(module_name = args.module)
-    config = client.get_config()
+    config = client.config
     path = config.get_module_path(client.module_name)
     os.system('vim {}'.format(path))
 

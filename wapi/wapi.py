@@ -35,19 +35,24 @@ class Wapi():
 
     def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
-        self.config = Config.load(Config.get_config_path())
+        self._config = Config.load(Config.get_config_path())
         self.init_config(**kw)
+
+    @property
+    def config(self):
+        """获取配置"""
+        return self._config
 
     def init_config(self,**kw):
         for k, v in kw.items():
             if v:
                 setattr(self, k, v)
         self.logger.info('current_space_name %s',
-            self.get_config().get_function().get_current_space_name())
+            self.config.get_function().get_current_space_name())
         if not self.space_name:
-            self.space_name = self.get_config().get_function().get_current_space_name()
+            self.space_name = self.config.get_function().get_current_space_name()
         if not self.module_name:
-            self.module_name = self.get_config().get_default_module_name()
+            self.module_name = self.config.get_default_module_name()
 
         self._init_environ()
         #  self._init_common_info()
@@ -64,16 +69,16 @@ class Wapi():
         ).format(root = self.save_root, version = self.version,
             service = self.service_name, request = self.request_name)
         # 返回数据地址
-        self.response_path = os.path.join(self.get_config().response_root, )
+        self.response_path = os.path.join(self.config.response_root, )
         # 请求数据地址
         self.request_path = self.common_save_path.format(ftype = 'request')
 
     def _init_environ(self):
         '''初始化环境变量'''
-        current_body_name = self.get_config().get_current_body_name(
+        current_body_name = self.config.get_current_body_name(
                 self.space_name, self.module_name,self.request_name)
-        current_body_path = self.get_config().get_body_path(current_body_name)
-        self.get_config().get_env().add(**dict(
+        current_body_path = self.config.get_body_path(current_body_name)
+        self.config.get_env().add(**dict(
             body_path = current_body_path
         ))
 
@@ -82,7 +87,7 @@ class Wapi():
         """获取 request"""
         # 如果 module 还没有赋值，给默认值
         if not self.module_name:
-            self.module_name = self.get_config().get_default_module_name()
+            self.module_name = self.config.get_default_module_name()
         # 获取 request 信息
         self.logger.info('Module: %s', self.module_name)
         request_path = self.config.get_module_path(self.module_name)
@@ -93,7 +98,7 @@ class Wapi():
         module_config = FileUtils.read_dict(request_path)
         # 获取 env 信息
         env_config = module_config.get("env") or {}
-        env_config.update(self.get_config().get_env().dict())
+        env_config.update(self.config.get_env().dict())
         env_path = self.config.get_env_path(self.space_name)
         self.logger.info('env_path %s', env_path)
         if os.path.exists(env_path):
@@ -155,10 +160,6 @@ class Wapi():
             print('Content:')
             print(self.response.content)
             print('解析 json 失败')
-
-    def get_config(self):
-        """获取配置"""
-        return self.config
 
     @property
     def response_path(self):
