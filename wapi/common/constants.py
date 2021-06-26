@@ -27,6 +27,7 @@ DEFAULT_CONFIG = {
     'module_root': 'module',
     'env_root': 'env',
     'body_root': 'body',
+    'response_root': '~/Downloads',
     'function_moduls': []
 }
 
