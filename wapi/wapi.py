@@ -83,8 +83,11 @@ class Wapi():
         ))
 
 
-    def _get_request(self):
-        """获取 request"""
+    def _get_request(self, **kwargs):
+        """获取 request
+        :param dict kwargs:
+            `env` 环境变量
+        """
         # 如果 module 还没有赋值，给默认值
         if not self.module_name:
             self.module_name = self.config.get_default_module_name()
@@ -105,13 +108,22 @@ class Wapi():
             env_config.update(FileUtils.read_dict(env_path) or {})
         module_config['functions'] = env_functions
         module_config['env'] = env_config
+
+        # 加载 kwargs 参数中的配置
+        for k in ('env',):
+            v = kwargs.get(k)
+            if isinstance(v, dict):
+                module_val = module_config.get(k) or {}
+                module_val.update(v)
+                module_config[k] = module_val
+
         # 加载并获取 request
         module = ModuleModel.load(module_config)
         request = module.get_request(self.request_name)
         return request
 
     def request(self, **kwargs):
-        self.request = self._get_request()
+        self.request = self._get_request(**kwargs)
         # 初始化参数
         url = self.request.url
         request_model = self.request
