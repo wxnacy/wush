@@ -102,3 +102,6 @@ ENV/
 
 # vim
 *.sw[po]
+
+# other
+*.DS_Store
