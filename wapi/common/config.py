@@ -10,7 +10,6 @@ import os
 
 from enum import Enum
 from wapi.common import constants
-from wapi.common import utils
 from wapi.common.functions import load_module
 from wapi.common.functions import super_function
 from wapi.common.functions import Function
@@ -39,22 +38,10 @@ class Config():
     env_root = ''
     body_root = ''
     module_root = ''
-    response_root = ''
     function_modules = []
 
     function  = None
     _env = Env()
-
-    def __init__(self, ):
-        default_config = self.get_default_config()
-        for k, v in default_config.items():
-            self._setattr(k, v)
-
-    def _setattr(self, k, v):
-        """设置属性"""
-        if k == 'response_root':
-            v = utils.fmt_path(v)
-        setattr(self, k, v)
 
     @classmethod
     def load(cls, filepath):
@@ -65,18 +52,13 @@ class Config():
 
         if data:
             for k, v in data.items():
-                item._setattr(k, v)
+                setattr(item, k, v)
 
         # 格式化各个 root 配置
         for _root in ('env_root', 'module_root', 'body_root'):
-            item._setattr(_root, cls.fmt_path(getattr(item, _root)))
+            setattr(item, _root, cls.fmt_path(getattr(item, _root)))
 
         item._load_functions()
-
-        # 创建保持地址
-        if not os.path.exists(item.response_root):
-            os.makedirs(item.response_root)
-
         return item
 
     def _load_functions(self):

@@ -105,7 +105,7 @@ class Wapi():
         request = module.get_request(self.request_name)
         return request
 
-    def request(self):
+    def request(self, **kwargs):
         self.request = self._get_request()
         # 初始化参数
         url = self.request.url
@@ -116,6 +116,12 @@ class Wapi():
             value =  getattr(self.request, name)
             if value:
                 kw[name] = value
+
+        for k, v in kwargs.items():
+            if isinstance(v, dict):
+                conf_k = kw.get(k) or {}
+                conf_k.update(v)
+                kw[k] = conf_k
 
         self.request_data = kw
         self.logger.info('Request data: %s', self.request_data)
@@ -157,34 +163,37 @@ class Wapi():
     @property
     def response_path(self):
         """结果存储地址"""
-        path = None
+        filename = None
         if self.response:
             headers = dict(self.response.headers)
-            #  headers = json.loads(json.dumps(headers, ensure_ascii=False))
-            content_type = headers.get("content-type")
+            content_type = headers.get("content-type") or ''
+            # 处理office文件的报错
             if 'office' in content_type:
                 content_disposition = headers.get("content-disposition")
                 _, params = cgi.parse_header(content_disposition)
                 filename = params.get("filename")
-                print(filename)
-                print(type(filename))
+            else:
+                filename = '{}-{}'.format(self.module_name, self.request_name)
 
-                path = os.path.join(self.config.response_root, '{}-{}'.format(
-                    self.version, filename))
+        path = os.path.join(self.config.response_root, '{}-{}'.format(
+            self.version, filename))
 
         self.logger.info('response_path %s', path)
         return path
 
     def save(self):
         """保存请求配置"""
-        with open(self.response_path, 'bw') as f:
-            #  save_data = json.dumps(json.loads(self.response_content), indent=4, ensure_ascii=False)
-            #  f.write(save_data.encode('utf-8'))
-            f.write(self.response_content)
-
-        #  with open(self.request_path, 'w') as f:
-            #  save_data = json.dumps(self.request_data, indent=4, ensure_ascii=False)
-            #  f.write(save_data.encode('utf-8'))
+        save_path = self.response_path
+        try:
+            save_data = json.dumps(json.loads(
+                self.response_content), indent=4, ensure_ascii=False)
+            with open(save_path, 'w') as f:
+                f.write(save_data)
+                #  f.write(save_data.encode('utf-8'))
+        except Exception as e:
+            print(e)
+            with open(save_path, 'bw') as f:
+                f.write(self.response_content)
 
     def open(self):
         #  """打开请求信息"""

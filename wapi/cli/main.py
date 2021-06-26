@@ -10,10 +10,11 @@ import argparse
 import shutil
 
 from wapi.common.functions import super_function
-from wapi.common.loggers import create_logger
 from wapi.wapi import Wapi
+from wapi.common.loggers import create_logger
 
 logger = create_logger('main')
+
 
 def run(args):
 
@@ -25,7 +26,6 @@ def run(args):
 
     res = client.request()
     client.print_response()
-    client.save()
 
 def body(args):
     client = Wapi()
