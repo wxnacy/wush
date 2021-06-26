@@ -36,6 +36,7 @@ class Env():
 class Config():
     logger = create_logger('Config')
 
+    _root = None
     env_root = ''
     body_root = ''
     module_root = ''
@@ -46,6 +47,8 @@ class Config():
     _env = Env()
 
     def __init__(self, ):
+        """初始化"""
+        self._root = self.get_default_root()
         default_config = self.get_default_config()
         for k, v in default_config.items():
             self._setattr(k, v)
@@ -57,11 +60,21 @@ class Config():
         setattr(self, k, v)
 
     @classmethod
-    def load(cls, filepath):
-        cls.logger.info('Config load path: %s', filepath)
+    def load(cls, fileroot):
+        """
+        加载配置
+        :param fileroot: 如果是地址则获取内容，如果是数据则直接加载
+        """
+        cls.logger.info('Config load path: %s', fileroot)
         item = cls()
-        with open(filepath, 'r') as f:
-            data = yaml.safe_load(f)
+        data = {}
+        if isinstance(fileroot, dict):
+            data = dict(fileroot)
+        else:
+            item._root = fileroot
+            filepath = os.path.join(fileroot, 'wapi.yml')
+            with open(filepath, 'r') as f:
+                data = yaml.safe_load(f)
 
         if data:
             for k, v in data.items():
@@ -69,7 +82,7 @@ class Config():
 
         # 格式化各个 root 配置
         for _root in ('env_root', 'module_root', 'body_root'):
-            item._setattr(_root, cls.fmt_path(getattr(item, _root)))
+            item._setattr(_root, item.fmt_path(getattr(item, _root)))
 
         item._load_functions()
 
@@ -111,21 +124,20 @@ class Config():
     def get_function(self):
         return self.function
 
-    @classmethod
-    def get_config_path(cls):
-        return constants.CONFIG_PATH
+    #  @classmethod
+    #  def get_config_path(cls):
+        #  return constants.CONFIG_PATH
 
     @classmethod
-    def get_config_root(cls):
-        return constants.CONFIG_PATH
+    def get_default_root(cls):
+        return constants.CONFIG_ROOT
 
-    @classmethod
-    def fmt_path(cls, path):
+    def fmt_path(self, path):
         if not path:
             return path
         if os.path.isabs(path):
             return path
-        return os.path.join(constants.CONFIG_ROOT, path)
+        return os.path.join(self._root, path)
 
     @classmethod
     def get_current_body_name(cls, space_name, module_name, request_name):
@@ -148,4 +160,4 @@ class Config():
         """获取默认配置"""
         return constants.DEFAULT_CONFIG
 
-global_config = Config.load(Config.get_config_path())
+global_config = Config.load(Config.get_default_root())

@@ -30,12 +30,12 @@ class Wapi():
     module_name = ''
     request_name = ''
     space_name = ''
+    _config = None
     request = None
     response = None
 
     def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
-        self._config = Config.load(Config.get_config_path())
         self.init_config(**kw)
 
     @property
@@ -44,6 +44,21 @@ class Wapi():
         return self._config
 
     def init_config(self,**kw):
+        """初始化配置"""
+        config = kw.pop('config', None)
+        # config 地址
+        config_root = kw.pop('config_root', None)
+        if not config_root:
+            config_root = Config.get_default_root()
+
+        # 优先使用传入的 config
+        if isinstance(config, dict):
+            self._config = Config.load(config)
+
+        # 在使用地址获取配置
+        if not self._config and config_root:
+            self._config = Config.load(config_root)
+
         for k, v in kw.items():
             if v:
                 setattr(self, k, v)
