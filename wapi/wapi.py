@@ -125,7 +125,7 @@ class Wapi():
         module_config['env'] = env_config
 
         # 加载 kwargs 参数中的配置
-        for k in ('env',):
+        for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
             v = kwargs.get(k)
             if isinstance(v, dict):
                 module_val = module_config.get(k) or {}
@@ -137,7 +137,9 @@ class Wapi():
         request = module.get_request(self.request_name)
         return request
 
-    def request(self, **kwargs):
+    def request(self, request_name = None, **kwargs):
+        if request_name:
+            self.request_name = request_name
         self.request = self._get_request(**kwargs)
         # 初始化参数
         url = self.request.url
@@ -148,12 +150,6 @@ class Wapi():
             value =  getattr(self.request, name)
             if value:
                 kw[name] = value
-
-        for k, v in kwargs.items():
-            if isinstance(v, dict):
-                conf_k = kw.get(k) or {}
-                conf_k.update(v)
-                kw[k] = conf_k
 
         self.request_data = kw
         self.logger.info('Request data: %s', self.request_data)
