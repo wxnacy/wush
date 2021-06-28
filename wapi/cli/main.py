@@ -16,12 +16,14 @@ from wapi.wapi import Wapi
 logger = create_logger('main')
 
 def run(args):
+    config_root = args.config
 
     client = Wapi()
     client.init_config(
         space_name = args.space,
         module_name = args.module,
-        request_name = args.name)
+        request_name = args.name,
+        config_root = config_root)
 
     res = client.request()
     client.print_response()
@@ -77,6 +79,7 @@ def run_cmd():
     parser.add_argument('-s', '--space', help='Space name')
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
+    parser.add_argument('-c', '--config', help='Config dir name')
     args = parser.parse_args()
     cmd = args.cmd
     name = args.name
