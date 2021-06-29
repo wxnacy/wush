@@ -30,6 +30,7 @@ REQUIRED = [
     'browsercookie',
     'requests',
     'pyyaml',
+    'prompt_toolkit',
 ]
 
 # What packages are optional?

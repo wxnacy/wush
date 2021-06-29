@@ -8,6 +8,7 @@ import sys
 import os
 import argparse
 import shutil
+import traceback
 
 from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
@@ -73,13 +74,17 @@ func_dict = {
     "module": module,
 }
 
-def run_cmd():
+def init_argparse():
     parser = argparse.ArgumentParser(description='Wapi command')
     parser.add_argument('cmd', help='You can use run, body, env, module')
     parser.add_argument('-s', '--space', help='Space name')
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
     parser.add_argument('-c', '--config', help='Config dir name')
+    return parser
+
+def run_cmd():
+    parser = init_argparse()
     args = parser.parse_args()
     cmd = args.cmd
     name = args.name
@@ -88,10 +93,56 @@ def run_cmd():
             raise Exception
     func_dict.get(cmd)(args)
 
+from prompt_toolkit import PromptSession
 
+def run_shell():
+    session = PromptSession(complete_in_thread=True)
+    parser = init_argparse()
+    client = Wapi()
+
+    while True:
+        try:
+            text = session.prompt('wapi> ')
+            args = parser.parse_args(text.split(' '))
+            cmd = args.cmd
+            if cmd == 'exit':
+                break
+
+            # 设置 client
+            client.init_config(
+                space_name = args.space,
+                module_name = args.module,
+                request_name = args.name,
+                config_root = args.config)
+
+            name = args.name
+            if cmd == 'run':
+                if not name:
+                    raise Exception
+            #  func_dict.get(cmd)(args)
+            res = client.request()
+            client.print_response()
+            client.save()
+        except KeyboardInterrupt:
+            continue
+        except EOFError:
+            break
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
+        else:
+            print('You entered:', text)
+    print('GoodBye!')
 
 def main():
-    run_cmd()
+    import sys
+    args = sys.argv[1:]
+    if not args:
+        # 使用交互模式
+        run_shell()
+    else:
+        # 使用命令行模式
+        run_cmd()
 
 if __name__ == "__main__":
     main()

@@ -91,7 +91,7 @@ class ModuleModel(BaseModel):
         for k, v in config.items():
             setattr(item, k, v)
         reqs = []
-        config.pop('requests', None)
+        #  config.pop('requests', None)
         item.format()
         # 装载 requests
         #  for req_item in item.requests:
@@ -127,6 +127,7 @@ class ModuleModel(BaseModel):
 
     def get_request(self, name):
         for item in self.requests:
+            #  self.logger.info(item.get("name"))
             if item.get("name") == name:
                 item = self._merge_config(dict(self._config), item)
                 req_model = RequestModel.load(item)

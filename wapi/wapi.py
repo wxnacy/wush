@@ -31,8 +31,8 @@ class Wapi():
     request_name = ''
     space_name = ''
     _config = None
-    request = None
-    response = None
+    _request = None
+    _response = None
 
     def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
@@ -140,14 +140,14 @@ class Wapi():
     def request(self, request_name = None, **kwargs):
         if request_name:
             self.request_name = request_name
-        self.request = self._get_request(**kwargs)
+        self._request = self._get_request(**kwargs)
         # 初始化参数
-        url = self.request.url
-        request_model = self.request
+        url = self._request.url
+        request_model = self._request
 
         kw = { }
         for name in ('json', 'data', 'headers', 'cookies', 'params'):
-            value =  getattr(self.request, name)
+            value =  getattr(self._request, name)
             if value:
                 kw[name] = value
 
@@ -158,7 +158,7 @@ class Wapi():
         self.logger.info('Url: %s', url)
         res = requests.request(request_model.method, url, **kw)
         self.response_content = res.content
-        self.response = res
+        self._response = res
         self.logger.info('Response')
         response_data = {}
         response_data['headers'] = dict(res.headers)
@@ -170,26 +170,26 @@ class Wapi():
         print('Space:', self.space_name)
         print('Module:', self.module_name)
         print('Name:', self.request_name)
-        print("Status:", self.response.status_code)
+        print("Status:", self._response.status_code)
         try:
-            data = self.response.json()
+            data = self._response.json()
             try:
-                data = utils.filter_json(data, self.request.filters)
+                data = utils.filter_json(data, self._request.filters)
             except Exception as e:
                 pass
             print("Format:")
             print(json.dumps(data, indent=4, ensure_ascii=False))
         except:
             print('Content:')
-            print(self.response.content)
+            print(self._response.content)
             print('解析 json 失败')
 
     @property
     def response_path(self):
         """结果存储地址"""
         filename = None
-        if self.response:
-            headers = dict(self.response.headers)
+        if self._response:
+            headers = dict(self._response.headers)
             content_type = headers.get("content-type") or ''
             # 处理office文件的报错
             if 'office' in content_type:
