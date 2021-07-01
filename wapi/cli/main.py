@@ -12,7 +12,7 @@ import traceback
 
 from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
-from wapi.completion.command_completer import CommandCompleter
+from wapi.completion.command import CommandCompleter
 from wapi.wapi import Wapi
 
 logger = create_logger('main')
