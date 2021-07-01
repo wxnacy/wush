@@ -12,6 +12,7 @@ import traceback
 
 from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
+from wapi.completion.command_completer import CommandCompleter
 from wapi.wapi import Wapi
 
 logger = create_logger('main')
@@ -57,12 +58,13 @@ func_dict = {
 }
 
 def init_argparse():
-    parser = argparse.ArgumentParser(description='Wapi command')
+    """初始化参数"""
+    parser = argparse.ArgumentParser(description='Wapi command',)
     parser.add_argument('cmd', help='You can use run, body, env, module')
-    parser.add_argument('-s', '--space', help='Space name')
+    parser.add_argument('-c', '--config', help='Config dir name')
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
-    parser.add_argument('-c', '--config', help='Config dir name')
+    parser.add_argument('-s', '--space', help='Space name')
     return parser
 
 def run_cmd():
@@ -83,16 +85,23 @@ def run_cmd():
     func_dict.get(cmd)(client)
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.completion import WordCompleter
 
 def run_shell():
-    session = PromptSession(complete_in_thread=True)
     parser = init_argparse()
+    session = PromptSession(
+        completer=CommandCompleter(parser),
+        complete_in_thread=True
+    )
     client = Wapi()
 
     while True:
         try:
             text = session.prompt('wapi> ')
-            args = parser.parse_args(text.split(' '))
+            input_args = text.split(" ")
+            logger.info(input_args)
+            args = parser.parse_args(input_args)
             cmd = args.cmd
             if cmd == 'exit':
                 break
