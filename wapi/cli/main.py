@@ -16,26 +16,12 @@ from wapi.wapi import Wapi
 
 logger = create_logger('main')
 
-def run(args):
-    config_root = args.config
-
-    client = Wapi()
-    client.init_config(
-        space_name = args.space,
-        module_name = args.module,
-        request_name = args.name,
-        config_root = config_root)
-
+def run(client):
     res = client.request()
     client.print_response()
     client.save()
 
 def body(args):
-    client = Wapi()
-    client.init_config(
-        space_name = args.space,
-        module_name = args.module,
-        request_name = args.name)
 
     config = client.config
     default_body_name = config.get_current_body_name('default', client.module_name, client.request_name)
@@ -53,16 +39,12 @@ def body(args):
         shutil.copy(body_path, default_body_path)
 
 def env(args):
-    client = Wapi()
-    client.init_config(space_name = args.space)
     config = client.config
     name = config.get_current_env_name(client.space_name)
     path = config.get_env_path(name)
     os.system('vim {}'.format(path))
 
 def module(args):
-    client = Wapi()
-    client.init_config(module_name = args.module)
     config = client.config
     path = config.get_module_path(client.module_name)
     os.system('vim {}'.format(path))
@@ -91,7 +73,14 @@ def run_cmd():
     if cmd == 'run':
         if not name:
             raise Exception
-    func_dict.get(cmd)(args)
+
+    client = Wapi()
+    client.init_config(
+        space_name = args.space,
+        module_name = args.module,
+        request_name = args.name,
+        config_root = args.config)
+    func_dict.get(cmd)(client)
 
 from prompt_toolkit import PromptSession
 
@@ -119,10 +108,7 @@ def run_shell():
             if cmd == 'run':
                 if not name:
                     raise Exception
-            #  func_dict.get(cmd)(args)
-            res = client.request()
-            client.print_response()
-            client.save()
+            func_dict.get(cmd)(client)
         except KeyboardInterrupt:
             continue
         except EOFError:
