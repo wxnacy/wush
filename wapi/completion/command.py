@@ -7,9 +7,10 @@
 
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.completion import ExecutableCompleter
 
 from wapi.common.loggers import create_logger
+from .base import BaseCompleter
+from .filesystem import ExecutableCompleter
 
 path_completer = ExecutableCompleter()
 
@@ -19,7 +20,7 @@ cmd_completer = WordCompleter(['run', 'body', 'env', 'module'],
 args_completer = WordCompleter(['--config', '--module', '--name', '--space'],
     ignore_case=True)
 
-class CommandCompleter(Completer):
+class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
     # 光标前倒数第二个单次
     last_second_word_before_cursor = None
@@ -65,25 +66,24 @@ class CommandCompleter(Completer):
         self.document = document
         self.complete_event = complete_event
         # Display this completion, black on yellow.
-        yield from self.yield_completer(path_completer)
-        #  args = None
-        #  try:
-            #  args = self.input_to_args(document.text)
-            #  cmd = args.cmd
-            #  self.logger.info('cmd %s', cmd)
-            #  if cmd in cmd_completer.words:
-                #  if self.last_second_word_before_cursor == '--config':
-                    #  self.logger.info('-' * 100)
-                    #  yield from self.yield_completer(path_completer)
-                #  else:
-                    #  yield from self.yield_completer(args_completer)
-            #  else:
-                #  yield from self.yield_completer(cmd_completer)
-        #  except:
-            #  import traceback
-            #  traceback.print_exc()
-            #  traceback.print_stack()
-            #  pass
+        #  yield from self.yield_completer(path_completer)
+        args = None
+        try:
+            args = self.input_to_args(document.text)
+            cmd = args.cmd
+            self.logger.info('cmd %s', cmd)
+            if cmd in cmd_completer.words:
+                if self.last_second_word_before_cursor == '--config':
+                    self.logger.info('-' * 100)
+                    yield from self.yield_completer(path_completer)
+                else:
+                    yield from self.yield_completer(args_completer)
+            else:
+                yield from self.yield_completer(cmd_completer)
+        except:
+            import traceback
+            self.logger.error(traceback.format_exc())
+            self.logger.error(traceback.format_stack())
 
         #  yield Completion('completion3', start_position=0,
                          #  style='class:special-completion')

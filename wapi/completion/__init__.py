@@ -5,8 +5,12 @@
 
 """
 
-from .command_completer import CommandCompleter
+from .base import BaseCompleter
+from .command import CommandCompleter
+from .filesystem import ExecutableCompleter
 
 __all__ = [
+    'BaseCompleter'
     'CommandCompleter'
+    'ExecutableCompleter'
 ]
