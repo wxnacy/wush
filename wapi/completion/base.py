@@ -14,12 +14,24 @@ class BaseCompleter(Completer):
     logger = create_logger("BaseCompleter")
     char_before_cursor = ''
     current_line_before_cursor = ''
+    first_word = ''
 
     def yield_completer(self, completer):
         self.logger.info('completer.__name__ %s', completer)
         items = completer.get_completions(self.document, self.complete_event)
         for item in items:
             yield item
+
+    @property
+    def first_word(self):
+        def _():
+            current_line_before_cursor = self.current_line_before_cursor.strip()
+            args = current_line_before_cursor.split(' ')
+            args_len = len(args)
+            return args[0] if args_len > 0 else ''
+        res = _()
+        self.logger.info('first_word %s', res)
+        return res
 
     @property
     def word_for_completion(self):

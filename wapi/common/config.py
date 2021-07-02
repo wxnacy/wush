@@ -122,9 +122,19 @@ class Config():
         return os.path.join(self.body_root, body_name)
 
     def get_modules(self):
-        """获取模块列表"""
+        """获取模块名称列表"""
         return list(filter(lambda x: not x.startswith('.'), [
             o.replace('.yml', '') for o in os.listdir(self.module_root)]))
+
+    def get_requests(self, module_name):
+        """获取请求名称列表"""
+        path = self.get_module_path(module_name)
+        data = {}
+        with open(path, 'r') as f:
+            data = yaml.safe_load(f)
+
+        return list(filter(lambda x: not x.startswith('.'), [
+            o.get("name") for o in data.get("requests") or []]))
 
     def get_function(self):
         return self.function
