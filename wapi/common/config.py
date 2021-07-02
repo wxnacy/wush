@@ -121,12 +121,13 @@ class Config():
         """获取 body 配置地址"""
         return os.path.join(self.body_root, body_name)
 
+    def get_modules(self):
+        """获取模块列表"""
+        return list(filter(lambda x: not x.startswith('.'), [
+            o.replace('.yml', '') for o in os.listdir(self.module_root)]))
+
     def get_function(self):
         return self.function
-
-    #  @classmethod
-    #  def get_config_path(cls):
-        #  return constants.CONFIG_PATH
 
     @classmethod
     def get_default_root(cls):

@@ -12,20 +12,15 @@ from prompt_toolkit.completion import Completion
 from wapi.common.loggers import create_logger
 from .base import BaseCompleter
 
-class ExecutableCompleter(BaseCompleter):
-    logger = create_logger("ExecutableCompleter")
+class WordCompleter(BaseCompleter):
+    logger = create_logger("WordCompleter")
+
+    def __init__(self, words):
+        self.words = words
 
     def get_completions(self, document, complete_event):
         super().get_completions(document, complete_event)
-        last_word = document.text.split(' ')[-1]
-        self.logger.info('last_word %s', last_word)
-
-        path = os.path.expanduser(last_word)
-        dirname = os.path.dirname(path)
-        self.logger.info('dirname %s', dirname)
-
-        for name in os.listdir(dirname):
-            self.logger.info('filename %s', name)
+        for name in self.words:
             if not self.filter(name):
                 continue
             start_position = self.get_start_position()

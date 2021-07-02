@@ -90,11 +90,11 @@ from prompt_toolkit.completion import WordCompleter
 
 def run_shell():
     parser = init_argparse()
+    client = Wapi()
     session = PromptSession(
-        completer=CommandCompleter(parser),
+        completer=CommandCompleter(parser, client),
         complete_in_thread=True
     )
-    client = Wapi()
 
     while True:
         try:
