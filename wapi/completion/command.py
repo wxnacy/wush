@@ -6,7 +6,7 @@
 """
 
 from prompt_toolkit.completion import Completer
-from prompt_toolkit.completion import WordCompleter
+#  from prompt_toolkit.completion import WordCompleter
 
 from wapi.common import constants
 from wapi.common.loggers import create_logger
@@ -18,10 +18,7 @@ from .word import WordCompleter as WapiWordCompleter
 
 path_completer = ExecutableCompleter()
 
-cmd_completer = WordCompleter(['run', 'body', 'env', 'module'],
-    ignore_case=True)
-
-#  args_completer = WapiWordCompleter(['--config', '--module', '--name', '--space'])
+cmd_completer = WapiWordCompleter(constants.COMMANDS)
 
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
@@ -92,13 +89,13 @@ class CommandCompleter(BaseCompleter):
                     self.logger.info('-' * 100)
                     self.wapi.init_config(config_root = arg.config)
                     modules = self.wapi.config.get_modules()
-                    module_completer = WordCompleter(modules, ignore_case=True)
+                    module_completer = WapiWordCompleter(modules)
                     yield from self.yield_completer(module_completer)
                 elif word_for_completion == '--name':
                     self.wapi.init_config(module_name = arg.module)
                     module_name = self.wapi.module_name
                     requests = self.wapi.config.get_requests(module_name)
-                    _completer = WordCompleter(requests, ignore_case=True)
+                    _completer = WapiWordCompleter(requests)
                     yield from self.yield_completer(_completer)
                 else:
                     words = {o: 0 for o in constants.COMMAND_ARGS}

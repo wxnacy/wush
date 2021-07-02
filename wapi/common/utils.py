@@ -8,6 +8,8 @@
 import json
 import os
 
+from collections import defaultdict
+
 from wapi.common.functions import run_shell
 from wapi.common.exceptions import JsonException
 
@@ -35,3 +37,14 @@ def fmt_path(path):
     path = os.path.expanduser(path)
     return path
 
+def search(datas, word):
+    """搜索"""
+    #  datas = [o for o in datas if word in o]
+    patten = {}
+    for o in datas:
+        o = o.lower()
+        patten[o] = 0
+        if o.startswith(word):
+            patten[o] += 1
+    datas.sort(key = lambda x: patten[x], reverse=True)
+    return datas

@@ -23,3 +23,12 @@ def test_filter_json():
 
     res = utils.filter_json(data, [])
     assert res, data
+
+
+def test_search():
+    datas = ['wxnacy', 'wen', 'testwxn', 'wxnsss']
+    res = utils.search(datas, 'w')
+    assert res, ['wxnacy', 'wen', 'wxnsss']
+
+    res = utils.search(datas, 'wxn')
+    assert res, ['wxnacy', 'wxnsss', 'testwxn']

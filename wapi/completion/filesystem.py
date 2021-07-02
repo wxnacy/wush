@@ -24,10 +24,8 @@ class ExecutableCompleter(BaseCompleter):
         dirname = os.path.dirname(path)
         self.logger.info('dirname %s', dirname)
 
-        for name in os.listdir(dirname):
+        for name in self.search(os.listdir(dirname)):
             self.logger.info('filename %s', name)
-            if not self.filter(name):
-                continue
             start_position = self.get_start_position()
             yield Completion(name, start_position=start_position)
 

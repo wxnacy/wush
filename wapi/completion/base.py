@@ -7,6 +7,7 @@
 
 from prompt_toolkit.completion import Completer
 
+from wapi.common import utils
 from wapi.common.loggers import create_logger
 
 
@@ -100,4 +101,9 @@ class BaseCompleter(Completer):
         if name.startswith(word):
             return True
         return False
+
+    def search(self, words):
+        #  words = [o.lower() for o in words]
+        word = self.word_before_cursor.lower()
+        return utils.search(words, word)
 

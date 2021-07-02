@@ -20,9 +20,7 @@ class WordCompleter(BaseCompleter):
 
     def get_completions(self, document, complete_event):
         super().get_completions(document, complete_event)
-        for name in self.words:
-            if not self.filter(name):
-                continue
+        for name in self.search(self.words):
             start_position = self.get_start_position()
             yield Completion(name, start_position=start_position)
 

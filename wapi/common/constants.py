@@ -33,5 +33,8 @@ DEFAULT_CONFIG = {
 
 # request 请求方式
 METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')
+
 # 参数集合
 COMMAND_ARGS = ('config', 'module', 'name', 'space')
+# 命令集合
+COMMANDS = ('run', 'body', 'env', 'module')
