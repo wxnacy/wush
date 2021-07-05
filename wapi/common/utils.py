@@ -39,12 +39,15 @@ def fmt_path(path):
 
 def search(datas, word):
     """搜索"""
-    #  datas = [o for o in datas if word in o]
     patten = {}
     for o in datas:
-        o = o.lower()
         patten[o] = 0
-        if o.startswith(word):
+        p = o.lower()
+        if word not in p:
+            continue
+        patten[o] += 1
+        if p.startswith(word):
             patten[o] += 1
+    datas = list(filter(lambda x: patten[x] > 0, datas))
     datas.sort(key = lambda x: patten[x], reverse=True)
     return datas

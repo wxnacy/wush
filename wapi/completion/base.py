@@ -25,6 +25,9 @@ class BaseCompleter(Completer):
 
     @property
     def first_word(self):
+        """
+        获取第一个单词
+        """
         def _():
             current_line_before_cursor = self.current_line_before_cursor.strip()
             args = current_line_before_cursor.split(' ')
@@ -103,7 +106,9 @@ class BaseCompleter(Completer):
         return False
 
     def search(self, words):
-        #  words = [o.lower() for o in words]
-        word = self.word_before_cursor.lower()
-        return utils.search(words, word)
+        """搜索"""
+        keyword = self.word_before_cursor.lower()
+        if keyword in ('/', '~/'):
+            return words
+        return utils.search(words, keyword)
 
