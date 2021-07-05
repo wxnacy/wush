@@ -6,7 +6,6 @@
 """
 
 from prompt_toolkit.completion import Completer
-#  from prompt_toolkit.completion import WordCompleter
 
 from wapi.common import constants
 from wapi.common.loggers import create_logger
@@ -72,17 +71,40 @@ class CommandCompleter(BaseCompleter):
             return current_line_before_cursor.split(' ')[-1]
         return current_line_before_cursor.split(' ')[-2]
 
+    def get_cmd_args_completer(self, cmd, arg):
+        """获取命令参数的补全器"""
+        words = []
+        if cmd == constants.COMMAND_ENV:
+            for k, v in self.wapi.config.env.dict().items():
+                words.append(k)
+        else:
+            args = constants.COMMAND_CMD_ARGS.get(cmd, [])
+            words = {o: 0 for o in args}
+            remove_keys = []
+            for k in words.keys():
+                if getattr(arg, k):
+                    self.logger.info(getattr(arg, k))
+                    remove_keys.append(k)
+            for k in remove_keys:
+                words.pop(k, None)
+            words = words.keys()
+        words = ['--' + o for o in words]
+        args_completer = WapiWordCompleter(words)
+        yield from self.yield_completer(args_completer)
+
     def get_completions(self, document, complete_event):
         super().get_completions(document, complete_event)
         self.document = document
         self.complete_event = complete_event
         try:
-            arg = ArgumentParser(document.text)
+            arg = self.argparser.parse_args(document.text)
             cmd = self.first_word
             if cmd in cmd_completer.words:
                 word_for_completion = self.word_for_completion
                 self.logger.info('word_for_completion %s', word_for_completion)
-                if word_for_completion == '--config':
+                if word_for_completion in cmd_completer.words:
+                    yield from self.get_cmd_args_completer(cmd, arg)
+                elif word_for_completion in ('--config', '--root'):
                     self.logger.info('-' * 100)
                     yield from self.yield_completer(path_completer)
                 elif word_for_completion == '--module':
@@ -97,17 +119,6 @@ class CommandCompleter(BaseCompleter):
                     requests = self.wapi.config.get_requests(module_name)
                     _completer = WapiWordCompleter(requests)
                     yield from self.yield_completer(_completer)
-                else:
-                    words = {o: 0 for o in constants.COMMAND_ARGS}
-                    remove_keys = []
-                    for k in words.keys():
-                        if getattr(arg, k):
-                            remove_keys.append(k)
-                    for k in remove_keys:
-                        words.pop(k, None)
-                    words = ['--' + o for o in words.keys()]
-                    args_completer = WapiWordCompleter(words)
-                    yield from self.yield_completer(args_completer)
             else:
                 yield from self.yield_completer(cmd_completer)
         except:

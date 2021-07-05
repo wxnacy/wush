@@ -107,6 +107,7 @@ class BaseCompleter(Completer):
 
     def search(self, words):
         """搜索"""
+        #  self.logger.info('search words %s', words)
         keyword = self.word_before_cursor.lower()
         if keyword in ('/', '~/'):
             return words

@@ -30,12 +30,14 @@ class Wapi():
     module_name = ''
     request_name = ''
     space_name = ''
+    config_root = ''
     _config = None
     _request = None
     _response = None
 
     def __init__(self, **kw):
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
+        self.config_root = Config.get_default_root()
         self.init_config(**kw)
 
     @property
@@ -48,16 +50,16 @@ class Wapi():
         config = kw.pop('config', None)
         # config 地址
         config_root = kw.pop('config_root', None)
-        if not config_root:
-            config_root = Config.get_default_root()
+        if config_root:
+            self.config_root = config_root
 
         # 优先使用传入的 config
         if isinstance(config, dict):
             self._config = Config.load(config)
 
         # 在使用地址获取配置
-        if not self._config and config_root:
-            self._config = Config.load(config_root)
+        if not self._config and self.config_root:
+            self._config = Config.load(self.config_root)
 
         for k, v in kw.items():
             if v:
@@ -70,23 +72,6 @@ class Wapi():
             self.module_name = self.config.get_default_module_name()
 
         self._init_environ()
-        #  self._init_common_info()
-
-    #  def _init_common_info(self):
-        #  # 临时数据保存目录
-        #  self.save_root = '{}/tmp/api'.format(os.getenv("YDWORK_HOME"))
-        #  if not os.path.exists(self.save_root):
-            #  os.makedirs(self.save_root)
-
-        #  # 公共地址
-        #  self.common_save_path = (
-            #  '{root}/{version}-{{ftype}}-{service}-{request}.json'
-        #  ).format(root = self.save_root, version = self.version,
-            #  service = self.service_name, request = self.request_name)
-        #  # 返回数据地址
-        #  self.response_path = os.path.join(self.config.response_root, )
-        #  # 请求数据地址
-        #  self.request_path = self.common_save_path.format(ftype = 'request')
 
     def _init_environ(self):
         '''初始化环境变量'''
@@ -113,6 +98,8 @@ class Wapi():
         if not os.path.exists(request_path):
             raise RequestException('can not found request config {}'.format(
                 request_path))
+        # 初始化环境变量
+        self._init_environ()
         module_config = FileUtils.read_dict(request_path)
         # 获取 env 信息
         env_config = module_config.get("env") or {}

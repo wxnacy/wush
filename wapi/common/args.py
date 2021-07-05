@@ -4,7 +4,17 @@
 """
 
 """
+from argparse import Namespace
+from collections import deque
 
+class ArgumentNamespace(Namespace):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        #  self._dict = kwargs
+
+    def has_args(self):
+        """是否包含参数"""
+        return len(self.__dict__) > 1
 
 class ArgumentParser():
     cmd = ''
@@ -14,22 +24,34 @@ class ArgumentParser():
     config = ''
 
     def __init__(self, args):
-        self.args = args if isinstance(args, list) else args.split(" ")
+        ns = self.parse_args(args)
+        for k, v in ns.__dict__.items():
+            setattr(self, k, v)
 
-        args_len = len(self.args)
+    @classmethod
+    def parse_args(cls, args):
+        args = args if isinstance(args, list) else args.split(" ")
+
+        args_len = len(args)
+        res = {}
         if args_len >= 1:
-            self.cmd = self.args[0]
+            res['cmd'] = args[0]
 
         if args_len < 3:
-            return
+            return ArgumentNamespace(**res)
 
-        i = 1
-        while i < args_len:
-            item = self.args[i]
-            for k in ('module', 'name', 'space', 'config'):
-                if item == '--' + k:
-                    val_index = i + 1
-                    if val_index < args_len:
-                        i += 1
-                        setattr(self, k, self.args[val_index])
-            i += 1
+        d_args = deque(args[1:])
+        d_args.rotate(-1)
+
+        for i, (k, v) in enumerate(zip(args[1:], d_args)):
+            if i % 2  == 1 or not k.startswith('--'):
+                continue
+            k = k.replace('--', '')
+            res[k] = v
+
+        return ArgumentNamespace(**res)
+
+if __name__ == "__main__":
+    an = ArgumentNamespace( cmd = 'env', desease_id = 'xx' )
+    print(an.__dict__)
+    print(len(an.__dict__))

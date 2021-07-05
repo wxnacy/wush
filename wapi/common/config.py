@@ -57,6 +57,9 @@ class Config():
         """设置属性"""
         if k == 'response_root':
             v = utils.fmt_path(v)
+        elif k == 'env':
+            k = '_env'
+            v = Env(**v)
         setattr(self, k, v)
 
     @classmethod
@@ -91,6 +94,11 @@ class Config():
             os.makedirs(item.response_root)
 
         return item
+
+    @property
+    def env(self):
+        """获取 env 信息"""
+        return self._env
 
     def _load_functions(self):
         """加载方法"""
@@ -153,7 +161,8 @@ class Config():
     @classmethod
     def get_current_body_name(cls, space_name, module_name, request_name):
         """获取当前 body 文件名称"""
-        body_name = '{}_{}_{}'.format(space_name, module_name, request_name)
+        body_name = '{space}_{module}_{request}'.format(
+            space = space_name, module=module_name, request = request_name)
         return body_name
 
     @classmethod

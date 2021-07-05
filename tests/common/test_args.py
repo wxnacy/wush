@@ -8,30 +8,32 @@
 import pytest
 
 from wapi.common import utils
-from wapi.common.args import ArgumentParser
+from wapi.argument import ArgumentParser
 
-
-def test_init():
-    line = ''
-    arg = ArgumentParser(line)
-    #  assert arg.cmd, ''
-    #  for k in ('cmd', 'module', 'name', 'space', 'config'):
-        #  assert getattr(arg, k), ''
+def test_parse_args():
+    parser = ArgumentParser()
+    parser.add_argument('cmd')
+    parser.add_argument('--config')
+    parser.add_argument('--module')
+    parser.add_argument('--save', action='store_true')
 
     line = 'run'
-    arg = ArgumentParser(line)
+    arg = parser.parse_args(line)
     assert arg.cmd, 'run'
-    #  assert arg.module, ''
-    #  for k in ('module', 'name', 'space', 'config'):
-        #  assert getattr(arg, k), ''
+    assert not arg.save, True
+
+    line = 'env --save'
+    arg = parser.parse_args(line)
+    assert arg.cmd, 'env'
+    assert arg.save, True
 
     line = 'run --config config'
-    arg = ArgumentParser(line)
+    arg = parser.parse_args(line)
     assert arg.cmd, 'run'
     assert arg.config, 'config'
 
     line = 'run --config config --module default'
-    arg = ArgumentParser(line)
+    arg = parser.parse_args(line)
     assert arg.cmd, 'run'
     assert arg.config, 'config'
     assert arg.module, 'module'

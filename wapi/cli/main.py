@@ -10,6 +10,7 @@ import argparse
 import shutil
 import traceback
 
+from wapi.argument import ArgumentParser
 from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
@@ -39,7 +40,8 @@ def body(args):
     if not os.path.exists(default_body_path):
         shutil.copy(body_path, default_body_path)
 
-def env(args):
+def env(client):
+    client.config.env.add
     config = client.config
     name = config.get_current_env_name(client.space_name)
     path = config.get_env_path(name)
@@ -88,11 +90,24 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.completion import WordCompleter
 
+def init_wapi_args():
+    parser = ArgumentParser()
+    parser.add_argument('cmd')
+    parser.add_argument('--config')
+    parser.add_argument('--root')
+    parser.add_argument('--module')
+    parser.add_argument('--name')
+    parser.add_argument('--space')
+    parser.add_argument('--save', action='store_true')
+    return parser
+
+
 def run_shell():
+    wapi_parser = init_wapi_args()
     parser = init_argparse()
     client = Wapi()
     session = PromptSession(
-        completer=CommandCompleter(parser, client),
+        completer=CommandCompleter(wapi_parser, client),
         complete_in_thread=True
     )
 
@@ -101,23 +116,45 @@ def run_shell():
             text = session.prompt('wapi> ')
             input_args = text.split(" ")
             logger.info(input_args)
-            args = parser.parse_args(input_args)
-            cmd = args.cmd
+            wapi_args = wapi_parser.parse_args(text)
+            cmd = wapi_args.cmd
+            logger.info('cmd %s',  cmd)
             if cmd == 'exit':
                 break
 
-            # 设置 client
-            client.init_config(
-                space_name = args.space,
-                module_name = args.module,
-                request_name = args.name,
-                config_root = args.config)
-
-            name = args.name
             if cmd == 'run':
-                if not name:
+                args = parser.parse_args(input_args)
+                if not args.name:
                     raise Exception
-            func_dict.get(cmd)(client)
+                # 设置 client
+                client.init_config(
+                    space_name = args.space,
+                    module_name = args.module,
+                    request_name = args.name,
+                    config_root = args.config)
+
+            if cmd == 'env':
+                if wapi_args.save:
+                    continue
+                if wapi_args.has_args():
+                    client.config.env.add(**wapi_args.__dict__)
+                else:
+                    for k, v in client.config.env.dict().items():
+                        print('{}={}'.format(k, v))
+            elif cmd == 'config':
+                if wapi_args.has_args():
+                    client.init_config(
+                        space_name = wapi_args.space,
+                        module_name = wapi_args.module,
+                        config_root = wapi_args.root)
+                else:
+                    print('root={}'.format(client.config_root))
+                    print('module={}'.format(client.module_name))
+                    print('space={}'.format(client.space_name))
+            else:
+                func = func_dict.get(cmd)
+                if func:
+                    func(client)
         except KeyboardInterrupt:
             continue
         except EOFError:
@@ -125,8 +162,8 @@ def run_shell():
         except Exception as e:
             traceback.print_exc()
             print(e)
-        else:
-            print('You entered:', text)
+        #  else:
+            #  print('You entered:', text)
     print('GoodBye!')
 
 def main():

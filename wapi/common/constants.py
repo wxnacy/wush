@@ -35,6 +35,15 @@ DEFAULT_CONFIG = {
 METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')
 
 # 参数集合
-COMMAND_ARGS = ('config', 'module', 'name', 'space')
+COMMAND_RUN_ARGS = ('config', 'module', 'name', 'space')
+COMMAND_CONFIG_ARGS = ('root', 'module', 'space')
 # 命令集合
-COMMANDS = ('run', 'body', 'env', 'module')
+COMMANDS = ('config', 'run', 'body', 'env', 'module')
+COMMAND_CONFIG = 'config'
+COMMAND_ENV = 'env'
+COMMAND_RUN = 'run'
+
+COMMAND_CMD_ARGS = {
+    COMMAND_RUN: COMMAND_RUN_ARGS,
+    COMMAND_CONFIG: COMMAND_CONFIG_ARGS,
+}
