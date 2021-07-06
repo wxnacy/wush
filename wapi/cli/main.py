@@ -11,6 +11,8 @@ import shutil
 import traceback
 
 from wapi.argument import ArgumentParser
+from wapi.argument import ArgumentParserFactory
+from wapi.argument import EnvArgumentParser
 from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
@@ -101,13 +103,28 @@ def init_wapi_args():
     parser.add_argument('--save', action='store_true')
     return parser
 
+class Main():
+
+    parser_dict = {}
+
+    def _get_parser(self, cmd=None):
+        if cmd not in parser_dict:
+            parser_dict = ArgumentParserFactory.build_parser(cmd)
+        return parser_dict[cmd]
+
+    def run(self, text):
+        """运行"""
+        parser = self._get_parser()
+        args = parser.parse_args(text)
+        cmd = args.cmd
+        parser = self._get_parser(cmd)
 
 def run_shell():
-    wapi_parser = init_wapi_args()
-    parser = init_argparse()
+    #  parser = init_wapi_args()
+    parser = ArgumentParserFactory.build_parser()
     client = Wapi()
     session = PromptSession(
-        completer=CommandCompleter(wapi_parser, client),
+        completer=CommandCompleter(parser, client),
         complete_in_thread=True
     )
 
@@ -116,14 +133,16 @@ def run_shell():
             text = session.prompt('wapi> ')
             input_args = text.split(" ")
             logger.info(input_args)
-            wapi_args = wapi_parser.parse_args(text)
-            cmd = wapi_args.cmd
+            args = parser.parse_args(text)
+            cmd = args.cmd
             logger.info('cmd %s',  cmd)
             if cmd == 'exit':
                 break
 
+            # 重新构建解析器
+            parser = ArgumentParserFactory.build_parser(cmd)
+
             if cmd == 'run':
-                args = parser.parse_args(input_args)
                 if not args.name:
                     raise Exception
                 # 设置 client
@@ -134,19 +153,23 @@ def run_shell():
                     config_root = args.config)
 
             if cmd == 'env':
-                if wapi_args.save:
+                args = parser.parse_args(text)
+                if args.save:
                     continue
-                if wapi_args.has_args():
-                    client.config.env.add(**wapi_args.__dict__)
+                if args.has_args():
+                    arg_names = [o.name for o in parser.get_arguments()]
+                    for k, v in args.__dict__.items():
+                        if k not in arg_names:
+                            client.config.env.add(**{ k: v })
                 else:
                     for k, v in client.config.env.dict().items():
                         print('{}={}'.format(k, v))
             elif cmd == 'config':
-                if wapi_args.has_args():
+                if args.has_args():
                     client.init_config(
-                        space_name = wapi_args.space,
-                        module_name = wapi_args.module,
-                        config_root = wapi_args.root)
+                        space_name = args.space,
+                        module_name = args.module,
+                        config_root = args.root)
                 else:
                     print('root={}'.format(client.config_root))
                     print('module={}'.format(client.module_name))

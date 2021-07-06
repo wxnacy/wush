@@ -6,8 +6,13 @@
 """
 from argparse import Namespace
 from collections import deque
+from enum import Enum
 
 from wapi.common.loggers import create_logger
+
+class Action(Enum):
+    STORE = 'store'
+    STORE_TRUE = 'store_true'
 
 class ArgumentNamespace(Namespace):
     def __init__(self, **kwargs):
@@ -39,22 +44,31 @@ class Argument():
 
     def clear(self):
         self.value = None
-        if self.action == 'store_true':
+        if self.action == Action.STORE_TRUE.value:
             self.value = False
 
 class ArgumentParser():
     logger = create_logger('ArgumentParser')
+    cmd = ''
     args = []
     cmd_arg = None
 
-    def add_argument(self, *args, action='store'):
+    def add_argument(self, *args, action=None):
         """
         添加参数
         """
+        if not action:
+            action = Action.STORE.value
         arg = Argument(args[0], action)
         if arg.is_cmd:
             self.cmd_arg = arg
         self.args.append(arg)
+
+    def get_arguments(self):
+        """
+        获取参数列表
+        """
+        return self.args
 
     def parse_args(self, args):
         if not args:
@@ -103,15 +117,28 @@ class ArgumentParser():
                 i += 1
                 continue
             arg.clear()
-            if arg.action == 'store_true':
+            if arg.action == Action.STORE_TRUE.value:
                 arg.value = True
             else:
                 val_index = i + 1
                 if val_index < args_len:
                     arg.value = args[val_index]
                     i += 1
-
             i += 1
+
+    @classmethod
+    def default(cls):
+        """
+        初始化一个默认实例
+        """
+        item = cls()
+        item.add_argument('cmd')
+        item.add_argument('--config')
+        item.add_argument('--space')
+        item.add_argument('--module')
+        item.add_argument('--root')
+        item.add_argument('--name')
+        return item
 
 if __name__ == "__main__":
     an = ArgumentNamespace( cmd = 'env', desease_id = 'xx' )
