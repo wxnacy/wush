@@ -55,6 +55,11 @@ def get_current_space_name():
     """获取当前 space 名称"""
     return constants.DEFAULT_SPACE_NAME
 
+@env_func_register()
+def get_completion_words(word_for_completion):
+    """获取补全的单词列表"""
+    return []
+
 def run_shell(command):
     """运行 shell 语句"""
     res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
@@ -68,6 +73,7 @@ def load_module(module_name):
 
 class Function:
     get_current_space_name = None
+    get_completion_words = None
     random_int = None
     random_str = None
 

@@ -100,6 +100,14 @@ class CommandCompleter(BaseCompleter):
             # 补全参数
             word_for_completion = self.word_for_completion
             self.logger.info('word_for_completion %s', word_for_completion)
+            # 使用自定义方法返回补全单词
+            words = self.wapi.config.get_function().get_completion_words(
+                word_for_completion)
+            if words:
+                yield from self.yield_completer(WapiWordCompleter(words))
+                return
+
+            # 使用模块自带的补全
             if word_for_completion in ('--config', '--root'):
                 self.logger.info('-' * 100)
                 yield from self.yield_completer(path_completer)
