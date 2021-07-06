@@ -76,6 +76,8 @@ class Shell():
             for k, v in args.__dict__.items():
                 if k not in arg_names:
                     self.client.config.env.add(**{ k: v })
+                    print('{}={}'.format(k, v))
+            self.client.init_config()
         else:
             for k, v in self.client.config.env.dict().items():
                 print('{}={}'.format(k, v))
@@ -86,11 +88,15 @@ class Shell():
             self.client.init_config(
                 space_name = args.space,
                 module_name = args.module,
-                config_root = args.root)
+                config_root = args.config)
         else:
             print('root={}'.format(self.client.config_root))
             print('module={}'.format(self.client.module_name))
             print('space={}'.format(self.client.space_name))
+
+    def _test(self, text):
+        for k, v in os.environ.items():
+            print(k, v)
 
 def run_shell():
     parser = ArgumentParserFactory.build_parser()

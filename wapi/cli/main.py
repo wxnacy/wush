@@ -104,9 +104,10 @@ def run_shell():
 
     while True:
         try:
-            text = session.prompt('wapi> ')
+            text = session.prompt('wapi>{space}>{module}> '.format(
+                space = client.space_name, module = client.module_name
+                ))
             cli.run(text)
-
         except KeyboardInterrupt:
             continue
         except EOFError:

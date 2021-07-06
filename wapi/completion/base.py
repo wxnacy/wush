@@ -73,8 +73,6 @@ class BaseCompleter(Completer):
         self.document = document
         self.complete_event = complete_event
         self.logger.info('-' * 100)
-        self.logger.info('word_before_cursor %s', self.word_before_cursor)
-        #  self.logger.info('dir %s', dir(document))
         for k in dir(document):
             if k.startswith('_'):
                 continue
@@ -83,7 +81,6 @@ class BaseCompleter(Completer):
                 continue
             if k.startswith('find'):
                 continue
-            #  self.logger.info('%s:=%s= - %s', k, val, type(val))
             if isinstance(val, int) or isinstance(val, str):
                 setattr(self, k, val)
 
@@ -107,7 +104,6 @@ class BaseCompleter(Completer):
 
     def search(self, words):
         """搜索"""
-        #  self.logger.info('search words %s', words)
         keyword = self.word_before_cursor.lower()
         if keyword in ('/', '~/'):
             return words

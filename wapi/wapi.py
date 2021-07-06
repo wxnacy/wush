@@ -64,10 +64,13 @@ class Wapi():
         for k, v in kw.items():
             if v:
                 setattr(self, k, v)
-        self.logger.info('current_space_name %s',
-            self.config.get_function().get_current_space_name())
-        if not self.space_name:
-            self.space_name = self.config.get_function().get_current_space_name()
+
+        # 配置 space_name
+        current_space_name = self.config.get_function().get_current_space_name()
+        self.logger.info('current_space_name %s', current_space_name)
+        if current_space_name:
+            self.space_name = current_space_name
+
         if not self.module_name:
             self.module_name = self.config.get_default_module_name()
 

@@ -28,6 +28,8 @@ class Env():
         """添加环境变量"""
         for k, v in kw.items():
             setattr(self, k, v)
+            if k.isupper():
+                os.environ[k] = v
 
     def dict(self):
         data = self.__dict__

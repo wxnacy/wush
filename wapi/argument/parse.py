@@ -50,9 +50,11 @@ class Argument():
 class ArgumentParser():
     logger = create_logger('ArgumentParser')
     cmd = ''
-    args = []
     cmd_arg = None
-    _arg_dict = {}
+    _arg_dict = None
+
+    def __init__(self, ):
+        self._arg_dict = {}
 
     def add_argument(self, *args, action=None):
         """

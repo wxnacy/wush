@@ -12,11 +12,13 @@ from wapi.common.loggers import create_logger
 from .parse import ArgumentParser
 from .env import EnvArgumentParser
 from .run import RunArgumentParser
+from .config import ConfigArgumentParser
 
 PARSERS = [
     ArgumentParser,
     EnvArgumentParser,
     RunArgumentParser,
+    ConfigArgumentParser,
 ]
 
 class ArgumentParserFactory():
@@ -33,4 +35,5 @@ class ArgumentParserFactory():
         for p in PARSERS:
             if p.cmd == cmd:
                 Parser = p
+        cls.logger.info('text %s argparser %s', text, Parser.cmd)
         return Parser.default()

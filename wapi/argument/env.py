@@ -18,6 +18,15 @@ class EnvArgumentNamespace(ArgumentNamespace):
 class EnvArgumentParser(ArgumentParser):
     cmd = 'env'
 
+    def get_completion_words(self, argument, words=None):
+        words = []
+        for k ,v in self.wapi.config.env.dict().items():
+            words.append(k)
+        return super().get_completion_words(argument, words)
+
+    def set_wapi(self, client):
+        self.wapi = client
+
     def parse_args(self, args):
         args = args if isinstance(args, list) else args.split(" ")
 

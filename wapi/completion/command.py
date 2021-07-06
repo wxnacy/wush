@@ -86,7 +86,10 @@ class CommandCompleter(BaseCompleter):
         self.complete_event = complete_event
         try:
             self.argparser = ArgumentParserFactory.build_parser(document.text)
+            self.logger.info('completer argparser %s', self.argparser.cmd)
             arg = self.argparser.parse_args(document.text)
+            if arg.cmd == 'env':
+                self.argparser.set_wapi(self.wapi)
             self.logger.info('args %s', arg)
             cmd = self.first_word
             # 补全命令
