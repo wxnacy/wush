@@ -71,7 +71,7 @@ class ArgumentParser():
         """
         return self._arg_dict.values()
 
-    def get_completion_words(self, words=None):
+    def get_completion_words(self, argument, words=None):
         """获取补全使用的单词列表"""
         res = []
         if words and isinstance(words, list):
@@ -81,6 +81,12 @@ class ArgumentParser():
             if arg.is_cmd:
                 continue
             res.append(arg.name)
+        remove_keys = []
+        for k in res:
+            if hasattr(argument, k) and getattr(argument, k):
+                remove_keys.append(k)
+        for k in remove_keys:
+            res.remove(k)
         return res
 
     def parse_args(self, args):
@@ -90,11 +96,10 @@ class ArgumentParser():
         self._parse_args(args)
 
         res = {}
-        for arg in self.args:
+        for arg in self.get_arguments():
             res[arg.name] = arg.value
         res[self.cmd_arg.name] = self.cmd_arg.value
         self.logger.info('argument %s', res)
-
         return ArgumentNamespace(**res)
 
     def _parse_args(self, args):

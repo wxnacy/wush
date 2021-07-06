@@ -74,7 +74,7 @@ class BaseCompleter(Completer):
         self.complete_event = complete_event
         self.logger.info('-' * 100)
         self.logger.info('word_before_cursor %s', self.word_before_cursor)
-        self.logger.info('dir %s', dir(document))
+        #  self.logger.info('dir %s', dir(document))
         for k in dir(document):
             if k.startswith('_'):
                 continue

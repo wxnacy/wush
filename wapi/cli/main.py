@@ -18,6 +18,8 @@ from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
 from wapi.wapi import Wapi
 
+from .shell import Shell
+
 logger = create_logger('main')
 
 def run(client):
@@ -89,71 +91,6 @@ def run_cmd():
     func_dict.get(cmd)(client)
 
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.completion import WordCompleter
-
-class Main():
-
-    parser_dict = {}
-    parser = None
-    client = None
-
-    def __init__(self, client):
-        self.client = client
-
-    def _get_parser(self, cmd=None):
-        if cmd not in self.parser_dict:
-            self.parser_dict[cmd] = ArgumentParserFactory.build_parser(cmd)
-        return self.parser_dict[cmd]
-
-    def run(self, text):
-        """运行"""
-        parser = self._get_parser()
-        args = parser.parse_args(text)
-        cmd = args.cmd
-        self.parser = self._get_parser(cmd)
-
-        func = getattr(self, '_' + cmd)
-        func(text)
-
-    def _exit(self, text):
-        raise EOFError()
-
-    def _run(self, text):
-        args = self.parser.parse_args(text)
-        if not args.name:
-            raise Exception
-        self.client.init_config(
-            space_name = args.space,
-            module_name = args.module,
-            request_name = args.name,
-            config_root = args.config)
-
-    def _env(self, text):
-        """执行变量操作"""
-        args = self.parser.parse_args(text)
-        if args.save:
-            return
-        if args.has_args():
-            arg_names = [o.name for o in self.parser.get_arguments()]
-            for k, v in args.__dict__.items():
-                if k not in arg_names:
-                    self.client.config.env.add(**{ k: v })
-        else:
-            for k, v in self.client.config.env.dict().items():
-                print('{}={}'.format(k, v))
-
-    def _config(self, text):
-        args = self.parser.parse_args(text)
-        if args.has_args():
-            self.client.init_config(
-                space_name = args.space,
-                module_name = args.module,
-                config_root = args.root)
-        else:
-            print('root={}'.format(self.client.config_root))
-            print('module={}'.format(self.client.module_name))
-            print('space={}'.format(self.client.space_name))
 
 def run_shell():
     parser = ArgumentParserFactory.build_parser()
@@ -163,7 +100,7 @@ def run_shell():
         complete_in_thread=True
     )
 
-    cli = Main(client)
+    cli = Shell(client)
 
     while True:
         try:
