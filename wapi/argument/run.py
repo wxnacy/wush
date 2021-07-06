@@ -5,33 +5,21 @@
 run 命令的参数解析
 """
 
-class RunArgument():
+from .parse import ArgumentParser
 
-    cmd = ''
-    module = ''
-    name = ''
-    space = ''
-    config = ''
+class RunArgumentParser(ArgumentParser):
+    cmd = 'run'
 
-    def __init__(self, args):
-        self.args = args if isinstance(args, list) else args.split(" ")
-
-        args_len = len(self.args)
-        if args_len >= 1:
-            self.cmd = self.args[0]
-
-        if args_len < 3:
-            return
-
-        i = 1
-        while i < args_len:
-            item = self.args[i]
-            for k in ('module', 'name', 'space', 'config'):
-                if item == '--' + k:
-                    val_index = i + 1
-                    if val_index < args_len:
-                        i += 1
-                        setattr(self, k, self.args[val_index])
-            i += 1
-
+    @classmethod
+    def default(cls):
+        """
+        初始化一个实例
+        """
+        item = cls()
+        item.add_argument('cmd')
+        item.add_argument('--config')
+        item.add_argument('--module')
+        item.add_argument('--space')
+        item.add_argument('--name')
+        return item
 

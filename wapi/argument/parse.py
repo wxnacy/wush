@@ -52,6 +52,7 @@ class ArgumentParser():
     cmd = ''
     args = []
     cmd_arg = None
+    _arg_dict = {}
 
     def add_argument(self, *args, action=None):
         """
@@ -62,13 +63,25 @@ class ArgumentParser():
         arg = Argument(args[0], action)
         if arg.is_cmd:
             self.cmd_arg = arg
-        self.args.append(arg)
+        self._arg_dict[arg.name] = arg
 
     def get_arguments(self):
         """
         获取参数列表
         """
-        return self.args
+        return self._arg_dict.values()
+
+    def get_completion_words(self, words=None):
+        """获取补全使用的单词列表"""
+        res = []
+        if words and isinstance(words, list):
+            res.extend(words)
+        args = self.get_arguments()
+        for arg in args:
+            if arg.is_cmd:
+                continue
+            res.append(arg.name)
+        return res
 
     def parse_args(self, args):
         if not args:
@@ -76,16 +89,6 @@ class ArgumentParser():
         args = args if isinstance(args, list) else args.split(" ")
         self._parse_args(args)
 
-            #  d_args = deque(args[1:])
-            #  d_args.rotate(-1)
-            #  for i, (k, v) in enumerate(zip(args[1:], d_args)):
-                #  if i % 2  == 1 or not k.startswith('--'):
-                    #  continue
-                #  k = k.replace('--', '')
-                #  arg = arg_dict.get(k)
-                #  if not arg:
-                    #  raise Exception('No name arg be {}'.format(k))
-                #  arg.value = v
         res = {}
         for arg in self.args:
             res[arg.name] = arg.value
@@ -100,11 +103,10 @@ class ArgumentParser():
         if args_len == 0:
             return None
         # 情况数据
-        for arg in self.args:
+        for _, arg in self._arg_dict.items():
             arg.clear()
         # 赋值命令参数
         self.cmd_arg.value = args[0]
-        arg_dict = {o.name: o for o in self.args}
         i = 1
         while i < args_len:
             item = args[i]
@@ -112,7 +114,7 @@ class ArgumentParser():
                 i += 1
                 continue
             key = item.replace('--', '')
-            arg = arg_dict.get(key)
+            arg = self._arg_dict.get(key)
             if not arg:
                 i += 1
                 continue
@@ -133,11 +135,8 @@ class ArgumentParser():
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--config')
         item.add_argument('--space')
         item.add_argument('--module')
-        item.add_argument('--root')
-        item.add_argument('--name')
         return item
 
 if __name__ == "__main__":

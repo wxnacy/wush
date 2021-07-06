@@ -92,35 +92,70 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.completion import WordCompleter
 
-def init_wapi_args():
-    parser = ArgumentParser()
-    parser.add_argument('cmd')
-    parser.add_argument('--config')
-    parser.add_argument('--root')
-    parser.add_argument('--module')
-    parser.add_argument('--name')
-    parser.add_argument('--space')
-    parser.add_argument('--save', action='store_true')
-    return parser
-
 class Main():
 
     parser_dict = {}
+    parser = None
+    client = None
+
+    def __init__(self, client):
+        self.client = client
 
     def _get_parser(self, cmd=None):
-        if cmd not in parser_dict:
-            parser_dict = ArgumentParserFactory.build_parser(cmd)
-        return parser_dict[cmd]
+        if cmd not in self.parser_dict:
+            self.parser_dict[cmd] = ArgumentParserFactory.build_parser(cmd)
+        return self.parser_dict[cmd]
 
     def run(self, text):
         """运行"""
         parser = self._get_parser()
         args = parser.parse_args(text)
         cmd = args.cmd
-        parser = self._get_parser(cmd)
+        self.parser = self._get_parser(cmd)
+
+        func = getattr(self, '_' + cmd)
+        func(text)
+
+    def _exit(self, text):
+        raise EOFError()
+
+    def _run(self, text):
+        args = self.parser.parse_args(text)
+        if not args.name:
+            raise Exception
+        self.client.init_config(
+            space_name = args.space,
+            module_name = args.module,
+            request_name = args.name,
+            config_root = args.config)
+
+    def _env(self, text):
+        """执行变量操作"""
+        args = self.parser.parse_args(text)
+        if args.save:
+            return
+        if args.has_args():
+            arg_names = [o.name for o in self.parser.get_arguments()]
+            for k, v in args.__dict__.items():
+                if k not in arg_names:
+                    self.client.config.env.add(**{ k: v })
+        else:
+            for k, v in self.client.config.env.dict().items():
+                print('{}={}'.format(k, v))
+
+    def _config(self, text):
+        args = self.parser.parse_args(text)
+        if args.has_args():
+            self.client.init_config(
+                space_name = args.space,
+                module_name = args.module,
+                config_root = args.root)
+        else:
+            print('root={}'.format(self.client.config_root))
+            print('module={}'.format(self.client.module_name))
+            print('space={}'.format(self.client.space_name))
 
 def run_shell():
-    #  parser = init_wapi_args()
     parser = ArgumentParserFactory.build_parser()
     client = Wapi()
     session = PromptSession(
@@ -128,56 +163,13 @@ def run_shell():
         complete_in_thread=True
     )
 
+    cli = Main(client)
+
     while True:
         try:
             text = session.prompt('wapi> ')
-            input_args = text.split(" ")
-            logger.info(input_args)
-            args = parser.parse_args(text)
-            cmd = args.cmd
-            logger.info('cmd %s',  cmd)
-            if cmd == 'exit':
-                break
+            cli.run(text)
 
-            # 重新构建解析器
-            parser = ArgumentParserFactory.build_parser(cmd)
-
-            if cmd == 'run':
-                if not args.name:
-                    raise Exception
-                # 设置 client
-                client.init_config(
-                    space_name = args.space,
-                    module_name = args.module,
-                    request_name = args.name,
-                    config_root = args.config)
-
-            if cmd == 'env':
-                args = parser.parse_args(text)
-                if args.save:
-                    continue
-                if args.has_args():
-                    arg_names = [o.name for o in parser.get_arguments()]
-                    for k, v in args.__dict__.items():
-                        if k not in arg_names:
-                            client.config.env.add(**{ k: v })
-                else:
-                    for k, v in client.config.env.dict().items():
-                        print('{}={}'.format(k, v))
-            elif cmd == 'config':
-                if args.has_args():
-                    client.init_config(
-                        space_name = args.space,
-                        module_name = args.module,
-                        config_root = args.root)
-                else:
-                    print('root={}'.format(client.config_root))
-                    print('module={}'.format(client.module_name))
-                    print('space={}'.format(client.space_name))
-            else:
-                func = func_dict.get(cmd)
-                if func:
-                    func(client)
         except KeyboardInterrupt:
             continue
         except EOFError:

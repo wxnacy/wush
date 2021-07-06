@@ -14,6 +14,7 @@ from wapi.common.args import ArgumentParser
 from .base import BaseCompleter
 from .filesystem import ExecutableCompleter
 from .word import WordCompleter as WapiWordCompleter
+from wapi.argument import ArgumentParserFactory
 
 path_completer = ExecutableCompleter()
 
@@ -73,21 +74,13 @@ class CommandCompleter(BaseCompleter):
 
     def get_cmd_args_completer(self, cmd, arg):
         """获取命令参数的补全器"""
-        words = []
-        if cmd == constants.COMMAND_ENV:
-            for k, v in self.wapi.config.env.dict().items():
-                words.append(k)
-        else:
-            args = constants.COMMAND_CMD_ARGS.get(cmd, [])
-            words = {o: 0 for o in args}
-            remove_keys = []
-            for k in words.keys():
-                if getattr(arg, k):
-                    self.logger.info(getattr(arg, k))
-                    remove_keys.append(k)
-            for k in remove_keys:
-                words.pop(k, None)
-            words = words.keys()
+        words = self.argparser.get_completion_words()
+        remove_keys = []
+        for k in words:
+            if hasattr(arg, k) and getattr(arg, k):
+                remove_keys.append(k)
+        for k in remove_keys:
+            words.remove(k)
         words = ['--' + o for o in words]
         args_completer = WapiWordCompleter(words)
         yield from self.yield_completer(args_completer)
@@ -97,6 +90,7 @@ class CommandCompleter(BaseCompleter):
         self.document = document
         self.complete_event = complete_event
         try:
+            self.argparser = ArgumentParserFactory.build_parser(document.text)
             arg = self.argparser.parse_args(document.text)
             cmd = self.first_word
             if cmd in cmd_completer.words:
