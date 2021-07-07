@@ -119,6 +119,14 @@ class Wapi():
                 module_val.update(v)
                 module_config[k] = module_val
 
+        # 获取父配置
+        parent = module_config.get("parent")
+        if parent:
+            parent_path = self._config.get_module_path(parent)
+            parent_config = FileUtils.read_dict(parent_path) or {}
+            ModuleModel._merge_config(parent_config, module_config)
+            module_config = parent_config
+
         # 加载并获取 request
         module = ModuleModel.load(module_config)
         request = module.get_request(request_name)

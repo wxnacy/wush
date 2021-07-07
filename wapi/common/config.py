@@ -182,5 +182,3 @@ class Config():
     def get_default_config(cls):
         """获取默认配置"""
         return constants.DEFAULT_CONFIG
-
-global_config = Config.load(Config.get_default_root())

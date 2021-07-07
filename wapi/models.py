@@ -11,7 +11,6 @@ import os
 from wapi.common import constants
 from wapi.common.config_value import ConfigValue
 from wapi.common.config import Config
-from wapi.common.config import global_config
 from wapi.common.cookie import Cookie
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
@@ -80,25 +79,11 @@ class ModuleModel(BaseModel):
     @classmethod
     def load(cls, config):
         item = cls()
-        # 获取父配置信息
-        parent = config.get("parent")
-        if parent:
-            parent_path = global_config.get_module_path(parent)
-            parent_config = FileUtils.read_dict(parent_path) or {}
-            cls._merge_config(parent_config, config)
-            config = parent_config
         item._config = config
         for k, v in config.items():
             setattr(item, k, v)
         reqs = []
-        #  config.pop('requests', None)
         item.format()
-        # 装载 requests
-        #  for req_item in item.requests:
-            #  # 合并 module 设置
-            #  req_item = cls._merge_config(dict(item._config), req_item)
-            #  reqs.append(req_item)
-        #  item.requests = reqs
         return item
 
     @classmethod
