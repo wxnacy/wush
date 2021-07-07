@@ -51,7 +51,3 @@ class ArgumentParser():
 
         return ArgumentNamespace(**res)
 
-if __name__ == "__main__":
-    an = ArgumentNamespace( cmd = 'env', desease_id = 'xx' )
-    print(an.__dict__)
-    print(len(an.__dict__))

@@ -27,27 +27,24 @@ class EnvArgumentParser(ArgumentParser):
     def set_wapi(self, client):
         self.wapi = client
 
-    def parse_args(self, args):
-        args = args if isinstance(args, list) else args.split(" ")
+    @property
+    def _argument_namespace(self):
+        return EnvArgumentNamespace
 
-        args_len = len(args)
-        res = {}
-        if args_len >= 1:
-            res['cmd'] = args[0]
-
-        if args_len < 3:
-            return EnvArgumentNamespace(**res)
-
+    def _make_args_dict(self, args):
+        res = super()._make_args_dict(args)
+        args = list(filter(lambda x: x != '--save', args))
+        if len(args) < 3:
+            return res
+        # 将所有成对的参数都放入参数列表
         d_args = deque(args[1:])
         d_args.rotate(-1)
-
         for i, (k, v) in enumerate(zip(args[1:], d_args)):
             if i % 2  == 1 or not k.startswith('--'):
                 continue
             k = k.replace('--', '')
             res[k] = v
-
-        return EnvArgumentNamespace(**res)
+        return res
 
     @classmethod
     def default(cls):

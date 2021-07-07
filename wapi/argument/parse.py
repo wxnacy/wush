@@ -91,18 +91,29 @@ class ArgumentParser():
             res.remove(k)
         return res
 
+    @property
+    def _argument_namespace(self):
+        return ArgumentNamespace
+
     def parse_args(self, args):
         if not args:
             return None
         args = args if isinstance(args, list) else args.split(" ")
         self._parse_args(args)
+        res = self._make_args_dict(args)
+        self.logger.info('argument %s', res)
+        return self._make_argument_namespace(**res)
 
+    def _make_args_dict(self, args):
+        """创建参数键值对"""
         res = {}
         for arg in self.get_arguments():
             res[arg.name] = arg.value
         res[self.cmd_arg.name] = self.cmd_arg.value
-        self.logger.info('argument %s', res)
-        return ArgumentNamespace(**res)
+        return res
+
+    def _make_argument_namespace(self, **res):
+        return self._argument_namespace(**res)
 
     def _parse_args(self, args):
         self.logger.info('args %s', args)
@@ -147,7 +158,3 @@ class ArgumentParser():
         item.add_argument('--space')
         return item
 
-if __name__ == "__main__":
-    an = ArgumentNamespace( cmd = 'env', desease_id = 'xx' )
-    print(an.__dict__)
-    print(len(an.__dict__))

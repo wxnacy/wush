@@ -162,8 +162,12 @@ class Config():
     def get_env_path(self, space_name=None):
         """获取 env 配置地址"""
         if not space_name:
+            space_name = self.space_name
+        if not space_name:
             space_name = super_function.get_current_space_name()
-        return os.path.join(self.env_root, '{}.yml'.format(space_name))
+        path = os.path.join(self.env_root, '{}.yml'.format(space_name))
+        self.logger.info('Env path %s', path)
+        return path
 
     def get_module_path(self, module_name=None):
         """获取 request 配置地址"""

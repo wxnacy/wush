@@ -14,6 +14,7 @@ from wapi.argument import ArgumentParser
 from wapi.argument import ArgumentParserFactory
 from wapi.argument import EnvArgumentParser
 from wapi.common.functions import super_function
+from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
 from wapi.wapi import Wapi
@@ -46,6 +47,7 @@ class Shell():
         args = parser.parse_args(text)
         cmd = args.cmd
         self.parser = self._get_parser(cmd)
+        self.logger.info('run argparser %s', self.parser)
 
         func = getattr(self, '_' + cmd)
         func(text)
@@ -69,8 +71,6 @@ class Shell():
     def _env(self, text):
         """执行变量操作"""
         args = self.parser.parse_args(text)
-        if args.save:
-            return
         if args.has_args():
             arg_names = [o.name for o in self.parser.get_arguments()]
             for k, v in args.__dict__.items():
@@ -81,6 +81,28 @@ class Shell():
         else:
             for k, v in self.client.config.env.dict().items():
                 print('{}={}'.format(k, v))
+
+        # 保存数据
+        if args.save:
+            env_path = self.client.config.get_env_path()
+            env_data = {}
+            try:
+                env_data = FileUtils.read_dict(env_path)
+            except:
+                pass
+            for k, v in self.client.config.env.dict().items():
+                if k in ('body_path',):
+                    continue
+                if k.isupper():
+                    continue
+                if not v:
+                    continue
+                if env_data.get(k) == v:
+                    continue
+                self.logger.info('Env save %s=%s', k, v)
+                env_data[k] = v
+            FileUtils.save_yml(env_path, env_data)
+            return
 
     def _config(self, text):
         args = self.parser.parse_args(text)
