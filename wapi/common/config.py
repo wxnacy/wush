@@ -16,7 +16,7 @@ from wapi.common.functions import load_module
 from wapi.common.functions import super_function
 from wapi.common.functions import Function
 from wapi.common.loggers import create_logger
-from wapi.common.decorates import env_functions
+from wapi.common.decorates import get_env_functions
 from wapi.common.exceptions import RequestException
 from wapi.models import ModuleModel
 from wapi.models import RequestModel
@@ -111,14 +111,14 @@ class Config():
     def _load_functions(self):
         """加载方法"""
         self.logger.info('Config functions %s', self.function_modules)
+        if not self.function_modules:
+            self.function = super_function
+            return
         for module_name in self.function_modules:
             load_module(module_name)
 
-        functions = []
-        if self.function_modules:
-            functions = env_functions
-        else:
-            functions = super_function.get_functions()
+        functions = get_env_functions()
+        self.logger.info('load functions %s', functions)
 
         f = Function(functions)
         self.function = f
@@ -130,7 +130,7 @@ class Config():
             for m in self.modules:
                 if m.get("module") == module_name:
                     _config = m
-        if self.module_root:
+        elif self.module_root:
             self.logger.info('Module: %s', module_name)
             _path = self.get_module_path(module_name)
             self.logger.info('Module path: %s', _path)
@@ -138,7 +138,7 @@ class Config():
                 raise RequestException('can not found request config {}'.format(
                     request_path))
 
-        _config = FileUtils.read_dict(_path)
+            _config = FileUtils.read_dict(_path)
         # 获取 env 信息
         env_config = _config.get("env") or {}
         env_config.update(self.env.dict())
@@ -146,7 +146,7 @@ class Config():
         self.logger.info('env_path %s', env_path)
         if os.path.exists(env_path):
             env_config.update(FileUtils.read_dict(env_path) or {})
-        _config['functions'] = env_functions
+        _config['functions'] = get_env_functions()
         _config['env'] = env_config
 
         # 获取父配置

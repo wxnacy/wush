@@ -19,7 +19,6 @@ from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 from wapi.common.cookie import Cookie
 from wapi.common.config import Config
-from wapi.common.decorates import env_functions
 from wapi.common.exceptions import RequestException
 
 from wapi.models import ModuleModel
@@ -33,8 +32,13 @@ class Wapi():
     _config = None
     _request = None
     _response = None
+    is_dynamic_space = True
 
-    def __init__(self, **kw):
+    def __init__(self, name=None, is_dynamic_space = True, **kw):
+        if not name:
+            name = __name__
+        self.name = name
+        self.is_dynamic_space = is_dynamic_space
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
         self.config_root = Config.get_default_root()
         self.init_config(**kw)
@@ -60,16 +64,20 @@ class Wapi():
         if not self._config and self.config_root:
             self._config = Config.load(self.config_root)
 
+        self.logger.info('init_config kwargs %s', kw)
         for k, v in kw.items():
             if v:
                 setattr(self, k, v)
 
         # 配置 space_name
-        if not self.space_name:
+        if not self.space_name or self.is_dynamic_space:
+            self.logger.info('wapi %s', self.name)
             current_space_name = self.config.get_function().get_current_space_name()
             self.logger.info('current_space_name %s', current_space_name)
             self.space_name = current_space_name
+
         self._config.space_name = self.space_name
+        self.logger.info("Space: %s", self.space_name)
 
         # 设置默认 module
         if not self.module_name:

@@ -40,7 +40,6 @@ class BaseCompleter(Completer):
             args_len = len(args)
             return args[0] if args_len > 0 else ''
         res = _()
-        self.logger.info('first_word %s', res)
         return res
 
     @property
@@ -56,7 +55,6 @@ class BaseCompleter(Completer):
 
             return args[-1] if args_len == 1 else args[-2]
         res = _()
-        self.logger.info('word_for_completion %s', res)
         return res
 
     @property
@@ -72,13 +70,15 @@ class BaseCompleter(Completer):
             return text.split('/')[-1]
 
         res = _()
-        self.logger.info('word_before_cursor %s', res)
         return res
 
     def get_completions(self, document, complete_event):
         self.document = document
         self.complete_event = complete_event
         self.logger.info('-' * 100)
+        self.logger.info('word_before_cursor %s', self.word_before_cursor)
+        self.logger.info('word_for_completion %s', self.word_for_completion)
+        self.logger.info('first_word %s', self.first_word)
         for k in dir(document):
             if k.startswith('_'):
                 continue

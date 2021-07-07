@@ -5,19 +5,30 @@
 
 """
 
-env_functions = {}
+_env_functions = {}
+
+from wapi.common.loggers import create_logger
+
+logger = create_logger('decorates')
 
 def env_func_register(active=True):
     def decorate(func):
+        logger.info('register active=%s func %s.%s', active, func.__module__,
+            func)
         #  print('running register(active=%s)->decorate(%s)'
                 #  % (active, func))
+        if isinstance(func, str):
+            raise Exception('test')
         if active:
-            env_functions[func.__name__] = func
+            _env_functions[func.__name__] = func
         else:
-            env_functions.pop(func.__name__, None)
+            _env_functions.pop(func.__name__, None)
 
         return func
     return decorate
+
+def get_env_functions():
+    return dict(_env_functions)
 
 if __name__ == "__main__":
     import random

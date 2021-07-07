@@ -12,7 +12,7 @@ import subprocess
 
 from wapi.common import constants
 from wapi.common.decorates import env_func_register
-from wapi.common.decorates import env_functions
+from wapi.common.decorates import get_env_functions
 
 @env_func_register()
 def random_int(length, min_int=None, max_int=None):
@@ -81,17 +81,19 @@ class Function:
     random_int = None
     random_str = None
 
-    _functions = []
+    _functions = {}
 
     def __init__(self, functions):
         self._functions = functions
         for name, func in functions.items():
+            if isinstance(func, str):
+                raise Exception('func {} can not be str'.format(name))
             setattr(self, name, func)
 
     def get_functions(self):
         return self._functions
 
-_function = Function(env_functions)
+_function = Function(get_env_functions())
 
 def get_super_function():
     return _function

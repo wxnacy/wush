@@ -41,7 +41,7 @@ class ConfigValue():
             # 为空，返回
             return self.value
 
-        self.logger.info('ConfigValue env %s', self.env)
+        #  self.logger.info('ConfigValue env %s', self.env)
 
         #  格式化响应格式数据
         for t in (str, list, dict):
