@@ -21,7 +21,6 @@ from wapi.common.cookie import Cookie
 from wapi.common.config import Config
 from wapi.common.decorates import env_functions
 from wapi.common.exceptions import RequestException
-from wapi.common.functions import super_function
 
 from wapi.models import ModuleModel
 
@@ -71,6 +70,7 @@ class Wapi():
         if current_space_name:
             self.space_name = current_space_name
 
+        # 设置默认 module
         if not self.module_name:
             self.module_name = self.config.get_default_module_name()
 
@@ -86,17 +86,14 @@ class Wapi():
         ))
 
 
-    def _get_request(self, **kwargs):
+    def _get_request(self, module_name, request_name, **kwargs):
         """获取 request
         :param dict kwargs:
             `env` 环境变量
         """
-        # 如果 module 还没有赋值，给默认值
-        if not self.module_name:
-            self.module_name = self.config.get_default_module_name()
         # 获取 request 信息
-        self.logger.info('Module: %s', self.module_name)
-        request_path = self.config.get_module_path(self.module_name)
+        self.logger.info('Module: %s', module_name)
+        request_path = self.config.get_module_path(module_name)
         self.logger.info('Request path: %s', request_path)
         if not os.path.exists(request_path):
             raise RequestException('can not found request config {}'.format(
@@ -124,13 +121,16 @@ class Wapi():
 
         # 加载并获取 request
         module = ModuleModel.load(module_config)
-        request = module.get_request(self.request_name)
+        request = module.get_request(request_name)
         return request
 
-    def request(self, request_name = None, **kwargs):
+    def request(self, request_name = None, module_name = None, **kwargs):
         if request_name:
             self.request_name = request_name
-        self._request = self._get_request(**kwargs)
+        if not module_name:
+            module_name = self.module_name
+        self._request = self._get_request(module_name = module_name,
+            request_name = self.request_name)
         # 初始化参数
         url = self._request.url
         request_model = self._request

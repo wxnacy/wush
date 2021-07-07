@@ -60,6 +60,10 @@ def get_completion_words(word_for_completion):
     """获取补全的单词列表"""
     return []
 
+@env_func_register()
+def request(wapi, module_name, request_name):
+    return wapi.request(request_name = request_name, module_name = module_name)
+
 def run_shell(command):
     """运行 shell 语句"""
     res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
