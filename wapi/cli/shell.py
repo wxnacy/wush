@@ -95,8 +95,12 @@ class Shell():
             print('space={}'.format(self.client.space_name))
 
     def _test(self, text):
-        for k, v in os.environ.items():
-            print(k, v)
+        #  for k, v in os.environ.items():
+            #  print(k, v)
+        sname = self.client.config.get_function().get_current_space_name()
+        print(sname)
+        oname = super_function.get_current_space_name()
+        print(oname)
 
 def run_shell():
     parser = ArgumentParserFactory.build_parser()

@@ -65,9 +65,9 @@ class Wapi():
                 setattr(self, k, v)
 
         # 配置 space_name
-        current_space_name = self.config.get_function().get_current_space_name()
-        self.logger.info('current_space_name %s', current_space_name)
-        if current_space_name:
+        if not self.space_name:
+            current_space_name = self.config.get_function().get_current_space_name()
+            self.logger.info('current_space_name %s', current_space_name)
             self.space_name = current_space_name
 
         # 设置默认 module

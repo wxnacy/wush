@@ -108,7 +108,13 @@ class Config():
         for module_name in self.function_modules:
             load_module(module_name)
 
-        f = Function()
+        functions = []
+        if self.function_modules:
+            functions = env_functions
+        else:
+            functions = super_function.get_functions()
+
+        f = Function(functions)
         self.function = f
 
     def get_env(self):

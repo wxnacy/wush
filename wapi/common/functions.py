@@ -81,11 +81,17 @@ class Function:
     random_int = None
     random_str = None
 
-    def __init__(self):
-        for name, func in env_functions.items():
+    _functions = []
+
+    def __init__(self, functions):
+        self._functions = functions
+        for name, func in functions.items():
             setattr(self, name, func)
 
-_function = Function()
+    def get_functions(self):
+        return self._functions
+
+_function = Function(env_functions)
 
 def get_super_function():
     return _function
