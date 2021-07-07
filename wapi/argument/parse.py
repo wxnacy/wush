@@ -142,8 +142,9 @@ class ArgumentParser():
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--space')
+        item.add_argument('--config')
         item.add_argument('--module')
+        item.add_argument('--space')
         return item
 
 if __name__ == "__main__":

@@ -69,6 +69,7 @@ class Wapi():
             current_space_name = self.config.get_function().get_current_space_name()
             self.logger.info('current_space_name %s', current_space_name)
             self.space_name = current_space_name
+        self._config.space_name = self.space_name
 
         # 设置默认 module
         if not self.module_name:
@@ -81,7 +82,7 @@ class Wapi():
         current_body_name = self.config.get_current_body_name(
                 self.space_name, self.module_name,self.request_name)
         current_body_path = self.config.get_body_path(current_body_name)
-        self.config.get_env().add(**dict(
+        self.config.env.add(**dict(
             body_path = current_body_path
         ))
 
@@ -92,44 +93,46 @@ class Wapi():
             `env` 环境变量
         """
         # 获取 request 信息
-        self.logger.info('Module: %s', module_name)
-        request_path = self.config.get_module_path(module_name)
-        self.logger.info('Request path: %s', request_path)
-        if not os.path.exists(request_path):
-            raise RequestException('can not found request config {}'.format(
-                request_path))
-        # 初始化环境变量
-        self._init_environ()
-        module_config = FileUtils.read_dict(request_path)
-        # 获取 env 信息
-        env_config = module_config.get("env") or {}
-        env_config.update(self.config.get_env().dict())
-        env_path = self.config.get_env_path(self.space_name)
-        self.logger.info('env_path %s', env_path)
-        if os.path.exists(env_path):
-            env_config.update(FileUtils.read_dict(env_path) or {})
-        module_config['functions'] = env_functions
-        module_config['env'] = env_config
+        #  self.logger.info('Module: %s', module_name)
+        #  request_path = self.config.get_module_path(module_name)
+        #  self.logger.info('Request path: %s', request_path)
+        #  if not os.path.exists(request_path):
+            #  raise RequestException('can not found request config {}'.format(
+                #  request_path))
+        #  # 初始化环境变量
+        #  self._init_environ()
 
-        # 加载 kwargs 参数中的配置
-        for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
-            v = kwargs.get(k)
-            if isinstance(v, dict):
-                module_val = module_config.get(k) or {}
-                module_val.update(v)
-                module_config[k] = module_val
+        #  module_config = FileUtils.read_dict(request_path)
+        #  # 获取 env 信息
+        #  env_config = module_config.get("env") or {}
+        #  env_config.update(self.config.env.dict())
+        #  env_path = self.config.get_env_path(self.space_name)
+        #  self.logger.info('env_path %s', env_path)
+        #  if os.path.exists(env_path):
+            #  env_config.update(fileutils.read_dict(env_path) or {})
+        #  module_config['functions'] = env_functions
+        #  module_config['env'] = env_config
 
-        # 获取父配置
-        parent = module_config.get("parent")
-        if parent:
-            parent_path = self._config.get_module_path(parent)
-            parent_config = FileUtils.read_dict(parent_path) or {}
-            ModuleModel._merge_config(parent_config, module_config)
-            module_config = parent_config
+        #  # 加载 kwargs 参数中的配置
+        #  for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
+            #  v = kwargs.get(k)
+            #  if isinstance(v, dict):
+                #  module_val = module_config.get(k) or {}
+                #  module_val.update(v)
+                #  module_config[k] = module_val
+
+        #  # 获取父配置
+        #  parent = module_config.get("parent")
+        #  if parent:
+            #  parent_path = self._config.get_module_path(parent)
+            #  parent_config = fileutils.read_dict(parent_path) or {}
+            #  modulemodel._merge_config(parent_config, module_config)
+            #  module_config = parent_config
 
         # 加载并获取 request
-        module = ModuleModel.load(module_config)
-        request = module.get_request(request_name)
+        #  module = ModuleModel.load(module_config)
+        module = self.config.get_module(module_name)
+        request = module.get_request(request_name, **kwargs)
         return request
 
     def request(self, request_name = None, module_name = None, **kwargs):

@@ -10,7 +10,6 @@ import os
 
 from wapi.common import constants
 from wapi.common.config_value import ConfigValue
-from wapi.common.config import Config
 from wapi.common.cookie import Cookie
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
@@ -110,11 +109,18 @@ class ModuleModel(BaseModel):
                 total_cookies.update(_cookies)
             self._config['cookies'] = total_cookies
 
-    def get_request(self, name):
+    def get_request(self, name, **kwargs):
         for item in self.requests:
-            #  self.logger.info(item.get("name"))
             if item.get("name") == name:
                 item = self._merge_config(dict(self._config), item)
+                # 加载参数中的变量
+                for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
+                    v = kwargs.get(k)
+                    if isinstance(v, dict):
+                        module_val = item.get(k) or {}
+                        module_val.update(v)
+                        item[k] = module_val
+
                 req_model = RequestModel.load(item)
                 req_model.format()
                 return req_model

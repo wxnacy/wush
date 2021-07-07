@@ -94,7 +94,11 @@ from prompt_toolkit import PromptSession
 
 def run_shell():
     parser = ArgumentParserFactory.build_parser()
+    args = parser.parse_args(sys.argv)
+
     client = Wapi()
+    client.init_config(config_root = args.config, space_name = args.space,
+        module_name = args.module)
     session = PromptSession(
         completer=CommandCompleter(parser, client),
         complete_in_thread=True
@@ -122,12 +126,13 @@ def run_shell():
 def main():
     import sys
     args = sys.argv[1:]
-    if not args:
-        # 使用交互模式
-        run_shell()
-    else:
-        # 使用命令行模式
-        run_cmd()
+    run_shell()
+    #  if not args:
+        #  # 使用交互模式
+        #  run_shell()
+    #  else:
+        #  # 使用命令行模式
+        #  run_cmd()
 
 if __name__ == "__main__":
     main()

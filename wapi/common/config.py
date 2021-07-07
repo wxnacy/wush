@@ -11,11 +11,15 @@ import os
 from enum import Enum
 from wapi.common import constants
 from wapi.common import utils
+from wapi.common.files import FileUtils
 from wapi.common.functions import load_module
 from wapi.common.functions import super_function
 from wapi.common.functions import Function
 from wapi.common.loggers import create_logger
 from wapi.common.decorates import env_functions
+from wapi.common.exceptions import RequestException
+from wapi.models import ModuleModel
+from wapi.models import RequestModel
 
 class Env():
     # 参数地址
@@ -43,7 +47,9 @@ class Config():
     body_root = ''
     module_root = ''
     response_root = ''
+    space_name = ''
     function_modules = []
+    modules = []
 
     function  = None
     _env = Env()
@@ -117,9 +123,41 @@ class Config():
         f = Function(functions)
         self.function = f
 
-    def get_env(self):
-        """获取 env 信息"""
-        return self._env
+    def get_module(self, module_name):
+        """获取模块"""
+        _config = {}
+        if self.modules:
+            for m in self.modules:
+                if m.get("module") == module_name:
+                    _config = m
+        if self.module_root:
+            self.logger.info('Module: %s', module_name)
+            _path = self.get_module_path(module_name)
+            self.logger.info('Module path: %s', _path)
+            if not os.path.exists(_path):
+                raise RequestException('can not found request config {}'.format(
+                    request_path))
+
+        _config = FileUtils.read_dict(_path)
+        # 获取 env 信息
+        env_config = _config.get("env") or {}
+        env_config.update(self.env.dict())
+        env_path = self.get_env_path(self.space_name)
+        self.logger.info('env_path %s', env_path)
+        if os.path.exists(env_path):
+            env_config.update(FileUtils.read_dict(env_path) or {})
+        _config['functions'] = env_functions
+        _config['env'] = env_config
+
+        # 获取父配置
+        parent = _config.get("parent")
+        if parent:
+            parent_path = self.get_module_path(parent)
+            parent_config = FileUtils.read_dict(parent_path) or {}
+            ModuleModel._merge_config(parent_config, _config)
+            _config = parent_config
+        module = ModuleModel.load(_config)
+        return module
 
     def get_env_path(self, space_name=None):
         """获取 env 配置地址"""
