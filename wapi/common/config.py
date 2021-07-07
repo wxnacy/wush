@@ -143,8 +143,9 @@ class Config():
         with open(path, 'r') as f:
             data = yaml.safe_load(f)
 
-        return list(filter(lambda x: not x.startswith('.'), [
-            o.get("name") for o in data.get("requests") or []]))
+        #  return list(filter(lambda x: not x.startswith('.'), [
+            #  o.get("name") for o in data.get("requests") or []]))
+        return data.get("requests") or []
 
     def get_function(self):
         return self.function

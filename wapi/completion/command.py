@@ -6,6 +6,7 @@
 """
 
 from prompt_toolkit.completion import Completer
+from prompt_toolkit.completion import Completion
 
 from wapi.common import constants
 from wapi.common.loggers import create_logger
@@ -121,7 +122,11 @@ class CommandCompleter(BaseCompleter):
                 self.wapi.init_config(module_name = arg.module)
                 module_name = self.wapi.module_name
                 requests = self.wapi.config.get_requests(module_name)
-                _completer = WapiWordCompleter(requests)
+                words = []
+                for req in requests:
+                    words.append(Completion(req.get("name"),
+                        display_meta=req.get("title")))
+                _completer = WapiWordCompleter(words)
                 yield from self.yield_completer(_completer)
             else:
                 yield from self.get_cmd_args_completer(cmd, arg)

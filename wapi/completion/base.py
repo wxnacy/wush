@@ -6,10 +6,16 @@
 """
 
 from prompt_toolkit.completion import Completer
+from prompt_toolkit.completion import Completion
 
 from wapi.common import utils
 from wapi.common.loggers import create_logger
 
+#  class Completion(Completion):
+    #  text = ''
+    #  start_position = 0
+    #  display = ''
+    #  display_meta = ''
 
 class BaseCompleter(Completer):
     logger = create_logger("BaseCompleter")
@@ -107,5 +113,18 @@ class BaseCompleter(Completer):
         keyword = self.word_before_cursor.lower()
         if keyword in ('/', '~/'):
             return words
-        return utils.search(words, keyword)
+        if not words:
+            return words
+        first_word = words[0]
+        words_dict = {}
+        if isinstance(first_word, Completion):
+            words_dict = { o.text: o for o in words }
+            words = [o.text for o in words]
+
+        words = utils.search(words, keyword)
+        if isinstance(first_word, Completion):
+            for i in range(len(words)):
+                words[i] = words_dict[words[i]]
+
+        return words
 
