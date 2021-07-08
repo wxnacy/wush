@@ -91,6 +91,8 @@ def run_cmd():
     func_dict.get(cmd)(client)
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 def run_shell():
     parser = ArgumentParserFactory.build_parser()
@@ -99,8 +101,11 @@ def run_shell():
     client = Wapi()
     client.init_config(config_root = args.config, space_name = args.space,
         module_name = args.module)
+
     session = PromptSession(
         completer=CommandCompleter(parser, client),
+        history = FileHistory(os.path.expanduser('~/.wapi_history')),
+        auto_suggest = AutoSuggestFromHistory(),
         complete_in_thread=True
     )
 

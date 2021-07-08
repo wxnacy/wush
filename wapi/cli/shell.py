@@ -9,6 +9,11 @@ import os
 import argparse
 import shutil
 import traceback
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.completion import WordCompleter
 
 from wapi.argument import ArgumentParser
 from wapi.argument import ArgumentParserFactory
@@ -20,10 +25,6 @@ from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
 from wapi.wapi import Wapi
 
-logger = create_logger('main')
-from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.completion import WordCompleter
 
 class Shell():
     logger = create_logger('Shell')
@@ -34,6 +35,13 @@ class Shell():
 
     def __init__(self, client):
         self.client = client
+        self.parser = self._get_parser()
+        self.session = PromptSession(
+            completer=CommandCompleter(parser, client),
+            history = FileHistory(os.path.expanduser('~/.wapi_history')),
+            auto_suggest = AutoSuggestFromHistory(),
+            complete_in_thread=True
+        )
 
     def _get_parser(self, cmd=None):
         if cmd not in self.parser_dict:
