@@ -81,7 +81,7 @@ class ModuleModel(BaseModel):
         item._config = config
         for k, v in config.items():
             setattr(item, k, v)
-        reqs = []
+        item._config.pop('requests', None)
         item.format()
         return item
 

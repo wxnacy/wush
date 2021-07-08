@@ -9,6 +9,7 @@ import pytest
 
 from wapi.common import utils
 from wapi.argument import ArgumentParser
+from wapi.argument import Action
 
 def test_parse_args():
     parser = ArgumentParser()
@@ -16,7 +17,8 @@ def test_parse_args():
     parser.add_argument('--config')
     parser.add_argument('--module')
     parser.add_argument('--name')
-    parser.add_argument('--save', action='store_true')
+    parser.add_argument('--save', action=Action.STORE_TRUE.value)
+    parser.add_argument('--params', action=Action.APPEND.value)
 
     line = 'run'
     arg = parser.parse_args(line)
@@ -50,3 +52,9 @@ def test_parse_args():
     assert arg.cmd == 'run'
     assert arg.config == 'config'
     #  assert arg.name == 'test name'
+
+    line = 'run --params key=value --params name=wxnacy --config config'
+    arg = parser.parse_args(line)
+    assert arg.cmd == 'run'
+    assert arg.config == 'config'
+    assert arg.params == ['key=value', 'name=wxnacy']

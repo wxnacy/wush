@@ -51,3 +51,17 @@ def search(datas, word):
     datas = list(filter(lambda x: patten[x] > 0, datas))
     datas.sort(key = lambda x: patten[x], reverse=True)
     return datas
+
+def list_key_val_to_dict(data):
+    """
+    键值对列表转为字典
+    :param data: ['name=wxnacy', 'key=True', 'test']
+    :returns { 'name': 'wxnacy', 'key': 'True'  }
+    """
+    res = {}
+    for item in data:
+        if '=' in item:
+            k, v = item.split('=')
+            res[k] = v
+    return res
+

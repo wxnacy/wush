@@ -6,6 +6,7 @@ run 命令的参数解析
 """
 
 from .parse import ArgumentParser
+from .enum import Action
 
 class RunArgumentParser(ArgumentParser):
     cmd = 'run'
@@ -21,5 +22,6 @@ class RunArgumentParser(ArgumentParser):
         item.add_argument('--module')
         item.add_argument('--space')
         item.add_argument('--name')
+        item.add_argument('--params', action = Action.APPEND.value)
         return item
 

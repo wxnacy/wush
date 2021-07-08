@@ -6,13 +6,9 @@
 """
 from argparse import Namespace
 from collections import deque
-from enum import Enum
 
 from wapi.common.loggers import create_logger
-
-class Action(Enum):
-    STORE = 'store'
-    STORE_TRUE = 'store_true'
+from .enum import Action
 
 class ArgumentNamespace(Namespace):
     def __init__(self, **kwargs):
@@ -46,6 +42,12 @@ class Argument():
         self.value = None
         if self.action == Action.STORE_TRUE.value:
             self.value = False
+        if self.action == Action.APPEND.value:
+            self.value = []
+
+    @property
+    def is_list(self):
+        return isinstance(self.value, list)
 
 class ArgumentParser():
     logger = create_logger('ArgumentParser')
@@ -55,6 +57,7 @@ class ArgumentParser():
 
     def __init__(self, ):
         self._arg_dict = {}
+        self.add_argument('--verbose', action=Action.STORE_TRUE.value)
 
     def add_argument(self, *args, action=None):
         """
@@ -82,13 +85,18 @@ class ArgumentParser():
         for arg in args:
             if arg.is_cmd:
                 continue
+            # 已经赋值的不需要展示
+            if hasattr(argument, arg.name) and getattr(argument, arg.name):
+                # 列表除外
+                if not arg.is_list:
+                    continue
             res.append(arg.name)
-        remove_keys = []
-        for k in res:
-            if hasattr(argument, k) and getattr(argument, k):
-                remove_keys.append(k)
-        for k in remove_keys:
-            res.remove(k)
+        #  remove_keys = []
+        #  for k in res:
+            #  if hasattr(argument, k) and getattr(argument, k):
+                #  remove_keys.append(k)
+        #  for k in remove_keys:
+            #  res.remove(k)
         return res
 
     @property
@@ -120,7 +128,7 @@ class ArgumentParser():
         args_len = len(args)
         if args_len == 0:
             return None
-        # 情况数据
+        # 清空数据
         for _, arg in self._arg_dict.items():
             arg.clear()
         # 赋值命令参数
@@ -136,13 +144,15 @@ class ArgumentParser():
             if not arg:
                 i += 1
                 continue
-            arg.clear()
             if arg.action == Action.STORE_TRUE.value:
                 arg.value = True
             else:
                 val_index = i + 1
                 if val_index < args_len:
-                    arg.value = args[val_index]
+                    if arg.action == Action.APPEND.value:
+                        arg.value.append(args[val_index])
+                    else:
+                        arg.value = args[val_index]
                     i += 1
             i += 1
 

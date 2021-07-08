@@ -32,3 +32,11 @@ def test_search():
 
     res = utils.search(datas, 'wxn')
     assert res == ['wxnacy', 'wxnsss', 'testwxn']
+
+def test_list_key_val_to_dict():
+    data = ['name=wxnacy', 'key=True', 'test']
+
+    res = utils.list_key_val_to_dict(data)
+    assert res == { 'name': 'wxnacy', 'key': 'True' }
+
+

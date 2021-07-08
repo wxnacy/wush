@@ -149,7 +149,7 @@ class Wapi():
         if not module_name:
             module_name = self.module_name
         self._request = self._get_request(module_name = module_name,
-            request_name = self.request_name)
+            request_name = self.request_name, **kwargs)
         # 初始化参数
         url = self._request.url
         request_model = self._request

@@ -13,6 +13,7 @@ import traceback
 from wapi.argument import ArgumentParser
 from wapi.argument import ArgumentParserFactory
 from wapi.argument import EnvArgumentParser
+from wapi.common import utils
 from wapi.common.functions import super_function
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
@@ -62,9 +63,14 @@ class Shell():
         self.client.init_config(
             space_name = args.space,
             module_name = args.module,
-            request_name = args.name,
             config_root = args.config)
-        self.client.request()
+        _params = args.params or []
+        params = utils.list_key_val_to_dict(_params)
+        self.logger.info('arg params %s', params)
+        self.client.request(
+            request_name = args.name,
+            params = params
+        )
         self.client.print_response()
         self.client.save()
 
