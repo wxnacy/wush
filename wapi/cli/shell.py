@@ -66,10 +66,12 @@ class Shell():
             config_root = args.config)
         _params = args.params or []
         params = utils.list_key_val_to_dict(_params)
+        json_data = utils.list_key_val_to_dict(args.json or [])
         self.logger.info('arg params %s', params)
         self.client.request(
             request_name = args.name,
-            params = params
+            params = params,
+            json = json_data
         )
         self.client.print_response()
         self.client.save()

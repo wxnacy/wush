@@ -23,5 +23,6 @@ class RunArgumentParser(ArgumentParser):
         item.add_argument('--space')
         item.add_argument('--name')
         item.add_argument('--params', action = Action.APPEND.value)
+        item.add_argument('--json', action = Action.APPEND.value)
         return item
 

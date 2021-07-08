@@ -128,6 +128,34 @@ class CommandCompleter(BaseCompleter):
                         display_meta=req.get("title")))
                 _completer = WapiWordCompleter(words)
                 yield from self.yield_completer(_completer)
+
+            elif word_for_completion == '--params':
+                # 参数补全
+                self.wapi.init_config(
+                    module_name = arg.module,
+                    request_name = arg.name
+                )
+                module_name = self.wapi.module_name
+                request = self.wapi.config.get_module(module_name
+                    ).get_request(self.wapi.request_name)
+                params = request.params or {}
+                words = self._dict_to_completions(params)
+                _completer = WapiWordCompleter(words)
+                yield from self.yield_completer(_completer)
+
+            elif word_for_completion == '--json':
+                # 参数补全
+                self.wapi.init_config(
+                    module_name = arg.module,
+                    request_name = arg.name
+                )
+                module_name = self.wapi.module_name
+                request = self.wapi.config.get_module(module_name
+                    ).get_request(self.wapi.request_name)
+                params = request.json or {}
+                words = self._dict_to_completions(params)
+                _completer = WapiWordCompleter(words)
+                yield from self.yield_completer(_completer)
             else:
                 yield from self.get_cmd_args_completer(cmd, arg)
 
@@ -138,3 +166,13 @@ class CommandCompleter(BaseCompleter):
 
         #  yield Completion('completion3', start_position=0,
                          #  style='class:special-completion')
+
+    def _dict_to_completions(self, data):
+        words = []
+        for k, v in data.items():
+            words.append(Completion(
+                text = '{}='.format(k),
+                display = '{}={}'.format(k, v),
+                display_meta=''))
+        return words
+

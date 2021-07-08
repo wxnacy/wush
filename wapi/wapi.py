@@ -48,11 +48,10 @@ class Wapi():
         """获取配置"""
         return self._config
 
-    def init_config(self,**kw):
-        """初始化配置"""
-        config = kw.pop('config', None)
-        # config 地址
-        config_root = kw.pop('config_root', None)
+    def _change_config(self, config_root=None, config=None):
+        if self._config and not config_root and not config:
+            return
+
         if config_root:
             self.config_root = config_root
 
@@ -63,6 +62,15 @@ class Wapi():
         # 在使用地址获取配置
         if not self._config and self.config_root:
             self._config = Config.load(self.config_root)
+
+    def init_config(self,**kw):
+        """初始化配置"""
+        config = kw.pop('config', None)
+        # config 地址
+        config_root = kw.pop('config_root', None)
+
+        # 改变配置
+        self._change_config(config_root, config)
 
         self.logger.info('init_config kwargs %s', kw)
         for k, v in kw.items():
