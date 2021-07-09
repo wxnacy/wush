@@ -33,11 +33,15 @@ class Shell():
     parser = None
     client = None
 
-    def __init__(self, client):
-        self.client = client
+    def __init__(self):
         self.parser = self._get_parser()
+        args = self.parser.parse_args(sys.argv)
+        client = Wapi()
+        client.init_config(config_root = args.config, space_name = args.space,
+            module_name = args.module)
+        self.client = client
         self.session = PromptSession(
-            completer=CommandCompleter(parser, client),
+            completer=CommandCompleter(self.parser, client),
             history = FileHistory(os.path.expanduser('~/.wapi_history')),
             auto_suggest = AutoSuggestFromHistory(),
             complete_in_thread=True
@@ -48,7 +52,26 @@ class Shell():
             self.parser_dict[cmd] = ArgumentParserFactory.build_parser(cmd)
         return self.parser_dict[cmd]
 
-    def run(self, text):
+    def run(self):
+        while True:
+            try:
+                text = self.session.prompt('wapi>{space}>{module}> '.format(
+                    space = self.client.space_name,
+                    module = self.client.module_name
+                ))
+                self._run_once_time(text)
+            except KeyboardInterrupt:
+                continue
+            except EOFError:
+                break
+            except Exception as e:
+                traceback.print_exc()
+                print(e)
+            #  else:
+                #  print('You entered:', text)
+        print('GoodBye!')
+
+    def _run_once_time(self, text):
         """运行"""
         if not text:
             return
