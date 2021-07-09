@@ -87,6 +87,22 @@ class Shell():
     def _exit(self, text):
         raise EOFError()
 
+    def get_history_by_num(self, num):
+        """获取历史命令"""
+        items = self.session.history.get_strings()
+        if len(items) < num:
+            return None
+        return items[num - 1]
+
+    def _history(self, text):
+        #  items = [o for o in self.session.history.load_history_strings():
+        items = self.session.history.get_strings()
+        history_max_num_len = len(str(len(items)))
+        for i, item in enumerate(items):
+            show_index = i + 1
+            show_index_fmt = '{{:<{}d}}'.format(history_max_num_len)
+            print(show_index_fmt.format(show_index), item)
+
     def _run(self, text):
         args = self.parser.parse_args(text)
         if not args.name:

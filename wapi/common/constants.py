@@ -38,7 +38,7 @@ METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')
 COMMAND_RUN_ARGS = ('config', 'module', 'name', 'space')
 COMMAND_CONFIG_ARGS = ('root', 'module', 'space')
 # 命令集合
-COMMANDS = ('config', 'run', 'body', 'env', 'module')
+COMMANDS = ('config', 'run', 'body', 'env', 'module', 'history')
 COMMAND_CONFIG = 'config'
 COMMAND_ENV = 'env'
 COMMAND_RUN = 'run'

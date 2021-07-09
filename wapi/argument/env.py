@@ -8,6 +8,7 @@ from argparse import Namespace
 from collections import deque
 
 from wapi.common.loggers import create_logger
+from .decorates import argparser_register
 from .parse import ArgumentNamespace
 from .parse import ArgumentParser
 
@@ -15,6 +16,7 @@ class EnvArgumentNamespace(ArgumentNamespace):
     save = False
     pass
 
+@argparser_register()
 class EnvArgumentParser(ArgumentParser):
     cmd = 'env'
 

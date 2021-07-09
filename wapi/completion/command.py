@@ -17,10 +17,6 @@ from .filesystem import ExecutableCompleter
 from .word import WordCompleter as WapiWordCompleter
 from wapi.argument import ArgumentParserFactory
 
-path_completer = ExecutableCompleter()
-
-cmd_completer = WapiWordCompleter(constants.COMMANDS)
-
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
     # 光标前倒数第二个单次
@@ -28,12 +24,9 @@ class CommandCompleter(BaseCompleter):
     def __init__(self, argparser, wapi):
         self.argparser = argparser
         self.wapi = wapi
-
-    def yield_completer(self, completer):
-        self.logger.info('completer.__name__ %s', completer)
-        items = completer.get_completions(self.document, self.complete_event)
-        for item in items:
-            yield item
+        self.cmd_names = list(ArgumentParserFactory.get_cmd_names())
+        self.cmd_completer = WapiWordCompleter(self.cmd_names)
+        self.path_completer = ExecutableCompleter()
 
     def input_to_args(self, text):
         """格式化输入"""
@@ -94,8 +87,8 @@ class CommandCompleter(BaseCompleter):
             self.logger.info('args %s', arg)
             cmd = self.first_word
             # 补全命令
-            if cmd not in cmd_completer.words:
-                yield from self.yield_completer(cmd_completer)
+            if cmd not in self.cmd_completer.words:
+                yield from self.yield_completer(self.cmd_completer)
                 return
 
             # 补全参数
@@ -111,7 +104,7 @@ class CommandCompleter(BaseCompleter):
             # 使用模块自带的补全
             if word_for_completion in ('--config', '--root'):
                 self.logger.info('-' * 100)
-                yield from self.yield_completer(path_completer)
+                yield from self.yield_completer(self.path_completer)
             elif word_for_completion == '--module':
                 self.logger.info('-' * 100)
                 self.wapi.init_config(config_root = arg.config)

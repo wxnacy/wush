@@ -9,8 +9,8 @@ from .decorates import argparser_register
 from .parse import ArgumentParser
 
 @argparser_register()
-class ConfigArgumentParser(ArgumentParser):
-    cmd = 'config'
+class HistoryArgumentParser(ArgumentParser):
+    cmd = 'history'
 
     @classmethod
     def default(cls):
@@ -19,8 +19,5 @@ class ConfigArgumentParser(ArgumentParser):
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--config')
-        item.add_argument('--module')
-        item.add_argument('--space')
         return item
 
