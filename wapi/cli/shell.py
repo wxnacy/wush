@@ -9,6 +9,7 @@ import os
 import argparse
 import shutil
 import traceback
+from datetime import datetime
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -55,10 +56,16 @@ class Shell():
     def run(self):
         while True:
             try:
-                text = self.session.prompt('wapi>{space}>{module}> '.format(
+                left_prompt = 'wapi/{space}/{module}> '.format(
                     space = self.client.space_name,
                     module = self.client.module_name
-                ))
+                )
+                #  right_prompt = str(datetime.now())
+                right_prompt = ''
+                text = self.session.prompt(
+                    left_prompt,
+                    rprompt = right_prompt,
+                )
                 self._run_once_time(text)
             except KeyboardInterrupt:
                 continue
@@ -66,7 +73,7 @@ class Shell():
                 break
             except Exception as e:
                 traceback.print_exc()
-                print(e)
+                self.logger.error(traceback.format_exc())
             #  else:
                 #  print('You entered:', text)
         print('GoodBye!')
