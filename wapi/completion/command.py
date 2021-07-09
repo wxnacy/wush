@@ -20,7 +20,7 @@ from wapi.argument import ArgumentParserFactory
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
     # 光标前倒数第二个单次
-    last_second_word_before_cursor = None
+    #  last_second_word_before_cursor = None
     def __init__(self, argparser, wapi):
         self.argparser = argparser
         self.wapi = wapi
@@ -28,43 +28,43 @@ class CommandCompleter(BaseCompleter):
         self.cmd_completer = WapiWordCompleter(self.cmd_names)
         self.path_completer = ExecutableCompleter()
 
-    def input_to_args(self, text):
-        """格式化输入"""
-        self.logger.info('input %s', text)
-        text = text.strip('-').strip()
-        input_args = text.split(" ")
-        input_len = len(input_args)
-        if len(input_args) > 1 and len(input_args) % 2 ==0:
-            input_args.append('_')
-        word_before_cursor = self.document.get_word_before_cursor()
-        self.last_input_text = word_before_cursor
-        self.last_input_text = word_before_cursor
-        self.logger.info('document =%s=', word_before_cursor)
-        self.logger.info('crp %s', self.document.get_word_under_cursor())
-        self.logger.info('crp %s', self.document.current_line_before_cursor)
+    #  def input_to_args(self, text):
+        #  """格式化输入"""
+        #  self.logger.info('input %s', text)
+        #  text = text.strip('-').strip()
+        #  input_args = text.split(" ")
+        #  input_len = len(input_args)
+        #  if len(input_args) > 1 and len(input_args) % 2 ==0:
+            #  input_args.append('_')
+        #  #  word_before_cursor = self.document.get_word_before_cursor()
+        #  #  self.last_input_text = word_before_cursor
+        #  #  self.last_input_text = word_before_cursor
+        #  #  self.logger.info('document =%s=', word_before_cursor)
+        #  #  self.logger.info('crp %s', self.document.get_word_under_cursor())
+        #  #  self.logger.info('crp %s', self.document.current_line_before_cursor)
 
-        # 光标之前的参数列表
-        before_cursor_input_args = self.document.current_line_before_cursor.split()
-        if len(before_cursor_input_args) > 1:
-            self.last_second_word_before_cursor = before_cursor_input_args[-2]
-        self.logger.info('last_second_word_before_cursor %s',
-                self.last_second_word_before_cursor)
+        #  # 光标之前的参数列表
+        #  #  before_cursor_input_args = self.document.current_line_before_cursor.split()
+        #  #  if len(before_cursor_input_args) > 1:
+            #  #  self.last_second_word_before_cursor = before_cursor_input_args[-2]
+        #  #  self.logger.info('last_second_word_before_cursor %s',
+                #  #  self.last_second_word_before_cursor)
 
-        args = self.argparser.parse_args(input_args)
-        self.logger.info('cmd %s', args.cmd)
-        self.logger.info('cmd config %s', args.config)
-        self.logger.info('cmd module %s', args.module)
+        #  args = self.argparser.parse_args(input_args)
+        #  self.logger.info('cmd %s', args.cmd)
+        #  self.logger.info('cmd config %s', args.config)
+        #  self.logger.info('cmd module %s', args.module)
 
-        return args
+        #  return args
 
-    @classmethod
-    def get_word_before_completion(cls, document):
-        """获取补全的判定单词"""
-        char_before_cursor = document.char_before_cursor
-        current_line_before_cursor = document.current_line_before_cursor.strip()
-        if char_before_cursor == ' ':
-            return current_line_before_cursor.split(' ')[-1]
-        return current_line_before_cursor.split(' ')[-2]
+    #  @classmethod
+    #  def get_word_before_completion(cls, document):
+        #  """获取补全的判定单词"""
+        #  char_before_cursor = document.char_before_cursor
+        #  current_line_before_cursor = document.current_line_before_cursor.strip()
+        #  if char_before_cursor == ' ':
+            #  return current_line_before_cursor.split(' ')[-1]
+        #  return current_line_before_cursor.split(' ')[-2]
 
     def get_cmd_args_completer(self, cmd, arg):
         """获取命令参数的补全器"""
@@ -93,7 +93,7 @@ class CommandCompleter(BaseCompleter):
 
             # 补全参数
             word_for_completion = self.word_for_completion
-            self.logger.info('word_for_completion %s', word_for_completion)
+            #  self.logger.info('word_for_completion %s', word_for_completion)
             # 使用自定义方法返回补全单词
             words = self.wapi.config.get_function().get_completion_words(
                 word_for_completion)

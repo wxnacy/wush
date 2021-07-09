@@ -11,12 +11,6 @@ from prompt_toolkit.completion import Completion
 from wapi.common import utils
 from wapi.common.loggers import create_logger
 
-#  class Completion(Completion):
-    #  text = ''
-    #  start_position = 0
-    #  display = ''
-    #  display_meta = ''
-
 class BaseCompleter(Completer):
     logger = create_logger("BaseCompleter")
     char_before_cursor = ''
