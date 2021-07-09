@@ -20,11 +20,11 @@ class EnvArgumentNamespace(ArgumentNamespace):
 class EnvArgumentParser(ArgumentParser):
     cmd = 'env'
 
-    def get_completion_words(self, argument, words=None):
+    def get_completions_after_cmd(self, argument, words=None):
         words = []
         for k ,v in self.wapi.config.env.dict().items():
-            words.append(k)
-        return super().get_completion_words(argument, words)
+            words.append(dict(text = '--' + k))
+        return super().get_completions_after_cmd(argument, words)
 
     def set_wapi(self, client):
         self.wapi = client

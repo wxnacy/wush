@@ -54,6 +54,7 @@ class ArgumentParser():
     cmd = ''
     cmd_arg = None
     _arg_dict = None
+    argument = None
 
     def __init__(self, ):
         self._arg_dict = {}
@@ -76,28 +77,6 @@ class ArgumentParser():
         """
         return self._arg_dict.values()
 
-    def get_completion_words(self, argument, words=None):
-        """获取补全使用的单词列表"""
-        res = []
-        if words and isinstance(words, list):
-            res.extend(words)
-        args = self.get_arguments()
-        for arg in args:
-            if arg.is_cmd:
-                continue
-            # 已经赋值的不需要展示
-            if hasattr(argument, arg.name) and getattr(argument, arg.name):
-                # 列表除外
-                if not arg.is_list:
-                    continue
-            res.append(arg.name)
-        #  remove_keys = []
-        #  for k in res:
-            #  if hasattr(argument, k) and getattr(argument, k):
-                #  remove_keys.append(k)
-        #  for k in remove_keys:
-            #  res.remove(k)
-        return res
 
     @property
     def _argument_namespace(self):
@@ -110,7 +89,9 @@ class ArgumentParser():
         self._parse_args(args)
         res = self._make_args_dict(args)
         self.logger.info('argument %s', res)
-        return self._make_argument_namespace(**res)
+        argument = self._make_argument_namespace(**res)
+        self.argument = argument
+        return argument
 
     def _make_args_dict(self, args):
         """创建参数键值对"""
@@ -168,3 +149,27 @@ class ArgumentParser():
         item.add_argument('--space')
         return item
 
+    def get_completions_after_argument(self, wapi, word_for_completion):
+        """
+        获取补全的单词列表
+        :param wapi: Wapi
+        :param word_for_completion: 补全需要的单词
+        """
+        return []
+
+    def get_completions_after_cmd(self, argument, words=None):
+        """获取补全使用的单词列表"""
+        res = []
+        if words and isinstance(words, list):
+            res.extend(words)
+        args = self.get_arguments()
+        for arg in args:
+            if arg.is_cmd:
+                continue
+            # 已经赋值的不需要展示
+            if hasattr(argument, arg.name) and getattr(argument, arg.name):
+                # 列表除外
+                if not arg.is_list:
+                    continue
+            res.append(dict(text = '--' + arg.name))
+        return res
