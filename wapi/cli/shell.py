@@ -10,6 +10,7 @@ import argparse
 import shutil
 import traceback
 from datetime import datetime
+import multiprocessing as mp
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.application import run_in_terminal
@@ -23,6 +24,8 @@ from wapi.argument import ArgumentParserFactory
 from wapi.argument import EnvArgumentParser
 from wapi.common import utils
 from wapi.common.functions import super_function
+from wapi.common.functions import run_shell
+from wapi.common.functions import random_int
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 from wapi.completion.command import CommandCompleter
@@ -30,7 +33,8 @@ from wapi.wapi import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
-
+from .server import run_server
+from .server import PORT
 
 class Shell():
     logger = create_logger('Shell')
@@ -39,6 +43,7 @@ class Shell():
     parser = None
     client = None
     _prompt_default = ''
+    web_port = None
 
     def __init__(self):
         self.parser = self._get_parser()
@@ -59,7 +64,25 @@ class Shell():
             self.parser_dict[cmd] = ArgumentParserFactory.build_parser(cmd)
         return self.parser_dict[cmd]
 
+    def _is_run(self):
+        """判断程序是否运行"""
+        stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
+        stdout_len = len(stdout.decode().split('\n'))
+        return True if stdout_len >= 4 else False
+
+    #  def _get_run_count(self):
+        #  stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
+        #  stdout_len = len(stdout.decode().split('\n'))
+
     def run(self):
+        port = 12300 + int(random_int(2, 1))
+        self.web_port = port
+        p = mp.Process(target=run_server, args=(port,), daemon=True)
+        p.start()
+        self._run_shell()
+        p.terminate()
+
+    def _run_shell(self):
         while True:
             try:
                 left_prompt = 'wapi/{space}/{module}> '.format(
@@ -106,8 +129,10 @@ class Shell():
         try:
             func = getattr(self, '_' + cmd)
             func(text)
-        except:
+        except Exception as e:
             self.logger.error(traceback.format_exc())
+            if isinstance(e, EOFError):
+                raise e
             raise CommnadNotFoundException()
 
     def _run_base_cmd(self, text):
@@ -223,29 +248,29 @@ class Shell():
         oname = super_function.get_current_space_name()
         print(oname)
 
-def run_shell():
-    parser = ArgumentParserFactory.build_parser()
-    client = Wapi()
-    session = PromptSession(
-        completer=CommandCompleter(parser, client),
-        complete_in_thread=True
-    )
+#  def run_shell():
+    #  parser = ArgumentParserFactory.build_parser()
+    #  client = Wapi()
+    #  session = PromptSession(
+        #  completer=CommandCompleter(parser, client),
+        #  complete_in_thread=True
+    #  )
 
-    cli = Main(client)
+    #  cli = Main(client)
 
-    while True:
-        try:
-            text = session.prompt('wapi> ')
-            cli.run(text)
+    #  while True:
+        #  try:
+            #  text = session.prompt('wapi> ')
+            #  cli.run(text)
 
-        except KeyboardInterrupt:
-            continue
-        except EOFError:
-            break
-        except Exception as e:
-            traceback.print_exc()
-            print(e)
-        #  else:
-            #  print('You entered:', text)
-    print('GoodBye!')
+        #  except KeyboardInterrupt:
+            #  continue
+        #  except EOFError:
+            #  break
+        #  except Exception as e:
+            #  traceback.print_exc()
+            #  print(e)
+        #  #  else:
+            #  #  print('You entered:', text)
+    #  print('GoodBye!')
 
