@@ -70,14 +70,10 @@ class Shell():
         stdout_len = len(stdout.decode().split('\n'))
         return True if stdout_len >= 4 else False
 
-    #  def _get_run_count(self):
-        #  stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
-        #  stdout_len = len(stdout.decode().split('\n'))
-
     def run(self):
         port = 12300 + int(random_int(2, 1))
         self.web_port = port
-        p = mp.Process(target=run_server, args=(port,), daemon=True)
+        p = mp.Process(target=run_server, args=(self.client, port,), daemon=True)
         p.start()
         self._run_shell()
         p.terminate()
@@ -191,6 +187,8 @@ class Shell():
         )
         self.client.print_response()
         self.client.save()
+        if args.open:
+            self._open()
 
     def _env(self, text):
         """执行变量操作"""
@@ -240,6 +238,14 @@ class Shell():
             print('module={}'.format(self.client.module_name))
             print('space={}'.format(self.client.space_name))
 
+    def _open(self):
+        #  """打开请求信息"""
+        request_url = ("http://0.0.0.0:{port}/api/version/{version}"
+                ).format(port = self.web_port, version = self.client.version)
+        self.logger.info('open %s', request_url)
+        os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
+            request_url))
+
     def _test(self, text):
         #  for k, v in os.environ.items():
             #  print(k, v)
@@ -247,30 +253,4 @@ class Shell():
         print(sname)
         oname = super_function.get_current_space_name()
         print(oname)
-
-#  def run_shell():
-    #  parser = ArgumentParserFactory.build_parser()
-    #  client = Wapi()
-    #  session = PromptSession(
-        #  completer=CommandCompleter(parser, client),
-        #  complete_in_thread=True
-    #  )
-
-    #  cli = Main(client)
-
-    #  while True:
-        #  try:
-            #  text = session.prompt('wapi> ')
-            #  cli.run(text)
-
-        #  except KeyboardInterrupt:
-            #  continue
-        #  except EOFError:
-            #  break
-        #  except Exception as e:
-            #  traceback.print_exc()
-            #  print(e)
-        #  #  else:
-            #  #  print('You entered:', text)
-    #  print('GoodBye!')
 

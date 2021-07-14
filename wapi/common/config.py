@@ -46,10 +46,14 @@ class Config():
     env_root = ''
     body_root = ''
     module_root = ''
+    data_root = ''
     response_root = ''
+    request_root = ''
+    version_root = ''
     space_name = ''
     function_modules = []
     modules = []
+    _config = {}
 
     function  = None
     _env = Env()
@@ -63,9 +67,7 @@ class Config():
 
     def _setattr(self, k, v):
         """设置属性"""
-        if k == 'response_root':
-            v = utils.fmt_path(v)
-        elif k == 'env':
+        if k == 'env':
             k = '_env'
             v = Env(**v)
         setattr(self, k, v)
@@ -86,20 +88,24 @@ class Config():
             filepath = os.path.join(fileroot, 'wapi.yml')
             with open(filepath, 'r') as f:
                 data = yaml.safe_load(f)
+        item._config = data
 
         if data:
             for k, v in data.items():
                 item._setattr(k, v)
 
         # 格式化各个 root 配置
-        for _root in ('env_root', 'module_root', 'body_root'):
+        for _root in ('env_root', 'module_root', 'body_root', 'data_root'):
             item._setattr(_root, item.fmt_path(getattr(item, _root)))
 
         item._load_functions()
 
         # 创建保持地址
-        if not os.path.exists(item.response_root):
-            os.makedirs(item.response_root)
+        for _root in ('response_root', 'request_root', 'version_root'):
+            setattr(item, _root, os.path.join(item.data_root,
+                _root.replace('_root', '')))
+            if not os.path.exists(getattr(item, _root)):
+                os.makedirs(getattr(item, _root))
 
         return item
 
@@ -191,12 +197,13 @@ class Config():
         with open(path, 'r') as f:
             data = yaml.safe_load(f)
 
-        #  return list(filter(lambda x: not x.startswith('.'), [
-            #  o.get("name") for o in data.get("requests") or []]))
         return data.get("requests") or []
 
     def get_function(self):
         return self.function
+
+    def dict(self):
+        return self._config
 
     @classmethod
     def get_default_root(cls):
@@ -205,6 +212,7 @@ class Config():
     def fmt_path(self, path):
         if not path:
             return path
+        path = os.path.expanduser(path)
         if os.path.isabs(path):
             return path
         return os.path.join(self._root, path)

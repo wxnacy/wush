@@ -26,6 +26,7 @@ class RunArgumentParser(ArgumentParser):
         item.add_argument('--name')
         item.add_argument('--params', action = Action.APPEND.value)
         item.add_argument('--json', action = Action.APPEND.value)
+        item.add_argument('--open', action = Action.STORE_TRUE.value)
         return item
 
     def get_completions_after_argument(self, wapi, word_for_completion):

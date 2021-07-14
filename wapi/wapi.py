@@ -11,6 +11,7 @@ import os
 import requests
 import json
 import cgi
+import traceback
 
 from datetime import datetime
 from wapi.common import constants
@@ -42,6 +43,12 @@ class Wapi():
         self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
         self.config_root = Config.get_default_root()
         self.init_config(**kw)
+
+    def reload_by_version(self, version):
+        """通过版本号重新加载"""
+        self.version = version
+        data = FileUtils.read_dict(self.version_path)
+        self.init_config(**data)
 
     @property
     def config(self):
@@ -108,50 +115,12 @@ class Wapi():
         :param dict kwargs:
             `env` 环境变量
         """
-        # 获取 request 信息
-        #  self.logger.info('Module: %s', module_name)
-        #  request_path = self.config.get_module_path(module_name)
-        #  self.logger.info('Request path: %s', request_path)
-        #  if not os.path.exists(request_path):
-            #  raise RequestException('can not found request config {}'.format(
-                #  request_path))
-        #  # 初始化环境变量
-        #  self._init_environ()
-
-        #  module_config = FileUtils.read_dict(request_path)
-        #  # 获取 env 信息
-        #  env_config = module_config.get("env") or {}
-        #  env_config.update(self.config.env.dict())
-        #  env_path = self.config.get_env_path(self.space_name)
-        #  self.logger.info('env_path %s', env_path)
-        #  if os.path.exists(env_path):
-            #  env_config.update(fileutils.read_dict(env_path) or {})
-        #  module_config['functions'] = env_functions
-        #  module_config['env'] = env_config
-
-        #  # 加载 kwargs 参数中的配置
-        #  for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
-            #  v = kwargs.get(k)
-            #  if isinstance(v, dict):
-                #  module_val = module_config.get(k) or {}
-                #  module_val.update(v)
-                #  module_config[k] = module_val
-
-        #  # 获取父配置
-        #  parent = module_config.get("parent")
-        #  if parent:
-            #  parent_path = self._config.get_module_path(parent)
-            #  parent_config = fileutils.read_dict(parent_path) or {}
-            #  modulemodel._merge_config(parent_config, module_config)
-            #  module_config = parent_config
-
-        # 加载并获取 request
-        #  module = ModuleModel.load(module_config)
         module = self.config.get_module(module_name)
         request = module.get_request(request_name, **kwargs)
         return request
 
     def request(self, request_name = None, module_name = None, **kwargs):
+        self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
         if request_name:
             self.request_name = request_name
         if not module_name:
@@ -173,6 +142,8 @@ class Wapi():
 
         self.logger.info(request_model.pretty_str())
         self.logger.info('Url: %s', url)
+        self._url = url
+        self._request_data = kw
         res = requests.request(request_model.method, url, **kw)
         self.response_content = res.content
         self._response = res
@@ -202,9 +173,19 @@ class Wapi():
             print('解析 json 失败')
 
     @property
+    def version_path(self):
+        """结果版本地址"""
+        return os.path.join(self.config.version_root, self.version + '.json')
+
+    @property
+    def request_path(self):
+        """结果存储地址"""
+        return os.path.join(self.config.request_root, self.version + '.json')
+
+    @property
     def response_path(self):
         """结果存储地址"""
-        filename = None
+        filename = '{}-{}'.format(self.module_name, self.request_name)
         if self._response:
             headers = dict(self._response.headers)
             content_type = headers.get("content-type") or ''
@@ -213,8 +194,6 @@ class Wapi():
                 content_disposition = headers.get("content-disposition")
                 _, params = cgi.parse_header(content_disposition)
                 filename = params.get("filename")
-            else:
-                filename = '{}-{}'.format(self.module_name, self.request_name)
 
         path = os.path.join(self.config.response_root, '{}-{}'.format(
             self.version, filename))
@@ -224,6 +203,8 @@ class Wapi():
 
     def save(self):
         """保存请求配置"""
+        self._save_version()
+        self._save_request()
         save_path = self.response_path
         try:
             save_data = json.dumps(json.loads(
@@ -236,14 +217,49 @@ class Wapi():
             with open(save_path, 'bw') as f:
                 f.write(self.response_content)
 
-    def open(self):
-        #  """打开请求信息"""
-        request_url = ("http://0.0.0.0:8801/api/detail?"
-            "version={}&service_name={}&request_name={}").format(
-                self.version, self.service_name, self.request_name
-        )
-        self.logger.info('open %s', request_url)
-        os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
-            request_url))
-        pass
+    def _save_version(self):
+        data = {
+            "version": self.version,
+            "space_name": self.space_name,
+            "module_name": self.module_name,
+            "request_name": self.request_name,
+            "config": self.config.dict(),
+        }
+        save_path = self.version_path
+        self.logger.info('version_path %s', save_path)
+        try:
+            save_data = json.dumps(data, indent=4, ensure_ascii=False)
+            with open(save_path, 'w') as f:
+                f.write(save_data)
+        except Exception as e:
+            self.logger.error(traceback.format_exc())
 
+    def _save_request(self):
+        data = {
+            "url": self._url,
+        }
+        data.update(self.request_data)
+        save_path = self.request_path
+        self.logger.info('request_path %s', save_path)
+        try:
+            save_data = json.dumps(data, indent=4, ensure_ascii=False)
+            with open(save_path, 'w') as f:
+                f.write(save_data)
+        except Exception as e:
+            self.logger.error(traceback.format_exc())
+
+    def read(self):
+        data = {
+            "version": FileUtils.read_dict(self.version_path),
+            "request": FileUtils.read_dict(self.request_path),
+            "response": FileUtils.read_dict(self.response_path),
+        }
+        return data
+
+    #  def open_browser(self):
+        #  #  """打开请求信息"""
+        #  request_url = ("http://0.0.0.0:{port}/api/{version}"
+                #  ).format(port = self.web_port, version = self.version)
+        #  self.logger.info('open %s', request_url)
+        #  os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
+            #  request_url))

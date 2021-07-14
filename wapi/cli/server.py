@@ -8,39 +8,28 @@ import json
 
 from flask import Flask
 from flask import request
-from wapi.common.loggers import create_logger
 
-#  from apis.repos import Repos
+from wapi.common.loggers import create_logger
+from wapi.wapi import Wapi
+
 
 app = Flask(__name__)
+client = None
 
 logger = create_logger(__name__)
 
-@app.route('/api/detail')
-def api_detail():
-    args = request.args
-    version = args.get("version")
-    service_name = args.get("service_name")
-    request_name = args.get("request_name")
-    client = Repos()
-    client.init_config(
-        version = version,
-        service_name = service_name,
-        request_name = request_name
-    )
-    with open(client.response_path, 'r') as f:
-        resp_lines = f.readlines()
-        resp = json.loads(''.join(resp_lines))
-
-    with open(client.request_path, 'r') as f:
-        req_lines = f.readlines()
-        req = json.loads(''.join(req_lines))
-
-    res = {
-        "request": req,
-        "response": resp
-    }
-    return res
+@app.route('/api/version/<string:version>')
+def detail(version):
+    client.reload_by_version(version)
+    res = client.read()
+    data = res
+    data.pop('version', None)
+    
+    #  data = {
+        #  "response": res.get("response"),
+            #  }
+    #  data.update(res.get("request"))
+    return data
 
 @app.route('/test', methods=['post', 'get'])
 def test():
@@ -54,11 +43,13 @@ def test():
 
 PORT = 12345
 
-def run_server(port):
+def run_server(wapi, port):
+    global client
     #  app.logger.disabled = True
     #  app.logger.setLevel("ERROR")
     #  log = logging.getLogger('werkzeug')
     #  logger.disabled = True
+    client = wapi
     app.run(host = '0.0.0.0', port=port, debug=False)
 
 if __name__ == "__main__":
