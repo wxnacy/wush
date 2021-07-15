@@ -9,9 +9,14 @@ import os
 import argparse
 import shutil
 import traceback
-from datetime import datetime
 import multiprocessing as mp
+import pygments
 
+from datetime import datetime
+from pygments.token import Token
+from pygments.lexers.python import PythonLexer
+from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit import print_formatted_text
 from prompt_toolkit import PromptSession
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.history import FileHistory
@@ -172,20 +177,32 @@ class Shell():
         args = self.parser.parse_args(text)
         if not args.name:
             raise Exception
-        self.client.init_config(
-            space_name = args.space,
-            module_name = args.module,
-            config_root = args.config)
         _params = args.params or []
         params = utils.list_key_val_to_dict(_params)
         json_data = utils.list_key_val_to_dict(args.json or [])
-        self.logger.info('arg params %s', params)
-        self.client.request(
+
+        self.client.build(
+            space_name = args.space,
+            module_name = args.module,
             request_name = args.name,
             params = params,
             json = json_data
         )
-        self.client.print_response()
+
+        self.logger.info('arg params %s', params)
+
+        self._print('Space: {}'.format(self.client.space_name))
+        self._print('Module: {}'.format(self.client.module_name))
+        self._print('Request: {}'.format(self.client.request_name))
+        self._print('Url: {}'.format(self.client.url))
+        self._print('请求中。。。')
+
+        self.client.request()
+
+        self._print('Status: {}'.format(self.client.response.status_code))
+        self._print('Response:')
+        self._print(self.client.get_pertty_response_content())
+
         self.client.save()
         if args.open:
             self._open()
@@ -234,9 +251,9 @@ class Shell():
                 module_name = args.module,
                 config_root = args.config)
         else:
-            print('root={}'.format(self.client.config_root))
-            print('module={}'.format(self.client.module_name))
-            print('space={}'.format(self.client.space_name))
+            self._print('root={}'.format(self.client.config_root))
+            self._print('module={}'.format(self.client.module_name))
+            self._print('space={}'.format(self.client.space_name))
 
     def _open(self):
         #  """打开请求信息"""
@@ -253,4 +270,8 @@ class Shell():
         print(sname)
         oname = super_function.get_current_space_name()
         print(oname)
+
+    def _print(self, text):
+        tokens = list(pygments.lex(text, lexer=PythonLexer()))
+        print_formatted_text(PygmentsTokens(tokens), end='')
 

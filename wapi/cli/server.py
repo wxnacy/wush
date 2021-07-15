@@ -12,6 +12,9 @@ from flask import request
 from wapi.common.loggers import create_logger
 from wapi.wapi import Wapi
 
+#  import logging
+#  log = logging.getLogger('werkzeug')
+#  log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 client = None
@@ -24,11 +27,6 @@ def detail(version):
     res = client.read()
     data = res
     data.pop('version', None)
-    
-    #  data = {
-        #  "response": res.get("response"),
-            #  }
-    #  data.update(res.get("request"))
     return data
 
 @app.route('/test', methods=['post', 'get'])
@@ -50,7 +48,7 @@ def run_server(wapi, port):
     #  log = logging.getLogger('werkzeug')
     #  logger.disabled = True
     client = wapi
-    app.run(host = '0.0.0.0', port=port, debug=False)
+    app.run(host = '0.0.0.0', port=port)
 
 if __name__ == "__main__":
     run_server()

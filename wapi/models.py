@@ -15,7 +15,7 @@ from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
 import requests
 
-class BaseModel():
+class BaseModel(object):
 
     @classmethod
     def _format_str(cls, value):
@@ -61,6 +61,26 @@ class BaseModel():
         for k, v in self._config.items():
             self._set_item_attr(self, k, v)
 
+    def add_attr(self, k, v):
+        """增加属性"""
+        if not v:
+            return
+
+        if not hasattr(self, k):
+            setattr(self, k, v)
+            return
+
+        if isinstance(v, dict):
+            val = getattr(self, k) or {}
+            val.update(v)
+            setattr(self, k, val)
+            return
+
+        setattr(self, k, v)
+
+    def add_attrs(self, **kwargs):
+        for k, v in kwargs.items():
+            self.add_attr(k, v)
 
 class ModuleModel(BaseModel):
     logger = create_logger('ModuleModel')
@@ -79,8 +99,7 @@ class ModuleModel(BaseModel):
     def load(cls, config):
         item = cls()
         item._config = config
-        for k, v in config.items():
-            setattr(item, k, v)
+        item.add_attrs(**config)
         item._config.pop('requests', None)
         item.format()
         return item
@@ -113,16 +132,12 @@ class ModuleModel(BaseModel):
         for item in self.requests:
             if item.get("name") == name:
                 item = self._merge_config(dict(self._config), item)
+
+                req_model = RequestModel.load(item)
                 # 加载参数中的变量
                 for k in ('env', 'params', 'json', 'data', 'headers', 'cookies'):
                     v = kwargs.get(k)
-                    if isinstance(v, dict):
-                        module_val = item.get(k) or {}
-                        module_val.update(v)
-                        item[k] = module_val
-
-                req_model = RequestModel.load(item)
-                req_model.format()
+                    req_model.add_attr(k, v)
                 return req_model
 
 class RequestModel(BaseModel):
@@ -153,8 +168,8 @@ class RequestModel(BaseModel):
         item = cls()
         item._config = config
         cls.logger.info('Total cookies: %s', config.get("cookies"))
-        for k, v in config.items():
-            setattr(item, k, v)
+        item.add_attrs(**config)
+        item.format()
         return item
 
     def format(self):

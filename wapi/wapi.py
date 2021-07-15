@@ -32,6 +32,7 @@ class Wapi():
     config_root = ''
     _config = None
     _request = None
+    _url = None
     _response = None
     is_dynamic_space = True
 
@@ -99,6 +100,7 @@ class Wapi():
             self.module_name = self.config.get_default_module_name()
 
         self._init_environ()
+        self._build()
 
     def _init_environ(self):
         '''初始化环境变量'''
@@ -109,42 +111,49 @@ class Wapi():
             body_path = current_body_path
         ))
 
+    def build(self, **kwargs):
+        """
+        构建请求
+        :param kwargs:
+        """
+        for k in ('space_name', 'module_name', 'request_name'):
+            val = kwargs.pop(k, None)
+            if val:
+                setattr(self, k, val)
 
-    def _get_request(self, module_name, request_name, **kwargs):
+        self._build(**kwargs)
+        return self
+
+    def _build(self, **kwargs):
         """获取 request
         :param dict kwargs:
             `env` 环境变量
         """
-        module = self.config.get_module(module_name)
-        request = module.get_request(request_name, **kwargs)
-        return request
-
-    def request(self, request_name = None, module_name = None, **kwargs):
-        self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
-        if request_name:
-            self.request_name = request_name
-        if not module_name:
-            module_name = self.module_name
-        self._request = self._get_request(module_name = module_name,
-            request_name = self.request_name, **kwargs)
-        # 初始化参数
-        url = self._request.url
-        request_model = self._request
-
-        kw = { }
+        if not self.request_name or not self.module_name:
+            return
+        module = self.config.get_module(self.module_name)
+        request = module.get_request(self.request_name, **kwargs)
+        self._request = request
+        self.logger.info('RequestModel: %s', request)
+        self._url = request.url
+        self._request_data = { }
+        # 注入 request 必要的参数
+        for k in ('method', 'url'):
+            self._request_data[k] = getattr(self._request, k)
+        # 注入 request 必要的参数
         for name in ('json', 'data', 'headers', 'cookies', 'params'):
             value =  getattr(self._request, name)
             if value:
-                kw[name] = value
+                self._request_data[name] = value
+        self.logger.info('Request data: %s', self._request_data)
 
-        self.request_data = kw
-        self.logger.info('Request data: %s', self.request_data)
+    def request(self, **kwargs):
+        self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
+        if kwargs:
+            self.build(**kwargs)
 
-        self.logger.info(request_model.pretty_str())
-        self.logger.info('Url: %s', url)
-        self._url = url
-        self._request_data = kw
-        res = requests.request(request_model.method, url, **kw)
+        res = requests.request(**self._request_data)
+
         self.response_content = res.content
         self._response = res
         self.logger.info('Response')
@@ -152,6 +161,14 @@ class Wapi():
         response_data['headers'] = dict(res.headers)
         self.logger.info(json.dumps(response_data, indent=4))
         return res
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def response(self):
+        return self._response
 
     def print_response(self):
         """打印返回结果"""
@@ -171,6 +188,20 @@ class Wapi():
             print('Content:')
             print(self._response.content)
             print('解析 json 失败')
+
+    def get_pertty_response_content(self):
+        """获取好看的 response content 内容"""
+        try:
+            data = self._response.json()
+            try:
+                data = utils.filter_json(data, self._request.filters)
+            except:
+                self.logger.error(traceback.format_exc())
+            return json.dumps(data, indent=4, ensure_ascii=False)
+        except:
+            self.logger.error(traceback.format_exc())
+            return self._response.content
+
 
     @property
     def version_path(self):
@@ -235,14 +266,11 @@ class Wapi():
             self.logger.error(traceback.format_exc())
 
     def _save_request(self):
-        data = {
-            "url": self._url,
-        }
-        data.update(self.request_data)
         save_path = self.request_path
         self.logger.info('request_path %s', save_path)
         try:
-            save_data = json.dumps(data, indent=4, ensure_ascii=False)
+            save_data = json.dumps(self._request_data, indent=4,
+                ensure_ascii=False)
             with open(save_path, 'w') as f:
                 f.write(save_data)
         except Exception as e:
@@ -255,11 +283,3 @@ class Wapi():
             "response": FileUtils.read_dict(self.response_path),
         }
         return data
-
-    #  def open_browser(self):
-        #  #  """打开请求信息"""
-        #  request_url = ("http://0.0.0.0:{port}/api/{version}"
-                #  ).format(port = self.web_port, version = self.version)
-        #  self.logger.info('open %s', request_url)
-        #  os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
-            #  request_url))
