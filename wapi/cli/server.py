@@ -9,6 +9,7 @@ import json
 from flask import Flask
 from flask import request
 
+from wapi.common.functions import random_int
 from wapi.common.loggers import create_logger
 from wapi.wapi import Wapi
 
@@ -39,15 +40,17 @@ def test():
     }
     return res
 
-PORT = 12345
+PORT = 12000 + int(random_int(3, 1))
 
-def run_server(wapi, port):
+def run_server(wapi, port=None):
     global client
     #  app.logger.disabled = True
     #  app.logger.setLevel("ERROR")
     #  log = logging.getLogger('werkzeug')
     #  logger.disabled = True
     client = wapi
+    if not port:
+        port = PORT
     app.run(host = '0.0.0.0', port=port)
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ from prompt_toolkit.completion import WordCompleter
 
 from wapi.argument import ArgumentParser
 from wapi.argument import ArgumentParserFactory
+from wapi.argument import CommandArgumentParser
 from wapi.argument import EnvArgumentParser
 from wapi.common import utils
 from wapi.common.functions import super_function
@@ -76,19 +77,21 @@ class Shell():
 
     def _get_parser(self, cmd=None):
         if cmd not in self.parser_dict:
-            self.parser_dict[cmd] = ArgumentParserFactory.build_parser(cmd)
+            parser = ArgumentParserFactory.build_parser(cmd)
+            if isinstance(parser, CommandArgumentParser):
+                parser.set_wapi(self.client)
+                parser.set_prompt_session(self.session)
+            self.parser_dict[cmd] = parser
         return self.parser_dict[cmd]
 
-    def _is_run(self):
-        """判断程序是否运行"""
-        stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
-        stdout_len = len(stdout.decode().split('\n'))
-        return True if stdout_len >= 4 else False
+    #  def _is_run(self):
+        #  """判断程序是否运行"""
+        #  stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
+        #  stdout_len = len(stdout.decode().split('\n'))
+        #  return True if stdout_len >= 4 else False
 
     def run(self):
-        port = 12000 + int(random_int(3, 1))
-        self.web_port = port
-        p = mp.Process(target=run_server, args=(self.client, port,), daemon=True)
+        p = mp.Process(target=run_server, args=(self.client, ), daemon=True)
         p.start()
         self._run_shell()
         p.terminate()
@@ -116,7 +119,7 @@ class Shell():
             except EOFError:
                 break
             except Exception as e:
-                self._print(str(e))
+                self._print('ERROR: ' + str(e))
                 self.logger.error(traceback.format_exc())
             self._end_run()
 
@@ -136,6 +139,10 @@ class Shell():
         self.logger.info('run argparser %s', self.parser)
 
         self._run_base_cmd(text)
+
+        if isinstance(self.parser, CommandArgumentParser):
+            self.parser.run(text)
+            return
 
         if not hasattr(self, '_' + cmd):
             raise CommnadNotFoundException()
@@ -170,105 +177,6 @@ class Shell():
         if len(items) < num:
             return None
         return items[num - 1]
-
-    def _history(self, text):
-        #  items = [o for o in self.session.history.load_history_strings():
-        items = self.session.history.get_strings()
-        history_max_num_len = len(str(len(items)))
-        for i, item in enumerate(items):
-            show_index = i + 1
-            show_index_fmt = '{{:<{}d}}'.format(history_max_num_len)
-            print(show_index_fmt.format(show_index), item)
-
-    def _run(self, text):
-        args = self.parser.parse_args(text)
-        if not args.name:
-            raise Exception
-        _params = args.params or []
-        params = utils.list_key_val_to_dict(_params)
-        json_data = utils.list_key_val_to_dict(args.json or [])
-
-        self.client.build(
-            space_name = args.space,
-            module_name = args.module,
-            request_name = args.name,
-            params = params,
-            json = json_data
-        )
-
-        self.logger.info('arg params %s', params)
-
-        self._print('Space: {}'.format(self.client.space_name))
-        self._print('Module: {}'.format(self.client.module_name))
-        self._print('Request: {}'.format(self.client.request_name))
-        self._print('Url: {}'.format(self.client.url))
-        self._print('请求中。。。')
-
-        self.client.request()
-
-        self._print('Status: {}'.format(self.client.response.status_code))
-        self._print('Response:')
-        self._print(self.client.get_pertty_response_content())
-
-        self.client.save()
-        if args.open:
-            self._open()
-
-    def _env(self, text):
-        """执行变量操作"""
-        args = self.parser.parse_args(text)
-        if args.has_args():
-            arg_names = [o.name for o in self.parser.get_arguments()]
-            for k, v in args.__dict__.items():
-                if k not in arg_names:
-                    self.client.config.env.add(**{ k: v })
-                    print('{}={}'.format(k, v))
-            self.client.init_config()
-        else:
-            for k, v in self.client.config.env.dict().items():
-                print('{}={}'.format(k, v))
-
-        # 保存数据
-        if args.save:
-            env_path = self.client.config.get_env_path()
-            env_data = {}
-            try:
-                env_data = FileUtils.read_dict(env_path)
-            except:
-                pass
-            for k, v in self.client.config.env.dict().items():
-                if k in ('body_path',):
-                    continue
-                if k.isupper():
-                    continue
-                if not v:
-                    continue
-                if env_data.get(k) == v:
-                    continue
-                self.logger.info('Env save %s=%s', k, v)
-                env_data[k] = v
-            FileUtils.save_yml(env_path, env_data)
-            return
-
-    def _config(self, text):
-        args = self.parser.parse_args(text)
-        if args.has_args():
-            self.client.init_config(
-                space_name = args.space,
-                module_name = args.module,
-                config_root = args.config)
-        else:
-            self._print('root={}'.format(self.client.config_root))
-            self._print('module={}'.format(self.client.module_name))
-            self._print('space={}'.format(self.client.space_name))
-
-    def _open(self):
-        #  """打开请求信息"""
-        request_url = ("http://0.0.0.0:{port}/api/version/{version}"
-                ).format(port = self.web_port, version = self.client.version)
-        self.logger.info('open %s', request_url)
-        os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
-            request_url))
 
     def _test(self, text):
         #  for k, v in os.environ.items():

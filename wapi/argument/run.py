@@ -4,14 +4,19 @@
 """
 run 命令的参数解析
 """
+import os
+from wpy.argument import Action
 
+from wapi.common import utils
+from wapi.common.loggers import create_logger
 from .decorates import argparser_register
-from .enum import Action
-from .parse import ArgumentParser
+from .command import CommandArgumentParser
+from wapi.cli.server import PORT
 
 @argparser_register()
-class RunArgumentParser(ArgumentParser):
+class RunArgumentParser(CommandArgumentParser):
     cmd = 'run'
+    logger = create_logger('RunArgumentParser')
 
     @classmethod
     def default(cls):
@@ -85,3 +90,45 @@ class RunArgumentParser(ArgumentParser):
                 display = '{}={}'.format(k, v),
                 display_meta=''))
         return words
+
+    def run(self, text):
+        args = self.parse_args(text)
+        if not args.name:
+            raise Exception
+        _params = args.params or []
+        params = utils.list_key_val_to_dict(_params)
+        json_data = utils.list_key_val_to_dict(args.json or [])
+
+        self.wapi.build(
+            space_name = args.space,
+            module_name = args.module,
+            request_name = args.name,
+            params = params,
+            json = json_data
+        )
+
+        self.logger.info('arg params %s', params)
+
+        self._print('Space: {}'.format(self.wapi.space_name))
+        self._print('Module: {}'.format(self.wapi.module_name))
+        self._print('Request: {}'.format(self.wapi.request_name))
+        self._print('Url: {}'.format(self.wapi.url))
+        self._print('请求中。。。')
+
+        self.wapi.request()
+
+        self._print('Status: {}'.format(self.wapi.response.status_code))
+        self._print('Response:')
+        self._print(self.wapi.get_pertty_response_content())
+
+        self.wapi.save()
+        if args.open:
+            self._open()
+
+    def _open(self):
+        #  """打开请求信息"""
+        request_url = ("http://0.0.0.0:{port}/api/version/{version}"
+                ).format(port = PORT, version = self.wapi.version)
+        self.logger.info('open %s', request_url)
+        os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
+            request_url))

@@ -6,10 +6,10 @@ run 命令的参数解析
 """
 
 from .decorates import argparser_register
-from .parse import ArgumentParser
+from .command import CommandArgumentParser
 
 @argparser_register()
-class ConfigArgumentParser(ArgumentParser):
+class ConfigArgumentParser(CommandArgumentParser):
     cmd = 'config'
 
     @classmethod
@@ -24,3 +24,14 @@ class ConfigArgumentParser(ArgumentParser):
         item.add_argument('--space')
         return item
 
+    def run(self, text):
+        args = self.parse_args(text)
+        if args.has_args():
+            self.wapi.init_config(
+                space_name = args.space,
+                module_name = args.module,
+                config_root = args.config)
+        else:
+            self._print('root={}'.format(self.wapi.config_root))
+            self._print('module={}'.format(self.wapi.module_name))
+            self._print('space={}'.format(self.wapi.space_name))

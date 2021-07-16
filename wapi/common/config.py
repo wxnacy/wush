@@ -146,14 +146,15 @@ class Config():
 
             _config = FileUtils.read_dict(_path)
         # 获取 env 信息
-        env_config = _config.get("env") or {}
-        env_config.update(self.env.dict())
-        env_path = self.get_env_path(self.space_name)
-        self.logger.info('env_path %s', env_path)
-        if os.path.exists(env_path):
-            env_config.update(FileUtils.read_dict(env_path) or {})
+        #  env_config = _config.get("env") or {}
+        #  env_config = {}
+        #  env_config.update(self.env.dict())
         _config['functions'] = get_env_functions()
-        _config['env'] = env_config
+        #  _config['env'] = env_config
+
+        # 父 env
+        parent_env = { "env": self.env.dict() }
+        _config = ModuleModel._merge_config(parent_env, _config)
 
         # 获取父配置
         parent = _config.get("parent")
@@ -164,6 +165,18 @@ class Config():
             _config = parent_config
         module = ModuleModel.load(_config)
         return module
+
+    def set_space_name(self, space_name):
+        self.space_name = space_name
+        self._reload_env()
+
+    def _reload_env(self):
+        """重新加载 env"""
+        env_path = self.get_env_path(self.space_name)
+        self.logger.info('env_path %s', env_path)
+        if os.path.exists(env_path):
+            space_env = FileUtils.read_dict(env_path) or {}
+            self.env.add(**space_env)
 
     def get_env_path(self, space_name=None):
         """获取 env 配置地址"""

@@ -92,7 +92,7 @@ class Wapi():
             self.logger.info('current_space_name %s', current_space_name)
             self.space_name = current_space_name
 
-        self._config.space_name = self.space_name
+        self._config.set_space_name(self.space_name)
         self.logger.info("Space: %s", self.space_name)
 
         # 设置默认 module

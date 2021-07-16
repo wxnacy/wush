@@ -32,6 +32,7 @@ REQUIRED = [
     'pyyaml',
     'prompt_toolkit',
     'flask',
+    'wpy',
 ]
 
 # What packages are optional?
