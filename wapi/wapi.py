@@ -133,6 +133,8 @@ class Wapi():
             return
         module = self.config.get_module(self.module_name)
         request = module.get_request(self.request_name, **kwargs)
+        if not request:
+            return
         self._request = request
         self.logger.info('RequestModel: %s', request)
         self._url = request.url

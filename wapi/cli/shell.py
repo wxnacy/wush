@@ -41,6 +41,15 @@ from .exceptions import CommnadNotFoundException
 from .server import run_server
 from .server import PORT
 
+def init_argparse():
+    """初始化参数"""
+    parser = argparse.ArgumentParser(description='Wapi command',)
+    parser.add_argument('-c', '--config', help='Config dir name')
+    parser.add_argument('-m', '--module', help='Module name')
+    parser.add_argument('-n', '--name', help='Request name')
+    parser.add_argument('-s', '--space', help='Space name')
+    return parser
+
 class Shell():
     logger = create_logger('Shell')
 
@@ -52,7 +61,8 @@ class Shell():
 
     def __init__(self):
         self.parser = self._get_parser()
-        args = self.parser.parse_args(sys.argv)
+        args = init_argparse().parse_args()
+        #  args = init_argparse().parse_args(sys.argv)
         client = Wapi()
         client.init_config(config_root = args.config, space_name = args.space,
             module_name = args.module)
@@ -76,7 +86,7 @@ class Shell():
         return True if stdout_len >= 4 else False
 
     def run(self):
-        port = 12300 + int(random_int(2, 1))
+        port = 12000 + int(random_int(3, 1))
         self.web_port = port
         p = mp.Process(target=run_server, args=(self.client, port,), daemon=True)
         p.start()
@@ -106,7 +116,7 @@ class Shell():
             except EOFError:
                 break
             except Exception as e:
-                traceback.print_exc()
+                self._print(str(e))
                 self.logger.error(traceback.format_exc())
             self._end_run()
 
@@ -127,14 +137,11 @@ class Shell():
 
         self._run_base_cmd(text)
 
-        try:
-            func = getattr(self, '_' + cmd)
-            func(text)
-        except Exception as e:
-            self.logger.error(traceback.format_exc())
-            if isinstance(e, EOFError):
-                raise e
+        if not hasattr(self, '_' + cmd):
             raise CommnadNotFoundException()
+
+        func = getattr(self, '_' + cmd)
+        func(text)
 
     def _run_base_cmd(self, text):
         """运行基础命令"""

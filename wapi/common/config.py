@@ -142,7 +142,7 @@ class Config():
             self.logger.info('Module path: %s', _path)
             if not os.path.exists(_path):
                 raise RequestException('can not found request config {}'.format(
-                    request_path))
+                    _path))
 
             _config = FileUtils.read_dict(_path)
         # 获取 env 信息

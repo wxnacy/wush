@@ -95,49 +95,14 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 def run_shell():
-    #  parser = ArgumentParserFactory.build_parser()
-    #  args = parser.parse_args(sys.argv)
-
-    #  client = Wapi()
-    #  client.init_config(config_root = args.config, space_name = args.space,
-        #  module_name = args.module)
-    #  session = PromptSession(
-        #  completer=CommandCompleter(parser, client),
-        #  history = FileHistory(os.path.expanduser('~/.wapi_history')),
-        #  auto_suggest = AutoSuggestFromHistory(),
-        #  complete_in_thread=True
-    #  )
 
     cli = Shell()
     cli.run()
-
-    #  while True:
-        #  try:
-            #  text = session.prompt('wapi>{space}>{module}> '.format(
-                #  space = client.space_name, module = client.module_name
-                #  ))
-            #  cli.run(text)
-        #  except KeyboardInterrupt:
-            #  continue
-        #  except EOFError:
-            #  break
-        #  except Exception as e:
-            #  traceback.print_exc()
-            #  print(e)
-        #  #  else:
-            #  #  print('You entered:', text)
-    #  print('GoodBye!')
 
 def main():
     import sys
     args = sys.argv[1:]
     run_shell()
-    #  if not args:
-        #  # 使用交互模式
-        #  run_shell()
-    #  else:
-        #  # 使用命令行模式
-        #  run_cmd()
 
 if __name__ == "__main__":
     main()

@@ -6,9 +6,11 @@
 """
 
 import os
+import pytest
 from wapi import Wapi
 from wapi.common import constants
 from wapi.common.config import Config
+from wapi.common.exceptions import RequestException
 
 default_config = Config.get_default_config()
 test_space_name = 'test_space'
@@ -27,8 +29,8 @@ def test_init_config():
     assert client.config.env_root == client.config.fmt_path(
             default_config.get("env_root"))
     assert client.config.module_root == client.config.fmt_path('test_module')
-    assert client.config.response_root == os.path.expanduser(
-            default_config.get("response_root"))
+    assert client.config.data_root == os.path.expanduser(
+            default_config.get("data_root"))
 
     test_config = {
         "body_root": "test_body",
@@ -37,15 +39,14 @@ def test_init_config():
     }
     kwargs = {
         "space_name": test_space_name,
-        "module_name": test_module_name,
+        "module_name": 'default',
         "request_name": test_request_name,
         "config": {
-
         }
     }
     client.init_config(**kwargs)
     assert client.space_name == 'default'
-    assert client.module_name == kwargs['module_name']
+    assert client.module_name == 'default'
     assert client.request_name == kwargs['request_name']
 
     client.is_dynamic_space = False
@@ -56,6 +57,13 @@ def test_init_config():
     client.init_config(**kwargs)
     assert client.space_name == kwargs['space_name']
 
+    kwargs = {
+        "module_name": test_module_name,
+    }
+
+    with pytest.raises(RequestException) as excinfo:
+        client.init_config(**kwargs)
+
 def test_get_request():
     """测试 get_request"""
 
@@ -63,9 +71,10 @@ def test_get_request():
         request_name = 'get_test',
         config_root = test_config_root,
     )
-    request_model = client._get_request(module_name = 'default',
+    client.build(module_name = 'default',
             request_name = 'get_test',
             env = { "name": 'env_test' })
+    request_model = client._request
     assert request_model.name == 'get_test'
     assert request_model.path == '/get_test'
     assert request_model.params['name'] == 'get_test'
