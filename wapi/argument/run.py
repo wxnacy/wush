@@ -20,13 +20,15 @@ class RunArgumentParser(ArgumentParser):
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--config')
-        item.add_argument('--module')
-        item.add_argument('--space')
-        item.add_argument('--name')
-        item.add_argument('--params', action = Action.APPEND.value)
-        item.add_argument('--json', action = Action.APPEND.value)
-        item.add_argument('--open', action = Action.STORE_TRUE.value)
+        item.add_argument('--module', help='模块名称')
+        item.add_argument('--space', help='空间名称')
+        item.add_argument('--name', help='请求名称')
+        item.add_argument('--params', action = Action.APPEND.value,
+            help='请求地址参数')
+        item.add_argument('--json', action = Action.APPEND.value,
+            help='请求 body 参数，json 格式')
+        item.add_argument('--open', action = Action.STORE_TRUE.value,
+            help = '是否通过浏览器打开请求结果')
         return item
 
     def get_completions_after_argument(self, wapi, word_for_completion):
@@ -40,7 +42,6 @@ class RunArgumentParser(ArgumentParser):
             return words
         arg = self.argument
         wapi.init_config(
-            config_root = arg.config,
             module_name = arg.module,
             request_name = arg.name
         )

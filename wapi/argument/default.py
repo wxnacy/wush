@@ -11,7 +11,7 @@ from .parse import ArgumentParser
 
 #  @argparser_register()
 class DefaultArgumentParser(ArgumentParser):
-    cmd = 'run'
+    cmd = 'default'
 
     @classmethod
     def default(cls):

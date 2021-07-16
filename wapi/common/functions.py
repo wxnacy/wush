@@ -10,6 +10,8 @@ import sys
 import os
 import subprocess
 
+from wpy.tools import randoms
+
 from wapi.common import constants
 from wapi.common.decorates import env_func_register
 from wapi.common.decorates import get_env_functions
@@ -17,38 +19,14 @@ from wapi.common.decorates import get_env_functions
 @env_func_register()
 def random_int(length, min_int=None, max_int=None):
     """随机 int 值"""
-    if min_int is None:
-        min_int = 0
-    if max_int is None:
-        max_int = 9
-
-    if min_int < 0:
-        raise ValueError('random_int min_int must >= 0')
-
-    if max_int > 9:
-        raise ValueError('random_int max_int must <= 9')
-
-    if min_int >= max_int:
-        raise ValueError('random_int max_int must > min_int')
-
-    res = []
-    for _ in range(length):
-        n = random.randint(min_int, max_int)
-        res.append(str(n))
-    return ''.join(res)
+    return randoms.random_int(length, min_int, max_int)
 
 RANDOM_STR = ()
 
 @env_func_register()
 def random_str(length, source=None):
     """随机 int 值"""
-    if source is None:
-        source = 'a-z,A-Z,0-9,!@#$%^&*()'
-    res = []
-    #  for _ in range(length):
-        #  n = random.randint(0, max_int)
-        #  res.append(str(n))
-    return ''.join(res)
+    return randoms.random_str(length, source)
 
 @env_func_register()
 def get_current_space_name():
