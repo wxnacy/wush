@@ -146,11 +146,7 @@ class Config():
 
             _config = FileUtils.read_dict(_path)
         # 获取 env 信息
-        #  env_config = _config.get("env") or {}
-        #  env_config = {}
-        #  env_config.update(self.env.dict())
         _config['functions'] = get_env_functions()
-        #  _config['env'] = env_config
 
         # 父 env
         parent_env = { "env": self.env.dict() }

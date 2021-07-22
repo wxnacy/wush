@@ -46,10 +46,13 @@ class RunArgumentParser(CommandArgumentParser):
         if not self.argument:
             return words
         arg = self.argument
-        wapi.init_config(
-            module_name = arg.module,
-            request_name = arg.name
-        )
+        try:
+            wapi.init_config(
+                module_name = arg.module,
+                request_name = arg.name
+            )
+        except:
+            pass
         if word_for_completion == '--name':
             module_name = wapi.module_name
             requests = wapi.config.get_requests(module_name)

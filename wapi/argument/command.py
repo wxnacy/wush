@@ -23,6 +23,8 @@ from .enum import Action
 
 class CommandArgumentParser(BaseParser, metaclass=abc.ABCMeta):
     logger = create_logger('CommandArgumentParser')
+    wapi = None
+    prompt_session = None
 
     #  def __init__(self, wapi=None):
         #  if wapi:
