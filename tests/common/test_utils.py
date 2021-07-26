@@ -28,10 +28,13 @@ def test_filter_json():
 def test_search():
     datas = ['wxnacy', 'wen', 'testwxn', 'wxnsss']
     res = utils.search(datas, 'x')
-    assert res == ['wxnacy', 'testwxn', 'wxnsss']
+    assert res == ['wxnacy', 'wxnsss', 'testwxn']
 
     res = utils.search(datas, 'wxn')
     assert res == ['wxnacy', 'wxnsss', 'testwxn']
+
+    res = utils.search(['--space', '--param'], 'pa')
+    assert res == ['--param', '--space']
 
 def test_list_key_val_to_dict():
     data = ['name=wxnacy', 'key=True', 'test']

@@ -38,19 +38,22 @@ def fmt_path(path):
     return path
 
 def search(datas, word):
-    """搜索"""
-    patten = {}
+    """
+    搜索
+    :param list datas: 单词列表
+    :param str word: 搜索的单词
+    :results list 搜索结果，按照匹配位置排序
+    """
+    patten = defaultdict(int)
     for o in datas:
-        patten[o] = 0
+        patten[o] = -1
         p = o.lower()
         if word not in p:
             continue
-        patten[o] += 1
-        if p.startswith(word):
-            patten[o] += 1
-    datas = list(filter(lambda x: patten[x] > 0, datas))
-    datas.sort(key = lambda x: patten[x], reverse=True)
-    return datas
+        patten[o] = p.index(word)
+    res = list(filter(lambda x: patten[x] > -1, datas))
+    res.sort(key = lambda x: patten[x])
+    return res
 
 def list_key_val_to_dict(data):
     """
