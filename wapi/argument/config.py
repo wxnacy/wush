@@ -5,11 +5,11 @@
 run 命令的参数解析
 """
 
-from .decorates import argparser_register
-from .command import CommandArgumentParser
+from .command import CmdArgumentParser
+from wpy.argument import CommandArgumentParserFactory
 
-@argparser_register()
-class ConfigArgumentParser(CommandArgumentParser):
+@CommandArgumentParserFactory.register()
+class ConfigArgumentParser(CmdArgumentParser):
     cmd = 'config'
 
     @classmethod

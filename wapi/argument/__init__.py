@@ -10,9 +10,9 @@ from .parse import ArgumentNamespace
 from .enum import Action
 from .env import EnvArgumentParser
 from .run import RunArgumentParser
-from .history import HistoryArgumentParser
+#  from .history import HistoryArgumentParser
 from .config import ConfigArgumentParser
-from .command import CommandArgumentParser
+from .command import CmdArgumentParser
 from .factory import ArgumentParserFactory
 
 __all__ = [
@@ -21,8 +21,8 @@ __all__ = [
     'EnvArgumentParser',
     'RunArgumentParser',
     'ConfigArgumentParser',
-    'HistoryArgumentParser',
-    'CommandArgumentParser',
+    #  'HistoryArgumentParser',
+    'CmdArgumentParser',
     'ArgumentNamespace',
     'Action',
 ]

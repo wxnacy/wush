@@ -6,42 +6,32 @@
 """
 import abc
 import pygments
-from argparse import Namespace
-from collections import deque
+#  from argparse import Namespace
+#  from collections import deque
 
 from pygments.token import Token
 from pygments.lexers.python import PythonLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 
-from wpy.argument import ArgumentParser as BaseParser
-from wpy.argument import Argument
-from wpy.argument import ArgumentNamespace
+#  from wpy.argument import ArgumentParser as BaseParser
+#  from wpy.argument import Argument
+#  from wpy.argument import ArgumentNamespace
+from wpy.argument import CommandArgumentParser
 
 from wapi.common.loggers import create_logger
 from .enum import Action
 
-class CommandArgumentParser(BaseParser, metaclass=abc.ABCMeta):
-    logger = create_logger('CommandArgumentParser')
+class CmdArgumentParser(CommandArgumentParser):
+    logger = create_logger('CmdArgumentParser')
     wapi = None
     prompt_session = None
-
-    #  def __init__(self, wapi=None):
-        #  if wapi:
-            #  self.wapi = wapi
 
     def set_wapi(self, client):
         self.wapi = client
 
     def set_prompt_session(self, client):
         self.prompt_session = client
-
-    @abc.abstractmethod
-    def default(cls):
-        """
-        初始化一个默认实例
-        """
-        pass
 
     def get_completions_after_argument(self, wapi, word_for_completion):
         """
@@ -67,11 +57,6 @@ class CommandArgumentParser(BaseParser, metaclass=abc.ABCMeta):
                     continue
             res.append(dict(text = '--' + arg.name, display_meta = arg.help))
         return res
-
-    @abc.abstractmethod
-    def run(self, args):
-        """运行"""
-        pass
 
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))

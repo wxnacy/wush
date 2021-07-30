@@ -9,12 +9,12 @@ from wpy.argument import Action
 
 from wapi.common import utils
 from wapi.common.loggers import create_logger
-from .decorates import argparser_register
-from .command import CommandArgumentParser
+from .command import CmdArgumentParser
 from wapi.cli.server import PORT
+from wpy.argument import CommandArgumentParserFactory
 
-@argparser_register()
-class RunArgumentParser(CommandArgumentParser):
+@CommandArgumentParserFactory.register()
+class RunArgumentParser(CmdArgumentParser):
     cmd = 'run'
     logger = create_logger('RunArgumentParser')
 

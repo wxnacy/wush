@@ -24,10 +24,9 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.completion import WordCompleter
 
-from wapi.argument import ArgumentParser
-from wapi.argument import ArgumentParserFactory
-from wapi.argument import CommandArgumentParser
-from wapi.argument import EnvArgumentParser
+from wapi.argument import CmdArgumentParser
+from wpy.argument import CommandArgumentParser
+from wpy.argument import CommandArgumentParserFactory
 from wapi.common import utils
 from wapi.common.functions import super_function
 from wapi.common.functions import run_shell
@@ -59,6 +58,7 @@ class Shell():
     client = None
     _prompt_default = ''
     web_port = None
+    session = None
 
     def __init__(self):
         self.parser = self._get_parser()
@@ -77,10 +77,12 @@ class Shell():
 
     def _get_parser(self, cmd=None):
         if cmd not in self.parser_dict:
-            parser = ArgumentParserFactory.build_parser(cmd)
-            if isinstance(parser, CommandArgumentParser):
+            parser = CommandArgumentParserFactory.build_parser(cmd)
+            if isinstance(parser, CmdArgumentParser):
                 parser.set_wapi(self.client)
-                parser.set_prompt_session(self.session)
+                #  parser.set_prompt_session(self.session)
+            if isinstance(parser, CommandArgumentParser):
+                parser.set_prompt(self.session)
             self.parser_dict[cmd] = parser
         return self.parser_dict[cmd]
 

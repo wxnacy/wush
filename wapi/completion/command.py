@@ -16,7 +16,7 @@ from .base import BaseCompleter
 from .filesystem import ExecutableCompleter
 from .word import WordCompleter as WapiWordCompleter
 from wapi.argument import ArgumentParserFactory
-from wapi.argument import CommandArgumentParser
+from wpy.argument import CommandArgumentParser
 
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")

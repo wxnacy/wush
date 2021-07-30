@@ -6,7 +6,7 @@ run 命令的参数解析
 """
 
 from .decorates import argparser_register
-from .command import CommandArgumentParser
+from wpy.argument import CommandArgumentParser
 
 @argparser_register()
 class HistoryArgumentParser(CommandArgumentParser):

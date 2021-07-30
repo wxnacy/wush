@@ -4,17 +4,15 @@
 """
 
 """
-from argparse import Namespace
 from collections import deque
 
 from wpy.files import FileUtils
 from wapi.common.loggers import create_logger
-from .decorates import argparser_register
-from .parse import ArgumentNamespace
-from .command import CommandArgumentParser
+from .command import CmdArgumentParser
+from wpy.argument import CommandArgumentParserFactory
 
-@argparser_register()
-class EnvArgumentParser(CommandArgumentParser):
+@CommandArgumentParserFactory.register()
+class EnvArgumentParser(CmdArgumentParser):
     cmd = 'env'
 
     def get_completions_after_cmd(self, argument, words=None):
