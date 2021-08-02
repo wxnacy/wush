@@ -4,13 +4,13 @@
 """
 命令补全
 """
+import copy
 
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.completion import Completion
 
 from wapi.common import constants
 from wapi.common.loggers import create_logger
-#  from wapi.common.args import ArgumentParser
 
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
@@ -20,7 +20,6 @@ from wpy.completion import ExecutableCompleter
 
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
-    #  parser_dict = {}
 
     def __init__(self, argparser, wapi):
         self.argparser = argparser
@@ -29,7 +28,6 @@ class CommandCompleter(BaseCompleter):
 
     def yield_words(self, words):
         """获取命令参数的补全器"""
-        #  self.logger.info('completion words %s', words)
         if words and isinstance(words[0], dict):
             words = [Completion(**o) for o in words]
         _completer = WordCompleter(words)
@@ -64,8 +62,8 @@ class CommandCompleter(BaseCompleter):
                 return
 
             # 补全参数后的信息
-            words = self.argparser.get_completions_after_argument(self.wapi,
-                    word_for_completion)
+            words = self.argparser.get_completions_after_argument(
+                    copy.deepcopy(self.wapi), word_for_completion)
             if words:
                 yield from self.yield_words(words)
                 return
