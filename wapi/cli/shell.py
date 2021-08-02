@@ -80,7 +80,6 @@ class Shell():
             parser = CommandArgumentParserFactory.build_parser(cmd)
             if isinstance(parser, CmdArgumentParser):
                 parser.set_wapi(self.client)
-                #  parser.set_prompt_session(self.session)
             if isinstance(parser, CommandArgumentParser):
                 parser.set_prompt(self.session)
             self.parser_dict[cmd] = parser

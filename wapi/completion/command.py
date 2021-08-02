@@ -15,8 +15,8 @@ from wapi.common.args import ArgumentParser
 from .base import BaseCompleter
 from .filesystem import ExecutableCompleter
 from .word import WordCompleter as WapiWordCompleter
-from wapi.argument import ArgumentParserFactory
 from wpy.argument import CommandArgumentParser
+from wpy.argument import CommandArgumentParserFactory
 
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
@@ -26,15 +26,6 @@ class CommandCompleter(BaseCompleter):
         self.argparser = argparser
         self.wapi = wapi
         self.path_completer = ExecutableCompleter()
-
-    #  def _get_parser(self, cmd=None):
-        #  if cmd not in self.parser_dict:
-            #  parser = ArgumentParserFactory.build_parser(cmd)
-            #  if isinstance(parser, CommandArgumentParser):
-                #  parser.set_wapi(self.wapi)
-                #  #  parser.set_prompt_session(self.session)
-            #  self.parser_dict[cmd] = parser
-        #  return self.parser_dict[cmd]
 
     def yield_words(self, words):
         """获取命令参数的补全器"""
@@ -49,7 +40,7 @@ class CommandCompleter(BaseCompleter):
         self.document = document
         self.complete_event = complete_event
         try:
-            self.argparser = ArgumentParserFactory.build_parser(document.text)
+            self.argparser = CommandArgumentParserFactory.build_parser(document.text)
             self.logger.info('completer argparser %s', self.argparser.cmd)
             arg = self.argparser.parse_args(document.text)
             if arg.cmd == 'env':
@@ -57,7 +48,7 @@ class CommandCompleter(BaseCompleter):
             self.logger.info('args %s', arg)
             cmd = self.first_word
 
-            all_cmds = list(ArgumentParserFactory.get_cmd_names())
+            all_cmds = list(CommandArgumentParserFactory.get_cmd_names())
             # 补全命令
             if cmd not in all_cmds:
                 yield from self.yield_words(all_cmds)
