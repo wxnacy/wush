@@ -5,7 +5,7 @@
 
 """
 
-from wapi.completion import ExecutableCompleter
+#  from wapi.completion import ExecutableCompleter
 
 
 

@@ -15,8 +15,8 @@ from wapi.common.files import FileUtils
 from wapi.common.functions import load_module
 from wapi.common.functions import super_function
 from wapi.common.functions import Function
+from wapi.common.functions import FunctionFactory
 from wapi.common.loggers import create_logger
-from wapi.common.decorates import get_env_functions
 from wapi.common.exceptions import RequestException
 from wapi.models import ModuleModel
 from wapi.models import RequestModel
@@ -123,7 +123,7 @@ class Config():
         for module_name in self.function_modules:
             load_module(module_name)
 
-        functions = get_env_functions()
+        functions = FunctionFactory.get_factory()
         self.logger.info('load functions %s', functions)
 
         f = Function(functions)
@@ -146,7 +146,7 @@ class Config():
 
             _config = FileUtils.read_dict(_path)
         # 获取 env 信息
-        _config['functions'] = get_env_functions()
+        _config['functions'] = self.function.get_functions()
 
         # 父 env
         parent_env = { "env": self.env.dict() }

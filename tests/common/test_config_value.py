@@ -7,14 +7,13 @@
 
 from wapi.common.config_value import ConfigValue
 
-from wapi.common.decorates import env_func_register
+from wapi.common.functions import FunctionFactory
 
-@env_func_register()
+@FunctionFactory.register()
 def test(a=None, b=None):
     return a, b
 
-from wapi.common.decorates import get_env_functions
-env_functions = get_env_functions()
+env_functions = FunctionFactory.get_factory()
 
 def test_format_environ():
     """测试格式化环境变量"""

@@ -10,13 +10,13 @@ from prompt_toolkit.completion import Completion
 
 from wapi.common import constants
 from wapi.common.loggers import create_logger
-from wapi.common.args import ArgumentParser
+#  from wapi.common.args import ArgumentParser
 
-from .base import BaseCompleter
-from .filesystem import ExecutableCompleter
-from .word import WordCompleter as WapiWordCompleter
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
+from wpy.completion import BaseCompleter
+from wpy.completion import WordCompleter
+from wpy.completion import ExecutableCompleter
 
 class CommandCompleter(BaseCompleter):
     logger = create_logger("CommandCompleter")
@@ -32,7 +32,7 @@ class CommandCompleter(BaseCompleter):
         #  self.logger.info('completion words %s', words)
         if words and isinstance(words[0], dict):
             words = [Completion(**o) for o in words]
-        _completer = WapiWordCompleter(words)
+        _completer = WordCompleter(words)
         yield from self.yield_completer(_completer)
 
     def get_completions(self, document, complete_event):
@@ -60,15 +60,13 @@ class CommandCompleter(BaseCompleter):
             words = self.wapi.config.get_function().get_completion_words(
                 word_for_completion)
             if words:
-                yield from self.yield_completer(WapiWordCompleter(words))
+                yield from self.yield_completer(WordCompleter(words))
                 return
 
             # 补全参数后的信息
             words = self.argparser.get_completions_after_argument(self.wapi,
                     word_for_completion)
             if words:
-                #  words = [Completion(**o) for o in words]
-                #  _completer = WapiWordCompleter(words)
                 yield from self.yield_words(words)
                 return
 

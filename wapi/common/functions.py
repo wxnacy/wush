@@ -10,37 +10,43 @@ import sys
 import os
 import subprocess
 
+from wpy.base import BaseFactory
 from wpy.tools import randoms
 
 from wapi.common import constants
-from wapi.common.decorates import env_func_register
-from wapi.common.decorates import get_env_functions
 
-@env_func_register()
+class FunctionFactory(BaseFactory):
+    pass
+
+@FunctionFactory.register()
 def random_int(length, min_int=None, max_int=None):
     """随机 int 值"""
     return randoms.random_int(length, min_int, max_int)
 
 RANDOM_STR = ()
 
-@env_func_register()
+@FunctionFactory.register()
 def random_str(length, source=None):
     """随机 int 值"""
     return randoms.random_str(length, source)
 
-@env_func_register()
+@FunctionFactory.register()
 def get_current_space_name():
     """获取当前 space 名称"""
     return constants.DEFAULT_SPACE_NAME
 
-@env_func_register()
+@FunctionFactory.register()
 def get_completion_words(word_for_completion):
     """获取补全的单词列表"""
     return []
 
-@env_func_register()
+@FunctionFactory.register()
 def request(wapi, module_name, request_name):
     return wapi.request(request_name = request_name, module_name = module_name)
+
+@FunctionFactory.register()
+def test():
+    return 'test factory'
 
 def run_shell(command):
     """运行 shell 语句"""
@@ -58,6 +64,7 @@ class Function:
     get_completion_words = None
     random_int = None
     random_str = None
+    test = None
 
     _functions = {}
 
@@ -68,10 +75,14 @@ class Function:
                 raise Exception('func {} can not be str'.format(name))
             setattr(self, name, func)
 
+    def add_function(self, func):
+        setattr(self, func.__name__, func)
+        self._functions[func.__name__] = func
+
     def get_functions(self):
         return self._functions
 
-_function = Function(get_env_functions())
+_function = Function(FunctionFactory.get_factory())
 
 def get_super_function():
     return _function

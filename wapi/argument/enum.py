@@ -7,8 +7,8 @@
 from enum import Enum
 
 
-class Action(Enum):
-    STORE = 'store'
-    STORE_TRUE = 'store_true'
-    APPEND = 'append'
+#  class Action(Enum):
+    #  STORE = 'store'
+    #  STORE_TRUE = 'store_true'
+    #  APPEND = 'append'
 
