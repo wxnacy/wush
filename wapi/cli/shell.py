@@ -141,6 +141,7 @@ class Shell():
 
         self._run_base_cmd(text)
 
+        self.logger.info(self.parser)
         if isinstance(self.parser, CommandArgumentParser):
             self.parser.run(text)
             return

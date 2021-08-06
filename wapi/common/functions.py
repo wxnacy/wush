@@ -5,6 +5,7 @@
 
 """
 import random
+import hashlib
 import importlib
 import sys
 import os
@@ -31,6 +32,11 @@ def random_str(length, source=None):
     return randoms.random_str(length, source)
 
 @FunctionFactory.register()
+def md5(text):
+    """计算 md5 摘要"""
+    return hashlib.md5(text.encode('utf-8')).hexdigest()
+
+@FunctionFactory.register()
 def get_current_space_name():
     """获取当前 space 名称"""
     return constants.DEFAULT_SPACE_NAME
@@ -43,10 +49,6 @@ def get_completion_words(word_for_completion):
 @FunctionFactory.register()
 def request(wapi, module_name, request_name):
     return wapi.request(request_name = request_name, module_name = module_name)
-
-@FunctionFactory.register()
-def test():
-    return 'test factory'
 
 def run_shell(command):
     """运行 shell 语句"""

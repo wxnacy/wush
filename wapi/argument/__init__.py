@@ -7,12 +7,14 @@
 
 from .env import EnvArgumentParser
 from .run import RunArgumentParser
+from .func import FuncArgumentParser
 from .config import ConfigArgumentParser
 from .command import CmdArgumentParser
 
 __all__ = [
     'EnvArgumentParser',
     'RunArgumentParser',
+    'FuncArgumentParser',
     'ConfigArgumentParser',
     'CmdArgumentParser',
 ]
