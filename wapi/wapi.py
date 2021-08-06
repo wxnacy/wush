@@ -23,6 +23,10 @@ from wapi.common.config import Config
 from wapi.common.exceptions import RequestException
 
 from wapi.models import ModuleModel
+from .models import Client
+from .models import Version
+from .models import Request
+from .models import Response
 
 class Wapi():
     logger = create_logger('Wapi')
@@ -41,15 +45,21 @@ class Wapi():
             name = __name__
         self.name = name
         self.is_dynamic_space = is_dynamic_space
-        self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
+        self.version = self.create_id()
+        self._id = self.version
         self.config_root = Config.get_default_root()
         self.init_config(**kw)
 
     def reload_by_version(self, version):
         """通过版本号重新加载"""
         self.version = version
-        data = FileUtils.read_dict(self.version_path)
+        #  data = FileUtils.read_dict(self.version_path)
+        data = Version.find_one_by_id(version).to_dict()
         self.init_config(**data)
+
+    @classmethod
+    def create_id(cls):
+        return datetime.now().strftime('%Y%m%d%H%M%S_%s')
 
     @property
     def config(self):
@@ -150,7 +160,7 @@ class Wapi():
         self.logger.info('Request data: %s', self._request_data)
 
     def request(self, **kwargs):
-        self.version = datetime.now().strftime('%Y%m%d%H%M%S.%s')
+        self.version = self.create_id()
         if kwargs:
             self.build(**kwargs)
 
@@ -205,15 +215,15 @@ class Wapi():
             return self._response.content
 
 
-    @property
-    def version_path(self):
-        """结果版本地址"""
-        return os.path.join(self.config.version_root, self.version + '.json')
+    #  @property
+    #  def version_path(self):
+        #  """结果版本地址"""
+        #  return os.path.join(self.config.version_root, self.version + '.json')
 
-    @property
-    def request_path(self):
-        """结果存储地址"""
-        return os.path.join(self.config.request_root, self.version + '.json')
+    #  @property
+    #  def request_path(self):
+        #  """结果存储地址"""
+        #  return os.path.join(self.config.request_root, self.version + '.json')
 
     @property
     def response_path(self):
@@ -238,17 +248,22 @@ class Wapi():
         """保存请求配置"""
         self._save_version()
         self._save_request()
-        save_path = self.response_path
-        try:
-            save_data = json.dumps(json.loads(
-                self.response_content), indent=4, ensure_ascii=False)
-            with open(save_path, 'w') as f:
-                f.write(save_data)
+        #  save_path = self.response_path
                 #  f.write(save_data.encode('utf-8'))
+        res = Response(_id = self.version)
+        try:
+            #  save_data = json.dumps(json.loads(
+                #  self.response_content), indent=4, ensure_ascii=False)
+            res.json = json.loads(self.response_content)
+            #  with open(save_path, 'w') as f:
+                #  f.write(save_data)
         except Exception as e:
             print(e)
-            with open(save_path, 'bw') as f:
-                f.write(self.response_content)
+            #  with open(save_path, 'bw') as f:
+                #  f.write(self.response_content)
+            res.content = self.response_content
+        res.headers = dict(self.response.headers)
+        res.save()
 
     def _save_version(self):
         data = {
@@ -258,30 +273,34 @@ class Wapi():
             "request_name": self.request_name,
             "config": self.config.dict(),
         }
-        save_path = self.version_path
-        self.logger.info('version_path %s', save_path)
-        try:
-            save_data = json.dumps(data, indent=4, ensure_ascii=False)
-            with open(save_path, 'w') as f:
-                f.write(save_data)
-        except Exception as e:
-            self.logger.error(traceback.format_exc())
+        v = Version(_id = data['version'], **data)
+        v.save()
+        #  save_path = self.version_path
+        #  self.logger.info('version_path %s', save_path)
+        #  try:
+            #  save_data = json.dumps(data, indent=4, ensure_ascii=False)
+            #  with open(save_path, 'w') as f:
+                #  f.write(save_data)
+        #  except Exception as e:
+            #  self.logger.error(traceback.format_exc())
 
     def _save_request(self):
-        save_path = self.request_path
-        self.logger.info('request_path %s', save_path)
-        try:
-            save_data = json.dumps(self._request_data, indent=4,
-                ensure_ascii=False)
-            with open(save_path, 'w') as f:
-                f.write(save_data)
-        except Exception as e:
-            self.logger.error(traceback.format_exc())
+        #  save_path = self.request_path
+        #  self.logger.info('request_path %s', save_path)
+        r = Request(_id = self.version, **self._request_data)
+        r.save()
+        #  try:
+            #  save_data = json.dumps(self._request_data, indent=4,
+                #  ensure_ascii=False)
+            #  with open(save_path, 'w') as f:
+                #  f.write(save_data)
+        #  except Exception as e:
+            #  self.logger.error(traceback.format_exc())
 
     def read(self):
         data = {
-            "version": FileUtils.read_dict(self.version_path),
-            "request": FileUtils.read_dict(self.request_path),
-            "response": FileUtils.read_dict(self.response_path),
+            "version": Version.find_one_by_id(self.version).to_dict(),
+            "request": Request.find_one_by_id(self.version).to_dict(),
+            "response": Response.find_one_by_id(self.version).to_dict(),
         }
         return data

@@ -7,13 +7,16 @@ models
 import json
 import sys
 import os
+import requests
+
+from lfsdb import FSModel
+from lfsdb import FSColumn
 
 from wapi.common import constants
 from wapi.common.config_value import ConfigValue
 from wapi.common.cookie import Cookie
 from wapi.common.files import FileUtils
 from wapi.common.loggers import create_logger
-import requests
 
 class BaseModel(object):
 
@@ -203,4 +206,36 @@ class RequestModel(BaseModel):
         if isinstance(method_headers, dict):
             self.headers.update(method_headers)
 
+class Client(FSModel):
+    db = 'wush'
+    table = 'client'
 
+    port = FSColumn(int,)
+
+class Version(FSModel):
+    db = 'wush'
+    table = 'version'
+
+    version = FSColumn(str,)
+    space_name = FSColumn(str,)
+    module_name = FSColumn(str,)
+    request_name = FSColumn(str,)
+    config = FSColumn(dict,)
+
+class Request(FSModel):
+    db = 'wush'
+    table = 'request'
+
+    #  version = FSColumn(str,)
+    #  space_name = FSColumn(str,)
+    #  module_name = FSColumn(str,)
+    #  request_name = FSColumn(str,)
+    #  config = FSColumn(dict,)
+
+class Response(FSModel):
+    db = 'wush'
+    table = 'response'
+
+    content = FSColumn(str,)
+    json = FSColumn(dict,)
+    headers = FSColumn(dict,)

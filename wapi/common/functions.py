@@ -50,6 +50,10 @@ def get_completion_words(word_for_completion):
 def request(wapi, module_name, request_name):
     return wapi.request(request_name = request_name, module_name = module_name)
 
+@FunctionFactory.register()
+def get_current_web_port():
+    return os.getenv('WUSH_WEB_PORT')
+
 def run_shell(command):
     """运行 shell 语句"""
     res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
@@ -66,6 +70,7 @@ class Function:
     get_completion_words = None
     random_int = None
     random_str = None
+    get_current_web_port = None
     test = None
 
     _functions = {}

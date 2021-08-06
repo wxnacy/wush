@@ -47,9 +47,9 @@ class Config():
     body_root = ''
     module_root = ''
     data_root = ''
-    response_root = ''
-    request_root = ''
-    version_root = ''
+    #  response_root = ''
+    #  request_root = ''
+    #  version_root = ''
     space_name = ''
     function_modules = []
     modules = []
@@ -101,11 +101,11 @@ class Config():
         item._load_functions()
 
         # 创建保持地址
-        for _root in ('response_root', 'request_root', 'version_root'):
-            setattr(item, _root, os.path.join(item.data_root,
-                _root.replace('_root', '')))
-            if not os.path.exists(getattr(item, _root)):
-                os.makedirs(getattr(item, _root))
+        #  for _root in ('response_root', 'request_root', 'version_root'):
+            #  setattr(item, _root, os.path.join(item.data_root,
+                #  _root.replace('_root', '')))
+            #  if not os.path.exists(getattr(item, _root)):
+                #  os.makedirs(getattr(item, _root))
 
         return item
 

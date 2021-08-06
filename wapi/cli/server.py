@@ -5,6 +5,7 @@
 
 """
 import json
+import os
 
 from flask import Flask
 from flask import request
@@ -27,8 +28,13 @@ def detail(version):
     client.reload_by_version(version)
     res = client.read()
     data = res
-    data.pop('version', None)
     return data
+
+@app.route('/api/version/<string:version>/<string:type>')
+def detail_type(version, type):
+    client.reload_by_version(version)
+    res = client.read()
+    return res.get(type, {})
 
 @app.route('/test', methods=['post', 'get'])
 def test():
@@ -41,6 +47,7 @@ def test():
     return res
 
 PORT = 12000 + int(random_int(3, 1))
+os.environ['WUSH_WEB_PORT'] = str(PORT)
 
 def run_server(wapi, port=None):
     global client

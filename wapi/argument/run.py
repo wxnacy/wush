@@ -8,6 +8,7 @@ import os
 from wpy.argument import Action
 
 from wapi.common import utils
+from wapi.common.functions import super_function
 from wapi.common.loggers import create_logger
 from .command import CmdArgumentParser
 from wapi.cli.server import PORT
@@ -122,16 +123,19 @@ class RunArgumentParser(CmdArgumentParser):
 
         self._print('Status: {}'.format(self.wapi.response.status_code))
         self._print('Response:')
-        self._print(self.wapi.get_pertty_response_content())
 
         self.wapi.save()
         if args.open:
+            self._print('See in browser')
             self._open()
+        else:
+            self._print(self.wapi.get_pertty_response_content())
 
     def _open(self):
         #  """打开请求信息"""
-        request_url = ("http://0.0.0.0:{port}/api/version/{version}"
-                ).format(port = PORT, version = self.wapi.version)
+        request_url = ("http://0.0.0.0:{port}/api/version/{version}").format(
+            port = super_function.get_current_web_port(),
+            version = self.wapi.version)
         self.logger.info('open %s', request_url)
         os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
             request_url))
