@@ -60,6 +60,16 @@ def run_shell(command):
         stderr = subprocess.PIPE)
     return res.communicate()
 
+def open_version(version, otype=None):
+    """使用浏览器打开 url"""
+    request_url = ("http://0.0.0.0:{port}/api/version/{version}").format(
+        port = get_current_web_port(),
+        version = version)
+    if otype:
+        request_url += '/' + otype
+    os.system('open -a "/Applications/Google Chrome.app" "{}"'.format(
+        request_url))
+
 def load_module(module_name):
     """加载模块"""
     views_module = importlib.import_module(module_name)

@@ -8,6 +8,7 @@
 from .env import EnvArgumentParser
 from .run import RunArgumentParser
 from .func import FuncArgumentParser
+from .view import ViewArgumentParser
 from .config import ConfigArgumentParser
 from .command import CmdArgumentParser
 
