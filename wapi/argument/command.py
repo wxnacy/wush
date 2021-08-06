@@ -6,21 +6,15 @@
 """
 import abc
 import pygments
-#  from argparse import Namespace
-#  from collections import deque
 
 from pygments.token import Token
 from pygments.lexers.python import PythonLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 
-#  from wpy.argument import ArgumentParser as BaseParser
-#  from wpy.argument import Argument
-#  from wpy.argument import ArgumentNamespace
 from wpy.argument import CommandArgumentParser
 
 from wapi.common.loggers import create_logger
-#  from .enum import Action
 
 class CmdArgumentParser(CommandArgumentParser):
     logger = create_logger('CmdArgumentParser')
@@ -51,10 +45,9 @@ class CmdArgumentParser(CommandArgumentParser):
             if arg.is_cmd:
                 continue
             # 已经赋值的不需要展示
-            if hasattr(argument, arg.name) and getattr(argument, arg.name):
-                # 列表除外
-                if not arg.is_list:
-                    continue
+            # 列表除外
+            if arg.is_set and not arg.is_list:
+                continue
             res.append(dict(text = '--' + arg.name, display_meta = arg.help))
         return res
 
