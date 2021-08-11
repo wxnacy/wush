@@ -118,6 +118,8 @@ class RunArgumentParser(CmdArgumentParser):
         self._print('Module: {}'.format(self.wapi.module_name))
         self._print('Request: {}'.format(self.wapi.request_name))
         self._print('Url: {}'.format(self.wapi.url))
+        self._print('Params: {}'.format(self.wapi._request_data.get("params")))
+        self._print('Json: {}'.format(self.wapi._request_data.get("json")))
         self._print('请求中。。。')
 
         self.wapi.request()
