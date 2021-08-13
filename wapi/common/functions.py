@@ -10,6 +10,7 @@ import importlib
 import sys
 import os
 import subprocess
+import json
 
 from wpy.base import BaseFactory
 from wpy.tools import randoms
@@ -54,6 +55,18 @@ def request(wapi, module_name, request_name):
 def get_current_web_port():
     return os.getenv('WUSH_WEB_PORT')
 
+@FunctionFactory.register()
+def handler_response(response):
+    #  print('Status: {}'.format(response.status_code))
+    print('Response:')
+    try:
+        data = response.json()
+        data = json.dumps(data, indent=4, ensure_ascii=False)
+    except:
+        self.logger.error(traceback.format_exc())
+        data = response.content
+    print(data)
+
 def run_shell(command):
     """运行 shell 语句"""
     res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
@@ -81,6 +94,7 @@ class Function:
     random_int = None
     random_str = None
     get_current_web_port = None
+    handler_response = None
     test = None
 
     _functions = {}

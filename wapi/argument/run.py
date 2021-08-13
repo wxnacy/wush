@@ -125,14 +125,15 @@ class RunArgumentParser(CmdArgumentParser):
         self.wapi.request()
 
         self._print('Status: {}'.format(self.wapi.response.status_code))
-        self._print('Response:')
+        #  self._print('Response:')
 
         self.wapi.save()
         if args.open:
             self._print('See in browser')
             self._open()
         else:
-            self._print(self.wapi.get_pertty_response_content())
+            #  self._print(self.wapi.get_pertty_response_content())
+            self.wapi.config.get_function().handler_response(self.wapi.response)
 
     def _open(self):
         #  """打开请求信息"""

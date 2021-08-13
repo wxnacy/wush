@@ -214,17 +214,6 @@ class Wapi():
             self.logger.error(traceback.format_exc())
             return self._response.content
 
-
-    #  @property
-    #  def version_path(self):
-        #  """结果版本地址"""
-        #  return os.path.join(self.config.version_root, self.version + '.json')
-
-    #  @property
-    #  def request_path(self):
-        #  """结果存储地址"""
-        #  return os.path.join(self.config.request_root, self.version + '.json')
-
     @property
     def response_path(self):
         """结果存储地址"""
@@ -248,19 +237,11 @@ class Wapi():
         """保存请求配置"""
         self._save_version()
         self._save_request()
-        #  save_path = self.response_path
-                #  f.write(save_data.encode('utf-8'))
         res = Response(_id = self.version)
         try:
-            #  save_data = json.dumps(json.loads(
-                #  self.response_content), indent=4, ensure_ascii=False)
             res.json = json.loads(self.response_content)
-            #  with open(save_path, 'w') as f:
-                #  f.write(save_data)
         except Exception as e:
             print(e)
-            #  with open(save_path, 'bw') as f:
-                #  f.write(self.response_content)
             res.content = self.response_content
         res.headers = dict(self.response.headers)
         res.save()
@@ -275,27 +256,10 @@ class Wapi():
         }
         v = Version(_id = data['version'], **data)
         v.save()
-        #  save_path = self.version_path
-        #  self.logger.info('version_path %s', save_path)
-        #  try:
-            #  save_data = json.dumps(data, indent=4, ensure_ascii=False)
-            #  with open(save_path, 'w') as f:
-                #  f.write(save_data)
-        #  except Exception as e:
-            #  self.logger.error(traceback.format_exc())
 
     def _save_request(self):
-        #  save_path = self.request_path
-        #  self.logger.info('request_path %s', save_path)
         r = Request(_id = self.version, **self._request_data)
         r.save()
-        #  try:
-            #  save_data = json.dumps(self._request_data, indent=4,
-                #  ensure_ascii=False)
-            #  with open(save_path, 'w') as f:
-                #  f.write(save_data)
-        #  except Exception as e:
-            #  self.logger.error(traceback.format_exc())
 
     def read(self):
         data = {
