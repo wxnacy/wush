@@ -12,6 +12,11 @@ import os
 import subprocess
 import json
 
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
+
 from wpy.base import BaseFactory
 from wpy.tools import randoms
 
@@ -66,6 +71,21 @@ def handler_response(response):
         self.logger.error(traceback.format_exc())
         data = response.content
     print(data)
+
+@FunctionFactory.register()
+def print_table(config):
+    headers = config.get("headers") or []
+    table = Table(show_header=True, show_lines=True, header_style="bold magenta")
+    for header in headers:
+        table.add_column(header.get("display", '未命名'), )
+    items = config.get("items", [])
+    for item in items:
+        table.add_row(*item)
+    console.print(table)
+    after_table = config.get("after_table")
+    if after_table:
+        console.print(after_table)
+
 
 def run_shell(command):
     """运行 shell 语句"""

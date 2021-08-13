@@ -14,12 +14,8 @@ from .command import CmdArgumentParser
 from wapi.cli.server import PORT
 from wpy.argument import CommandArgumentParserFactory
 
-from rich.console import Console
-from rich.table import Table
-
 from wapi.models import Version
-
-console = Console()
+from wapi.common.functions import super_function
 
 @CommandArgumentParserFactory.register()
 class ViewArgumentParser(CmdArgumentParser):
@@ -52,12 +48,15 @@ class ViewArgumentParser(CmdArgumentParser):
     def _list(self, args):
         items = Version.find()
         items.sort(key = lambda x: x._id, reverse=True)
-        #  max_func_length = max([len(o) for o in functions.keys()])
-        table = Table(show_header=True, show_lines=True, header_style="bold magenta")
-        table.add_column("Version", )
-        table.add_column("Space", )
-        table.add_column("Module", )
-        table.add_column("Name", )
+        data = {
+            'headers': [
+                { "display": "Version" },
+                { "display": "Space" },
+                { "display": "Module" },
+                { "display": "Name" },
+                ],
+            'items': []
+            }
 
         def _filter(x):
             text = args.grep
@@ -78,11 +77,11 @@ class ViewArgumentParser(CmdArgumentParser):
         items = items[start:end]
         self._versions = items
         for item in items:
-            table.add_row(item._id, item.space_name, item.module_name,
-                item.request_name)
-        console.print(table)
+            data['items'].append((item._id, item.space_name, item.module_name,
+                item.request_name))
         if end < total_count:
-            console.print('With `--page {}` to see more'.format(args.page + 1))
+            data['after_table'] = 'With `--page {}` to see more'.format(args.page + 1)
+        super_function.print_table(data)
 
     def get_completions_after_argument(self, wapi, word_for_completion):
         """
