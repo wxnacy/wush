@@ -9,17 +9,17 @@ import yaml
 import os
 
 from enum import Enum
-from wapi.common import constants
-from wapi.common import utils
-from wapi.common.files import FileUtils
-from wapi.common.functions import load_module
-from wapi.common.functions import super_function
-from wapi.common.functions import Function
-from wapi.common.functions import FunctionFactory
-from wapi.common.loggers import create_logger
-from wapi.common.exceptions import RequestException
-from wapi.models import ModuleModel
-from wapi.models import RequestModel
+from wush.common import constants
+from wush.common import utils
+from wush.common.files import FileUtils
+from wush.common.functions import load_module
+from wush.common.functions import super_function
+from wush.common.functions import Function
+from wush.common.functions import FunctionFactory
+from wush.common.loggers import create_logger
+from wush.common.exceptions import RequestException
+from wush.models import ModuleModel
+from wush.models import RequestModel
 
 class Env():
     # 参数地址

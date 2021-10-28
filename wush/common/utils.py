@@ -10,8 +10,8 @@ import os
 
 from collections import defaultdict
 
-from wapi.common.functions import run_shell
-from wapi.common.exceptions import JsonException
+from wush.common.functions import run_shell
+from wush.common.exceptions import JsonException
 
 def filter_json(data, rules):
     """

@@ -13,8 +13,8 @@ import yaml
 
 from functools import singledispatch
 
-from wapi.common.files import FileUtils
-from wapi.common.loggers import create_logger
+from wush.common.files import FileUtils
+from wush.common.loggers import create_logger
 
 class ConfigValue():
     logger = create_logger('ConfigValue')

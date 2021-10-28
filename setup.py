@@ -115,12 +115,14 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
+    #  packages=find_packages(include=['wapi', 'wush']),
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
 
     entry_points={
         'console_scripts': [
             'wapi=wapi.cli.main:main',
+            'wush=wapi.cli.main:main',
         ],
     },
     install_requires=REQUIRED,

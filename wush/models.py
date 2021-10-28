@@ -12,11 +12,11 @@ import requests
 from lfsdb import FSModel
 from lfsdb import FSColumn
 
-from wapi.common import constants
-from wapi.common.config_value import ConfigValue
-from wapi.common.cookie import Cookie
-from wapi.common.files import FileUtils
-from wapi.common.loggers import create_logger
+from wush.common import constants
+from wush.common.config_value import ConfigValue
+from wush.common.cookie import Cookie
+from wush.common.files import FileUtils
+from wush.common.loggers import create_logger
 
 class BaseModel(object):
 

@@ -9,8 +9,8 @@ import copy
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.completion import Completion
 
-from wapi.common import constants
-from wapi.common.loggers import create_logger
+from wush.common import constants
+from wush.common.loggers import create_logger
 
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory

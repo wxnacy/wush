@@ -58,7 +58,7 @@ class RouteFactory(BaseObject):
 
     def match(url, method='GET'):
         """匹配"""
-    
+
 
 factory = {}
 

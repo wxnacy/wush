@@ -20,7 +20,7 @@ console = Console()
 from wpy.base import BaseFactory
 from wpy.tools import randoms
 
-from wapi.common import constants
+from wush.common import constants
 
 class FunctionFactory(BaseFactory):
     pass
