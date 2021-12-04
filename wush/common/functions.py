@@ -61,7 +61,7 @@ def get_current_web_port():
     return os.getenv('WUSH_WEB_PORT')
 
 @FunctionFactory.register()
-def handler_response(response):
+def handler_response(request, response):
     #  print('Status: {}'.format(response.status_code))
     print('Response:')
     try:

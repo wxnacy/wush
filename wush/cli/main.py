@@ -10,12 +10,11 @@ import argparse
 import shutil
 import traceback
 
-#  from wapi.argument import ArgumentParser
-from wapi.argument import EnvArgumentParser
-from wapi.common.functions import super_function
-from wapi.common.loggers import create_logger
-from wapi.completion.command import CommandCompleter
-from wapi.wapi import Wapi
+from wush.argument import EnvArgumentParser
+from wush.common.functions import super_function
+from wush.common.loggers import create_logger
+from wush.completion.command import CommandCompleter
+from wush.wush import Wapi
 
 from .shell import Shell
 
@@ -64,7 +63,7 @@ func_dict = {
 
 def init_argparse():
     """初始化参数"""
-    parser = argparse.ArgumentParser(description='Wapi command',)
+    parser = argparse.ArgumentParser(description='Wush command',)
     parser.add_argument('cmd', help='You can use run, body, env, module')
     parser.add_argument('-c', '--config', help='Config dir name')
     parser.add_argument('-m', '--module', help='Module name')

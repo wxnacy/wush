@@ -17,7 +17,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'wapi'
+NAME = 'wush'
 DESCRIPTION = 'Useful api client on terminal'
 URL = 'https://github.com/wxnacy/wapi'
 EMAIL = 'wxnacy@gmail.com'
@@ -121,8 +121,8 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'wapi=wapi.cli.main:main',
-            'wush=wapi.cli.main:main',
+            #  'wapi=wapi.cli.main:main',
+            'wush=wush.cli.main:main',
         ],
     },
     install_requires=REQUIRED,

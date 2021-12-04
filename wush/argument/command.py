@@ -14,7 +14,7 @@ from prompt_toolkit import print_formatted_text
 
 from wpy.argument import CommandArgumentParser
 
-from wapi.common.loggers import create_logger
+from wush.common.loggers import create_logger
 
 class CmdArgumentParser(CommandArgumentParser):
     logger = create_logger('CmdArgumentParser')

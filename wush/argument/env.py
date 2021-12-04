@@ -7,7 +7,7 @@
 from collections import deque
 
 from wpy.files import FileUtils
-from wapi.common.loggers import create_logger
+from wush.common.loggers import create_logger
 from .command import CmdArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 

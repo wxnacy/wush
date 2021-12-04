@@ -10,9 +10,9 @@ import os
 from flask import Flask
 from flask import request
 
-from wapi.common.functions import random_int
-from wapi.common.loggers import create_logger
-from wapi.wapi import Wapi
+from wush.common.functions import random_int
+from wush.common.loggers import create_logger
+from wush.wush import Wapi
 
 #  import logging
 #  log = logging.getLogger('werkzeug')

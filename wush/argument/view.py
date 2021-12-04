@@ -7,15 +7,15 @@ run 命令的参数解析
 import os
 from wpy.argument import Action
 
-from wapi.common import utils
-from wapi.common.functions import open_version
-from wapi.common.loggers import create_logger
+from wush.common import utils
+from wush.common.functions import open_version
+from wush.common.loggers import create_logger
 from .command import CmdArgumentParser
-from wapi.cli.server import PORT
+from wush.cli.server import PORT
 from wpy.argument import CommandArgumentParserFactory
 
-from wapi.models import Version
-from wapi.common.functions import super_function
+from wush.models import Version
+from wush.common.functions import super_function
 
 @CommandArgumentParserFactory.register()
 class ViewArgumentParser(CmdArgumentParser):

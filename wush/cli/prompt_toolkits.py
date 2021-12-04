@@ -24,17 +24,17 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.completion import WordCompleter
 
-from wapi.argument import ArgumentParser
-from wapi.argument import ArgumentParserFactory
-from wapi.argument import CommandArgumentParser
-from wapi.argument import EnvArgumentParser
-from wapi.common import utils
-from wapi.common.functions import super_function
-from wapi.common.functions import run_shell
-from wapi.common.files import FileUtils
-from wapi.common.loggers import create_logger
-from wapi.completion.command import CommandCompleter
-from wapi.wapi import Wapi
+from wush.argument import ArgumentParser
+from wush.argument import ArgumentParserFactory
+from wush.argument import CommandArgumentParser
+from wush.argument import EnvArgumentParser
+from wush.common import utils
+from wush.common.functions import super_function
+from wush.common.functions import run_shell
+from wush.common.files import FileUtils
+from wush.common.loggers import create_logger
+from wush.completion.command import CommandCompleter
+from wush.wush import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException

@@ -24,17 +24,17 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.completion import WordCompleter
 
-from wapi.argument import CmdArgumentParser
+from wush.argument import CmdArgumentParser
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
-from wapi.common import utils
-from wapi.common.functions import super_function
-from wapi.common.functions import run_shell
-from wapi.common.functions import random_int
-from wapi.common.files import FileUtils
-from wapi.common.loggers import create_logger
-from wapi.completion.command import CommandCompleter
-from wapi.wapi import Wapi
+from wush.common import utils
+from wush.common.functions import super_function
+from wush.common.functions import run_shell
+from wush.common.functions import random_int
+from wush.common.files import FileUtils
+from wush.common.loggers import create_logger
+from wush.completion.command import CommandCompleter
+from wush.wush import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
@@ -100,7 +100,7 @@ class Shell():
     def _run_shell(self):
         while True:
             try:
-                left_prompt = 'wapi/{space}/{module}> '.format(
+                left_prompt = 'wush/{space}/{module}> '.format(
                     space = self.client.space_name,
                     module = self.client.module_name
                 )

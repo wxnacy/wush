@@ -6,7 +6,7 @@
 """
 import logging
 
-LOGFILE = '/tmp/wapi.log'
+LOGFILE = '/tmp/wush.log'
 
 class CustomerFilter(logging.Filter):
 

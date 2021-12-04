@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 """
-Wapi
+Wush
 """
 
 import sys
@@ -29,7 +29,7 @@ from .models import Request
 from .models import Response
 
 class Wapi():
-    logger = create_logger('Wapi')
+    logger = create_logger('Wush')
     module_name = ''
     request_name = ''
     space_name = ''
@@ -97,7 +97,7 @@ class Wapi():
 
         # 配置 space_name
         if not self.space_name or self.is_dynamic_space:
-            self.logger.info('wapi %s', self.name)
+            self.logger.info('wush %s', self.name)
             current_space_name = self.config.get_function().get_current_space_name()
             self.logger.info('current_space_name %s', current_space_name)
             self.space_name = current_space_name

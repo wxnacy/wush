@@ -7,12 +7,12 @@ run 命令的参数解析
 import os
 from wpy.argument import Action
 
-from wapi.common import utils
-from wapi.common.functions import super_function
-from wapi.common.functions import open_version
-from wapi.common.loggers import create_logger
+from wush.common import utils
+from wush.common.functions import super_function
+from wush.common.functions import open_version
+from wush.common.loggers import create_logger
 from .command import CmdArgumentParser
-from wapi.cli.server import PORT
+from wush.cli.server import PORT
 from wpy.argument import CommandArgumentParserFactory
 
 @CommandArgumentParserFactory.register()
@@ -133,7 +133,8 @@ class RunArgumentParser(CmdArgumentParser):
             self._open()
         else:
             #  self._print(self.wapi.get_pertty_response_content())
-            self.wapi.config.get_function().handler_response(self.wapi.response)
+            self.wapi.config.get_function().handler_response(
+                self.wapi._request, self.wapi.response)
 
     def _open(self):
         #  """打开请求信息"""
