@@ -7,7 +7,9 @@
 
 import os
 
+# 默认配置目录
 CONFIG_USER_ROOT = os.path.join(os.getenv("HOME"), '.wapi')
+# 默认配置文件
 CONFIG_USER_PATH = os.path.join(CONFIG_USER_ROOT, 'wapi.yml')
 
 CONFIG_ROOT = CONFIG_USER_ROOT
