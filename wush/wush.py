@@ -21,6 +21,8 @@ from wush.common.loggers import create_logger
 from wush.common.cookie import Cookie
 from wush.common.config import Config
 from wush.common.exceptions import RequestException
+from wush.web.request import RequestBuilder
+from wush.web.request import RequestClient
 
 from wush.models import ModuleModel
 from .models import Client

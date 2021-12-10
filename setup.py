@@ -121,6 +121,7 @@ setup(
     entry_points={
         'console_scripts': [
             'wush=wush.cli.main:main',
+            'wushtest=wush.cli.test:main',
         ],
     },
     install_requires=REQUIRED,
