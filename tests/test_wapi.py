@@ -7,10 +7,10 @@
 
 import os
 import pytest
-from wapi import Wapi
-from wapi.common import constants
-from wapi.common.config import Config
-from wapi.common.exceptions import RequestException
+from wush import Wapi
+from wush.common import constants
+from wush.common.config import Config
+from wush.common.exceptions import RequestException
 
 default_config = Config.get_default_config()
 test_space_name = 'test_space'

@@ -5,9 +5,9 @@
 
 """
 
-from wapi.common.config_value import ConfigValue
+from wush.common.config_value import ConfigValue
 
-from wapi.common.functions import FunctionFactory
+from wush.common.functions import FunctionFactory
 
 @FunctionFactory.register()
 def test(a=None, b=None):

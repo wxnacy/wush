@@ -5,8 +5,8 @@
 
 """
 
-from wapi.common import functions
-from wapi.common import constants
+from wush.common import functions
+from wush.common import constants
 
 super_function = functions.super_function
 

@@ -7,8 +7,8 @@
 
 import pytest
 
-from wapi.common import utils
-from wapi.common.exceptions import JsonException
+from wush.common import utils
+from wush.common.exceptions import JsonException
 
 
 def test_filter_json():
