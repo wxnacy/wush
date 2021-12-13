@@ -4,42 +4,43 @@
 """
 
 """
-import sys
+#  import sys
 import os
 import argparse
-import shutil
+#  import shutil
 import traceback
 import multiprocessing as mp
 import pygments
 
-from datetime import datetime
-from pygments.token import Token
+#  from datetime import datetime
+#  from pygments.token import Token
 from pygments.lexers.python import PythonLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit import PromptSession
-from prompt_toolkit.application import run_in_terminal
+#  from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.completion import WordCompleter
+#  from prompt_toolkit.completion import Completer, Completion
+#  from prompt_toolkit.completion import WordCompleter
 
 from wush.argument import CmdArgumentParser
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
-from wush.common import utils
+#  from wush.common import utils
 from wush.common.functions import super_function
-from wush.common.functions import run_shell
-from wush.common.functions import random_int
-from wush.common.files import FileUtils
+#  from wush.common.functions import run_shell
+#  from wush.common.functions import random_int
+#  from wush.common.files import FileUtils
 from wush.common.loggers import create_logger
+from wush.common.run_mode import RUN_MODE
 from wush.completion.command import CommandCompleter
 from wush.wush import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
 from .server import run_server
-from .server import PORT
+#  from .server import PORT
 
 def init_argparse():
     """初始化参数"""
@@ -63,7 +64,6 @@ class Shell():
     def __init__(self):
         self.parser = self._get_parser()
         args = init_argparse().parse_args()
-        #  args = init_argparse().parse_args(sys.argv)
         client = Wapi()
         client.init_config(config_root = args.config, space_name = args.space,
             module_name = args.module)
@@ -92,6 +92,7 @@ class Shell():
         #  return True if stdout_len >= 4 else False
 
     def run(self):
+        RUN_MODE.set_shell()
         p = mp.Process(target=run_server, args=(self.client, ), daemon=True)
         p.start()
         self._run_shell()
