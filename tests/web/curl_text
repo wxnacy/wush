@@ -1,0 +1,17 @@
+# curl text for wush
+curl 'https://collector.githubapp.com/github/collect' \
+  -H 'Connection: keep-alive' \
+  -H 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Content-Type: text/plain;charset=UTF-8' \
+  -H 'Accept: */*' \
+  -H 'Origin: https://gist.github.com' \
+  -H 'Sec-Fetch-Site: cross-site' \
+  -H 'Sec-Fetch-Mode: no-cors' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Referer: https://gist.github.com/' \
+  -H 'Accept-Language: zh-CN,zh;q=0.9' \
+  --data-raw '{"client_id":"1854529391.1629549230","page_views":[{"page":"https://gist.github.com/rgov/b842dcfb738b0342452cbd62076c4353","title":"Convert a CURL command line to the equivalent Python Requests invocation","context":{"actor_id":"7698847","actor_login":"wxnacy","actor_hash":"5225ceeb0bea7ff97533772e27771b1dcc4fd14babc2b99a7c72e1837f12ca04","public":"true","gist_id":"90220933","gist_name":"b842dcfb738b0342452cbd62076c4353","anonymous":"false","owner_id":"108767","owner_login":"rgov","forked":"false","referrer":"https://www.google.com.hk/","request_id":"9053:5D5B:1A6D36F:1EAC57C:61B5B4BA","visitor_id":"7965143085445345966","region_edge":"southeastasia","region_render":"iad"}}],"request_context":{"referrer":"https://www.google.com.hk/","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36","screen_resolution":"1792x1120","browser_resolution":"1066x874","pixel_ratio":2,"timestamp":1639298236363,"tz_seconds":28800}}' \
+  --compressed
