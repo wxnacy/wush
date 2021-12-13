@@ -1,0 +1,4 @@
+env:
+  name: wxnacy
+modules:
+  - name: 'test'
