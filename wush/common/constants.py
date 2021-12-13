@@ -21,9 +21,9 @@ REQUEST_PATH = os.path.join(CONFIG_ROOT, 'request.yml')
 DEFAULT_SPACE_NAME = 'default'
 DEFAULT_MODULE_NAME = 'default'
 
-FUNC_NAME_GET_CURRENT_SPACE_NAME = 'get_current_space_name'
+#  FUNC_NAME_GET_CURRENT_SPACE_NAME = 'get_current_space_name'
 
-DEFAULT_NAME_MODULE_ROOT = 'module_root'
+#  DEFAULT_NAME_MODULE_ROOT = 'module_root'
 
 # 默认配置
 DEFAULT_CONFIG = {
