@@ -5,15 +5,20 @@
 run 命令的参数解析
 """
 import os
+#  import subprocess
 from wpy.argument import Action
+from wpy.argument import CommandArgumentParserFactory
 
 from wush.common import utils
-from wush.common.functions import super_function
+from wush.common.constants import Constants
 from wush.common.functions import open_version
+from wush.common.functions import run_shell
 from wush.common.loggers import create_logger
+from wush.common.run_mode import RUN_MODE
+from wush.web.request import RequestClient
+from wush.web.request import RequestBuilder
+
 from .command import CmdArgumentParser
-from wush.cli.server import PORT
-from wpy.argument import CommandArgumentParserFactory
 
 @CommandArgumentParserFactory.register()
 class RunArgumentParser(CmdArgumentParser):
@@ -36,6 +41,11 @@ class RunArgumentParser(CmdArgumentParser):
             help='请求 body 参数，json 格式')
         item.add_argument('--open', action = Action.STORE_TRUE.value,
             help = '是否通过浏览器打开请求结果')
+        item.add_argument('--curl', action = Action.STORE_TRUE.value,
+            help = '是否使用 curl 文本')
+        if RUN_MODE.is_command:
+            item.add_argument('--url', help='请求地址')
+
         return item
 
     def get_completions_after_argument(self, wapi, word_for_completion):
@@ -96,12 +106,33 @@ class RunArgumentParser(CmdArgumentParser):
                 display_meta=''))
         return words
 
-    def run(self, text):
-        args = self.parse_args(text)
-        if not args.name:
-            raise Exception
-        _params = args.params or []
-        params = utils.list_key_val_to_dict(_params)
+    def _run_command(self, args):
+        """运行命令行模式"""
+        # curl 模式下打开一个文件并输入文本供后续使用
+        builder = RequestBuilder()
+        if args.curl:
+            print('curl')
+            filepath = Constants.build_tmpfile('curl')
+            run_shell(f'echo "# 请输入 cUrl 文本\n" > {filepath}')
+            vim_cmd = f'vim {filepath}'
+            os.system(vim_cmd)
+            builder = RequestBuilder.load_curl(filepath)
+        if args.url:
+            builder.url = args.url
+            builder.method = 'get'
+
+        if args.name:
+            builder = self._get_request_builder(args)
+
+        self.logger.info('builder {}'.format(builder.to_dict()))
+
+        req_client = RequestClient(builder)
+        res = req_client.request()
+        res.print()
+
+    def _get_request_builder(self, args):
+        """获取请求构造体"""
+        params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
 
         self.wapi.build(
@@ -111,8 +142,33 @@ class RunArgumentParser(CmdArgumentParser):
             params = params,
             json = json_data
         )
-
         self.logger.info('arg params %s', params)
+        self.logger.info('arg json %s', json_data)
+        return self.wapi.request_builder
+
+    def run(self, text):
+        args = self.parse_args(text)
+        # 判断运行模式
+        if RUN_MODE.is_command:
+            self._run_command(args)
+            return
+
+        if not args.name:
+            raise Exception
+        #  _params = args.params or []
+        #  params = utils.list_key_val_to_dict(_params)
+        #  json_data = utils.list_key_val_to_dict(args.json or [])
+
+        #  self.wapi.build(
+            #  space_name = args.space,
+            #  module_name = args.module,
+            #  request_name = args.name,
+            #  params = params,
+            #  json = json_data
+        #  )
+        self._get_request_builder(args)
+
+        #  self.logger.info('arg params %s', params)
 
         self._print('Space: {}'.format(self.wapi.space_name))
         self._print('Module: {}'.format(self.wapi.module_name))
