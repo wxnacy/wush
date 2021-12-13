@@ -8,6 +8,9 @@ import json
 
 from wpy.base import BaseEnum
 
+from wush.web.enums import HeaderEnum
+from wush.web.enums import ContentTypeEnum
+
 class ResponseField(BaseEnum):
     HEADERS = 'headers'
     OK = 'ok'
@@ -33,10 +36,11 @@ class ResponseClient(object):
 
     @property
     def content_type(self):
-        return self.headers['Content-Type']
+        return self.headers[HeaderEnum.CONTENT_TYPE.value]
 
     def is_json(self):
-        if self.content_type in ('application/json'):
+        """判断结果是否为 json 格式"""
+        if ContentTypeEnum.APPLICATION_JSON.value in self.content_type:
             return True
         return False
 
@@ -51,4 +55,11 @@ class ResponseClient(object):
         else:
             with open(savepath, 'wb') as f:
                 f.write(self.content)
+
+    def print(self):
+        if self.is_json():
+            print(json.dumps(self.json(), indent=4))
+        else:
+            print(self.text)
+
 

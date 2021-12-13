@@ -9,6 +9,7 @@ import requests
 from wpy.base import BaseEnum
 from wpy.base import BaseObject
 
+from wush.web.curl_utils import cUrl
 from wush.web.response import ResponseClient
 
 class Method(BaseEnum):
@@ -23,16 +24,24 @@ class Method(BaseEnum):
 
 class RequestBuilder(BaseObject):
     """请求构造器"""
-    method = None           # 请求方式
+    method = Method.GET.value           # 请求方式
     url = None              # 地址
     params = None           # get 请求参数
     json = None             # post 请求参数
+    body = None             # body 请求参数
     headers = {}            # headers 请求参数
     cookies = {}            # cookies 请求参数
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not self.method:
+            self.method = Method.GET.value
+
     @classmethod
-    def build_by_curl(cls, curl):
-        """通过 curl 命令构造"""
+    def load_curl(cls, curl_file):
+        """加载 curl 的本文文件"""
+        params = cUrl.dump(curl_file)
+        return cls(**params)
 
     def add_headers(self, **kwargs):
         """添加 headers"""
@@ -55,7 +64,7 @@ class RequestClient(object):
         res = requests.request(**params)
         return ResponseClient(res)
 
-if __name__ == "__main__":
+def main():
     url = 'http://localhost:8093/myvideos/2729/progress'
     #  url = 'http://localhost:8093/myvideos/?type=process_task'
     builder = RequestBuilder(method='get', url = url)
@@ -67,3 +76,6 @@ if __name__ == "__main__":
     print(res.response.url)
     print(res.ok)
     print(type(res.content))
+
+if __name__ == "__main__":
+    main()
