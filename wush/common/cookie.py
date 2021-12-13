@@ -7,21 +7,23 @@
 
 import sys
 import json
+import traceback
 
 from wush.common.files import FileUtils
 
-chrome = None
-try:
-    import browsercookie
-    chrome = browsercookie.chrome()
-except :
-    print('can not import browsercookie')
-    pass
 
 class Cookie():
 
     @classmethod
     def get_cookie(cls, domain):
+        chrome = None
+        try:
+            import browsercookie
+            chrome = browsercookie.chrome()
+        except :
+            print('can not import browsercookie')
+            traceback.print_exc()
+            traceback.print_stack()
         res = {}
         if not chrome:
             return res

@@ -25,3 +25,6 @@ def create_logger(name):
     logger = logging.getLogger(name)
     logger.addFilter(CustomerFilter())
     return logger
+
+def get_logger(name):
+    return create_logger(name)

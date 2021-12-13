@@ -67,4 +67,3 @@ def list_key_val_to_dict(data):
             k, v = item.split('=')
             res[k] = v
     return res
-

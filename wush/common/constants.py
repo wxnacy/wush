@@ -6,6 +6,7 @@
 """
 
 import os
+import random
 
 # 默认配置目录
 CONFIG_USER_ROOT = os.path.join(os.getenv("HOME"), '.wapi')
@@ -35,4 +36,12 @@ DEFAULT_CONFIG = {
 
 # request 请求方式
 METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')
+
+class Constants(object):
+    TMPDIR = '/tmp/wush'
+
+    @classmethod
+    def build_tmpfile(cls, prefix):
+        """创建临时文件"""
+        return os.path.join(cls.TMPDIR, f'{prefix}.{random.randint(1, 90000)}')
 
