@@ -5,8 +5,8 @@
 Wush
 """
 
-import sys
-import yaml
+#  import sys
+#  import yaml
 import os
 import requests
 import json
@@ -14,18 +14,18 @@ import cgi
 import traceback
 
 from datetime import datetime
-from wush.common import constants
+#  from wush.common import constants
 from wush.common import utils
-from wush.common.files import FileUtils
+#  from wush.common.files import FileUtils
 from wush.common.loggers import create_logger
-from wush.common.cookie import Cookie
+#  from wush.common.cookie import Cookie
 from wush.common.config import Config
 from wush.common.exceptions import RequestException
 from wush.web.request import RequestBuilder
 from wush.web.request import RequestClient
 
-from wush.models import ModuleModel
-from .models import Client
+#  from wush.models import ModuleModel
+#  from .models import Client
 from .models import Version
 from .models import Request
 from .models import Response
@@ -123,6 +123,11 @@ class Wapi():
             body_path = current_body_path
         ))
 
+    @property
+    def request_builder(self):
+        """获取 请求构造体"""
+        return RequestBuilder(**self._request_data)
+
     def build(self, **kwargs):
         """
         构建请求
@@ -162,6 +167,7 @@ class Wapi():
         self.logger.info('Request data: %s', self._request_data)
 
     def request(self, **kwargs):
+        """发出请求"""
         self.version = self.create_id()
         if kwargs:
             self.build(**kwargs)
