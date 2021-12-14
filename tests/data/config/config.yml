@@ -1,4 +1,28 @@
 env:
   name: wxnacy
 modules:
-  - name: 'test'
+  - name: 'wush'
+    domain: 'localhost:6060'
+    url_prefix: '/api'
+    requests:
+      - name: 'test_get'
+        title: 'wush 测试接口 GET'
+        path: '/test'
+        params:
+          id: 12
+
+      - name: 'test_post'
+        title: 'wush 测试接口 POST'
+        method: 'post'
+        path: '/test'
+        json:
+          id: 12
+
+  - name: 'api_github'
+    protocol: 'https'
+    domain: 'api.github.com'
+    url_prefix: '/repos/octocat/hello-world'
+    requests:
+      - name: 'repos_octocat'
+        title: '查看项目详情'
+        path: '/repos/octocat/hello-world'
