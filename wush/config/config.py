@@ -26,6 +26,8 @@ if __name__ == "__main__":
     with open('tests/data/config/config.yml', 'r') as f:
         data = yaml.safe_load(f)
     config = ConfigModel(**data)
+    #  print(config.modules)
     import json
     print(json.dumps(config.to_dict(), indent=4))
+    #  print('test')
 
