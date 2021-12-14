@@ -6,42 +6,36 @@
 
 import requests
 
-from wpy.base import BaseEnum
-from wpy.base import BaseObject
-
+from wush.config.models import RequestModel
 from wush.web.curl_utils import cUrl
+from wush.web.enums import MethodEnum
+from wush.web.enums import RequestsParamsEnum
 from wush.web.response import ResponseClient
-
-class Method(BaseEnum):
-    GET = 'GET'
-    POST = 'POST'
-    PUT = 'PUT'
-    DELETE = 'DELETE'
-    HEAD = 'HEAD'
-    OPTIONS = 'OPTIONS'
-    PATCH = 'PATCH'
+from wush.model import Model
+from wush.model import datatype
 
 
-class RequestBuilder(BaseObject):
+class RequestBuilder(Model):
     """请求构造器"""
-    method = Method.GET.value           # 请求方式
-    url = None              # 地址
-    params = None           # get 请求参数
-    json = None             # post 请求参数
-    body = None             # body 请求参数
-    headers = {}            # headers 请求参数
-    cookies = {}            # cookies 请求参数
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not self.method:
-            self.method = Method.GET.value
+    method = datatype.Str(enum=MethodEnum, default=MethodEnum.GET.value,
+        upper=True)                     # 请求方式
+    url = datatype.Str()                # 地址
+    params = datatype.Dict()            # get 请求参数
+    json = datatype.Dict()              # post 请求参数
+    body = datatype.Str()               # body 请求参数
+    headers = datatype.Dict()           # headers 请求参数
+    cookies = datatype.Dict()           # cookies 请求参数
 
     @classmethod
     def load_curl(cls, curl_file):
         """加载 curl 的本文文件"""
         params = cUrl.dump(curl_file)
         return cls(**params)
+
+    @classmethod
+    def loads_request_model(cls, request_model: RequestModel):
+        """加载 RequestModel 模型"""
+        pass
 
     def add_headers(self, **kwargs):
         """添加 headers"""
@@ -50,6 +44,16 @@ class RequestBuilder(BaseObject):
     def add_cookies(self, **kwargs):
         """添加 cookies"""
         self.cookies.update(kwargs)
+
+    def to_requests(self):
+        """转换为 requests 参数"""
+        data = {}
+        for key in RequestsParamsEnum.values():
+            try:
+                data[key] = getattr(self, key)
+            except:
+                pass
+        return data
 
 
 class RequestClient(object):
@@ -60,22 +64,6 @@ class RequestClient(object):
 
     def request(self):
         """发送请求"""
-        params = self.builder.to_dict()
-        res = requests.request(**params)
+        res = requests.request(**self.builder.to_requests())
         return ResponseClient(res)
 
-def main():
-    url = 'http://localhost:8093/myvideos/2729/progress'
-    #  url = 'http://localhost:8093/myvideos/?type=process_task'
-    builder = RequestBuilder(method='get', url = url)
-    client = RequestClient(builder)
-    res = client.request()
-    if res.is_json():
-        print(res.json())
-    print(res.response.headers['Content-Type'])
-    print(res.response.url)
-    print(res.ok)
-    print(type(res.content))
-
-if __name__ == "__main__":
-    main()
