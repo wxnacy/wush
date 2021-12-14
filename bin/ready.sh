@@ -10,4 +10,5 @@ pip install pytest
 pip uninstall pycrypto
 pip uninstall pycryptodome
 pip install pycryptodome
+pip install w3lib
 pip install -r requirements.txt
