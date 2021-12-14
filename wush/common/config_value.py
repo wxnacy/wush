@@ -8,13 +8,17 @@
 import json
 import os
 import re
-import subprocess
-import yaml
+#  import subprocess
+#  import yaml
 
-from functools import singledispatch
+#  from functools import singledispatch
+
+#  from wpy.base import BaseObject
 
 from wush.common.files import FileUtils
 from wush.common.loggers import create_logger
+from wush.model import Model
+#  from wush.config.models import RequestModel
 
 class ConfigValue():
     logger = create_logger('ConfigValue')
@@ -37,40 +41,53 @@ class ConfigValue():
 
     def format(self):
         '''输出格式化信息'''
-        if not self.value:
-            # 为空，返回
-            return self.value
+        return self._format(self.value)
 
-        #  self.logger.info('ConfigValue env %s', self.env)
+    def _format(self, value):
+        if not value:
+            # 为空，返回
+            return value
 
         #  格式化响应格式数据
         for t in (str, list, dict):
-            if isinstance(self.value, t):
+            if isinstance(value, t):
                 func_name = '_format_' + t.__name__
-                return getattr(self, func_name)(self.value)
-        return self.value
+                return getattr(self, func_name)(value)
 
-    @singledispatch
-    def _format(self, obj):
-        self.logger.info('type %s', type(obj))
-        return obj
+        # 格式化模型
+        if isinstance(value, Model):
+            for k, v in value.to_dict().items():
+                v = self._format(v)
+                setattr(value, k, v)
 
-    @_format.register(dict)
-    def _(self, value):
-        """格式化字典"""
-        return self._format_dict(dict)
+        #  if isinstance(value, BaseObject):
+            #  for k, v in value.to_dict().items():
+                #  v = self._format(v)
+                #  setattr(value, k, v)
 
-    @_format.register(list)
-    def _(self, lines):
-        """格式化数组"""
-        self.logger.info('-' * 200)
-        return self._format_list(lines)
+        return value
 
-    @_format.register(str)
-    def _(self, text):
-        """格式化字符窜"""
-        self.logger.info('-' * 200)
-        return self._format_str(text)
+    #  @singledispatch
+    #  def _format(self, obj):
+        #  self.logger.info('type %s', type(obj))
+        #  return obj
+
+    #  @_format.register(dict)
+    #  def _(self, value):
+        #  """格式化字典"""
+        #  return self._format_dict(dict)
+
+    #  @_format.register(list)
+    #  def _(self, lines):
+        #  """格式化数组"""
+        #  self.logger.info('-' * 200)
+        #  return self._format_list(lines)
+
+    #  @_format.register(str)
+    #  def _(self, text):
+        #  """格式化字符窜"""
+        #  self.logger.info('-' * 200)
+        #  return self._format_str(text)
 
     def _format_dict(self, value):
         """格式化字典"""

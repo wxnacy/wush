@@ -8,78 +8,61 @@
 from wpy.base import BaseObject
 from wpy.base import BaseEnum
 
+# TODO 改为抽象类
 class DataType(BaseObject):
-    default = None
     _value = None
     _type = object
+    _default = None
+
+    default = None
 
     def set_value(self, value):
         self._value = value
 
-    @property
-    def emtry_value(self):
-        return None
-
     def value(self):
         """获取数据"""
         val = str(self.default()) if callable(self.default) else self.default
-        return self._value or val or self.emtry_value
+        return self._value or val or self._default
 
     def valid(self):
         """校验赋值"""
-        if self._value and not isinstance(self._value, self._type):
+        if self._value != None and not isinstance(self._value, self._type):
             raise ValueError(f'{self._value} is not be {self._type}')
 
 class Str(DataType):
+    _type = str
+    _default = str()
+
     enum = None
     upper = False
-    _type = str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if self.enum and not issubclass(self.enum, BaseEnum):
-            raise ValueError('enum must be BaseEnum')
+            raise ValueError('enum must be wpy.base.BaseEnum')
 
     def set_value(self, value):
         super().set_value(value)
         if self.upper and self._value:
             self._value = self._value.upper()
 
-    @property
-    def emtry_value(self):
-        return ""
-
     def valid(self):
         super().valid()
-        if self.enum and self._value and self._value not in self.enum.values():
-            raise ValueError(f'{self._value} is a error value for {self.enum}')
+        if self.enum and self._value != None and \
+                self._value not in self.enum.values():
+            raise ValueError(f'{self._value} is not {self.enum}')
 
 
 class Dict(DataType):
     _type = dict
+    _default = dict()
 
-    #  def valid(self):
-        #  if self._value and not isinstance(self._value, dict):
-            #  raise ValueError(f'{self._value} is not dict')
-
-    @property
-    def emtry_value(self):
-        return {}
 
 class List(DataType):
     _type = list
+    _default = list()
+
     model = None
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    def emtry_value(self):
-        return []
-
-    #  def valid(self):
-        #  if self._value and not isinstance(self._value, list):
-            #  raise ValueError(f'{self._value} is not list')
 
     def value(self):
         """获取数据"""
@@ -91,3 +74,19 @@ class List(DataType):
 
         return super().value()
 
+class Object(DataType):
+    _type = object
+
+    model = None
+
+    def valid(self):
+        """校验"""
+        if not isinstance(self._value, dict) and self.model:
+            raise ValueError(f'{self._value} can not to {self.model}')
+
+    def value(self):
+        """获取数据"""
+        if self.model and self._value:
+            return self.model(**self._value)
+
+        return super().value()

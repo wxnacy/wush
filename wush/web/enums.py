@@ -25,3 +25,11 @@ class HeaderEnum(BaseEnum):
 
 class ContentTypeEnum(BaseEnum):
     APPLICATION_JSON = 'application/json'
+
+class RequestsParamsEnum(BaseEnum):
+    METHOD = 'method'
+    URL = 'url'
+    PARAMS = 'params'
+    JSON = 'json'
+    HEADERS = 'headers'
+    COOKIES = 'cookies'

@@ -1,0 +1,13 @@
+module: 'default'
+requests:
+  - name: 'get_test'
+    title: 'get_test'
+    path: /get_test
+    params:
+      name: 'get_test'
+
+  - name: 'post_test'
+    title: 'test'
+    path: /test
+    json:
+      name: 'test'

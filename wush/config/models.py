@@ -4,13 +4,32 @@
 """
 配置模型
 """
+import os
+import yaml
+
+from wpy.base import BaseObject
 
 from wush.model import datatype
-from wush.model.model import Model
+from wush.model import Model
 from wush.web.enums import MethodEnum
 from wush.web.enums import ProtocolEnum
 
+class EnvModel(BaseObject):
+    def __init__(self, **kwargs):
+        # 将数字类型转为字符串
+        for k, v in kwargs.items():
+            for clz in (int, float):
+                if isinstance(v, clz):
+                    v = str(v)
+            kwargs[k] = v
+        for k, v in dict(os.environ).items():
+            setattr(self, k, v)
+        super().__init__(**kwargs)
+
+
 class RequestModel(Model):
+    __auto_format__ = True
+
     name = datatype.Str()
     title = datatype.Str()
     path = datatype.Str()
@@ -25,7 +44,10 @@ class RequestModel(Model):
     data = datatype.Str()
     url = datatype.Str()
 
+
 class ModuleModel(Model):
+    __auto_format__ = True
+
     name = datatype.Str()
     protocol = datatype.Str(enum = ProtocolEnum,
             default=ProtocolEnum.HTTP.value)
@@ -35,6 +57,7 @@ class ModuleModel(Model):
     cookies = datatype.Dict()
     headers = datatype.Dict()
     requests = datatype.List(model=RequestModel)
+    include = datatype.Str()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,14 +88,31 @@ class ModuleModel(Model):
 class ConfigModel(Model):
     """客户端全局配置模型"""
     modules = datatype.List(model = ModuleModel)
-    env = datatype.Dict()
+    env = datatype.Object(model = EnvModel)
+    modules_include = datatype.List()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print(self.modules)
-        self.__mod__ = {o.name: o for o in self.modules}
+        #  self.__mod__ = {o.name: o for o in self.modules}
 
     def get_module(self, name):
         """获取模块"""
-        module = self.__mod__.get(name)
-        return module
+        for module in self.modules:
+            if module.name == name:
+                return module
+        #  module = self.__mod__.get(name)
+        return None
+
+    @classmethod
+    def _iter_path(cls, filepath):
+        if os.path.isfile(filepath):
+            yield filepath
+        if os.path.isdir(filepath):
+            for _dir, _, names in os.walk(filepath):
+                for name in names:
+                    yield os.path.join(_dir, name)
+
+    def iter_module_path(self):
+        """遍历模块地址列表"""
+        for module_path in self.modules_include or []:
+            yield self._iter_path(module_path)

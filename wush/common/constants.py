@@ -9,12 +9,12 @@ import os
 import random
 
 # 默认配置目录
-CONFIG_USER_ROOT = os.path.join(os.getenv("HOME"), '.wapi')
+CONFIG_USER_ROOT = 'tests/data/config' # os.path.join(os.getenv("HOME"), '.wapi')
 # 默认配置文件
-CONFIG_USER_PATH = os.path.join(CONFIG_USER_ROOT, 'wapi.yml')
+CONFIG_USER_PATH = os.path.join(CONFIG_USER_ROOT, 'config.yml')
 
 CONFIG_ROOT = CONFIG_USER_ROOT
-CONFIG_PATH = os.path.join(CONFIG_ROOT, 'wapi.yml')
+CONFIG_PATH = os.path.join(CONFIG_ROOT, 'config.yml')
 ENV_PATH = os.path.join(CONFIG_ROOT, 'env.yml')
 REQUEST_PATH = os.path.join(CONFIG_ROOT, 'request.yml')
 

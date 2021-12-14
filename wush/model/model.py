@@ -11,17 +11,20 @@ from wush.model.datatype import DataType
 
 class Model(BaseObject):
 
+    __auto_format__ = False
     __column__ = {}
 
     def __init__(self, **kwargs):
-
         self._init_column()
-        #  print(self.__column__)
-        for k, v in self.__column__.items():
-            if isinstance(v, DataType):
-                v.set_value(kwargs.get(k))
-                v.valid()
-                setattr(self, k, v.value())
+        super().__init__(**kwargs)
+
+        # 将未赋值的字段设置为 None
+        for key in self.__column__.keys():
+            if isinstance(getattr(self, key), DataType):
+                setattr(self, key, None)
+
+        if self.__auto_format__:
+            self.format()
 
     @classmethod
     def _init_column(cls):
@@ -34,6 +37,18 @@ class Model(BaseObject):
             for k, v in clz.__dict__.items():
                 if isinstance(v, DataType):
                     cls.__column__[k] = v
+
+    def format(self):
+        for k, v in self.__column__.items():
+            if isinstance(v, DataType):
+                try:
+                    v.set_value(getattr(self, k))
+                except:
+                    pass
+                v.valid()
+                setattr(self, k, v.value())
+
+
 
     #  def to_dict(self):
         #  data = {}

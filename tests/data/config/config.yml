@@ -1,8 +1,9 @@
 env:
   name: wxnacy
+  WUSH_PORT: 6060
 modules:
   - name: 'wush'
-    domain: 'localhost:6060'
+    domain: 'localhost:${WUSH_PORT}'
     url_prefix: '/api'
     requests:
       - name: 'test_get'
@@ -26,3 +27,6 @@ modules:
       - name: 'repos_octocat'
         title: '查看项目详情'
         path: '/repos/octocat/hello-world'
+modules_include:
+  - 'test_module/*.yml'
+  - 'module_test.yml'

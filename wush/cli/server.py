@@ -34,7 +34,7 @@ def detail_type(version, type):
     res = client.read()
     return res.get(type, {})
 
-@app.route('/test', methods=['post', 'get'])
+@app.route('/api/test', methods=['post', 'get'])
 def test():
     res = {
         "args": request.args,
