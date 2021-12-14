@@ -14,7 +14,6 @@ class DataType(BaseObject):
     _type = object
 
     def set_value(self, value):
-        print(self, value)
         self._value = value
 
     @property

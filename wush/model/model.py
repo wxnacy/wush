@@ -16,7 +16,7 @@ class Model(BaseObject):
     def __init__(self, **kwargs):
 
         self._init_column()
-        print(self.__column__)
+        #  print(self.__column__)
         for k, v in self.__column__.items():
             if isinstance(v, DataType):
                 v.set_value(kwargs.get(k))
