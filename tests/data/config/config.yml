@@ -28,5 +28,5 @@ modules:
         title: '查看项目详情'
         path: '/repos/octocat/hello-world'
 modules_include:
-  - 'test_module/*.yml'
+  - 'test_module/'
   - 'module_test.yml'

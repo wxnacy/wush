@@ -30,12 +30,22 @@ class RequestBuilder(Model):
     def load_curl(cls, curl_file):
         """加载 curl 的本文文件"""
         params = cUrl.dump(curl_file)
-        return cls(**params)
+        ins = cls(**params)
+        ins.format()
+        return
 
     @classmethod
     def loads_request_model(cls, request_model: RequestModel):
         """加载 RequestModel 模型"""
-        pass
+        ins = cls()
+        for key in RequestsParamsEnum.values():
+            setattr(ins, key, getattr(request_model, key))
+            #  try:
+                #  data[key] = getattr(self, key)
+            #  except:
+                #  pass
+        ins.format()
+        return ins
 
     def add_headers(self, **kwargs):
         """添加 headers"""

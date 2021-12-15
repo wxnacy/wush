@@ -105,14 +105,20 @@ class ConfigModel(Model):
 
     @classmethod
     def _iter_path(cls, filepath):
+        """迭代地址"""
         if os.path.isfile(filepath):
             yield filepath
         if os.path.isdir(filepath):
+            names = os.listdir(filepath)
             for _dir, _, names in os.walk(filepath):
                 for name in names:
                     yield os.path.join(_dir, name)
+        yield None
 
     def iter_module_path(self):
-        """遍历模块地址列表"""
+        """迭代模块地址列表"""
         for module_path in self.modules_include or []:
-            yield self._iter_path(module_path)
+            for path in self._iter_path(module_path):
+                if not path:
+                    continue
+                yield path

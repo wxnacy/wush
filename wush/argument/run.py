@@ -117,9 +117,10 @@ class RunArgumentParser(CmdArgumentParser):
             vim_cmd = f'vim {filepath}'
             os.system(vim_cmd)
             builder = RequestBuilder.load_curl(filepath)
+
         if args.url:
             builder.url = args.url
-            builder.method = 'get'
+            builder.format()
 
         if args.name:
             builder = self._get_request_builder(args)
@@ -155,20 +156,8 @@ class RunArgumentParser(CmdArgumentParser):
 
         if not args.name:
             raise Exception
-        #  _params = args.params or []
-        #  params = utils.list_key_val_to_dict(_params)
-        #  json_data = utils.list_key_val_to_dict(args.json or [])
 
-        #  self.wapi.build(
-            #  space_name = args.space,
-            #  module_name = args.module,
-            #  request_name = args.name,
-            #  params = params,
-            #  json = json_data
-        #  )
         self._get_request_builder(args)
-
-        #  self.logger.info('arg params %s', params)
 
         self._print('Space: {}'.format(self.wapi.space_name))
         self._print('Module: {}'.format(self.wapi.module_name))

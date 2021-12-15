@@ -85,7 +85,7 @@ class Config():
             data = dict(fileroot)
         else:
             item._root = fileroot
-            filepath = os.path.join(fileroot, 'wapi.yml')
+            filepath = os.path.join(fileroot, 'config.yml')
             with open(filepath, 'r') as f:
                 data = yaml.safe_load(f)
         item._config = data

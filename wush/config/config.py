@@ -15,27 +15,35 @@ class Config(object):
     logger = get_logger('Config')
 
     _config = None
-    _config_dir = None
+    #  _config_dir = None
 
-    def __init__(self, *args, **kwargs):
-        self._config_dir = None
-        self._config = None
+    #  def __init__(self, *args, **kwargs):
+        #  self._config_dir = None
+        #  self._config = None
 
     @classmethod
     def read_yml(cls, filepath):
         """读取 yml 文件"""
-        with open(conf_file, 'r') as f:
+        with open(filepath, 'r') as f:
             return yaml.safe_load(f)
 
     @classmethod
     def load(cls, conf_file):
         """通过文件加载"""
         # 去读 yml 文件
-        data = cls.read_yml(conf_file)
+        data = cls.read_yml(conf_file) or {}
+
+        # 格式化 modules_include 地址
+        config_dir = os.path.dirname(conf_file)
+        full_modules_include = []
+        for path in data.get("modules_include", []):
+            path = os.path.join(config_dir, path)
+            full_modules_include.append(path)
+        data['modules_include'] = full_modules_include
 
         ins = cls.loads(data)
         # 获取配置目录
-        ins._config_dir = os.path.dirname(conf_file)
+        #  ins._config_dir = os.path.dirname(conf_file)
         return ins
 
     @classmethod
@@ -43,7 +51,6 @@ class Config(object):
         """通过 dict 数据加载"""
         ins = cls()
         ins._config = ConfigModel(**data)
-
 
         # 对模块地址进行解析
         for module_path in ins._config.iter_module_path():
