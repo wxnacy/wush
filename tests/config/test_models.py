@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 
+from wush.config.models import AutoFieldModel
 from wush.config.config import Config
 from wush.config.models import ConfigModel
 from wush.config.models import ModuleModel
@@ -28,6 +29,19 @@ def test_format():
 
     assert module.get_request('65432') == None
     req = module.get_request('test_get')
-    #  assert req.url == 'http://localhost:6060/api/test'
-    #  assert req.domain == 'localhost:6060'
     assert req.path == '/test'
+
+def test_auto_field():
+    data = { "json": {
+        "name": "wxnacy",
+        "age": { "_value": "1", "_data_type": int }
+        } }
+
+    af = AutoFieldModel(**data['json'])
+    assert af.name._value == 'wxnacy'
+    assert af.age._value == 1
+
+    dict_data = af.to_dict()
+    assert dict_data.get("name") == 'wxnacy'
+    assert dict_data.get("age") == 1
+

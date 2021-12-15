@@ -81,7 +81,8 @@ class Object(DataType):
 
     def valid(self):
         """校验"""
-        if not isinstance(self._value, dict) and self.model:
+        if self._value != None and not isinstance(self._value, dict
+                ) and self.model:
             raise ValueError(f'{self._value} can not to {self.model}')
 
     def value(self):

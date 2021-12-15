@@ -25,7 +25,7 @@ class Model(BaseObject):
 
         # 将未赋值的字段设置为 None
         for key in self.__get_datatype_fields().keys():
-            if isinstance(getattr(self, key), DataType):
+            if hasattr(self, key) and isinstance(getattr(self, key), DataType):
                 setattr(self, key, None)
 
         # 判断自动 format

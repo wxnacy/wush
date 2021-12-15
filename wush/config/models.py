@@ -45,11 +45,25 @@ class AutoFieldModel(Model):
         """对数据进行前置过滤"""
         for k, v in kwargs.items():
             if isinstance(v, dict) and '_value' in v:
-                continue
-            v = { "_value": v, "_data_type": type(v) }
+                # 如果对象字段已经包含当前结构，进行格式转换
+                # TODO 只判断基础类型
+                data_type = v.get("_data_type", str)
+                v['_value'] = data_type(v['_value'])
+            else:
+                # 如果结构不对，则进行结构转换
+                v = { "_value": v, "_data_type": type(v) }
             kwargs[k] = v
 
         super().__init__(**kwargs)
+
+    def to_dict(self):
+        """重载方法
+        value 值只保留 _value 部分
+        """
+        data = super().to_dict()
+        for k, v in data.items():
+            data[k] = v._value
+        return data
 
 
 class RequestModel(Model):
@@ -148,3 +162,4 @@ class ConfigModel(Model):
                 if not path:
                     continue
                 yield path
+
