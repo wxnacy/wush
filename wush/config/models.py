@@ -5,7 +5,6 @@
 配置模型
 """
 import os
-import yaml
 
 from wpy.base import BaseObject
 
@@ -26,11 +25,35 @@ class EnvModel(BaseObject):
             setattr(self, k, v)
         super().__init__(**kwargs)
 
-class Field(Model):
-    pass
+class FieldModel(Model):
+    """配置字段
+    在配置中，单一值无法描述字段时，可以使用该模型
+    """
+
+    AUTO_FORMAT = True
+
+    _doc = datatype.Str()
+    _value = datatype.Object()
+    _data_type = datatype.Object()
+
+class AutoFieldModel(Model):
+    """该模型自动使用 FieldModel"""
+    DEFAULT_FIELD_MODEL = FieldModel
+    AUTO_FORMAT = True
+
+    def __init__(self, **kwargs):
+        """对数据进行前置过滤"""
+        for k, v in kwargs.items():
+            if isinstance(v, dict) and '_value' in v:
+                continue
+            v = { "_value": v, "_data_type": type(v) }
+            kwargs[k] = v
+
+        super().__init__(**kwargs)
 
 
 class RequestModel(Model):
+    """请求配置模型"""
     AUTO_FORMAT = True
 
     name = datatype.Str()
@@ -42,7 +65,7 @@ class RequestModel(Model):
     domain = datatype.Str()
     cookies = datatype.Dict()
     headers = datatype.Dict()
-    json = datatype.Dict()
+    json = datatype.Object(model=AutoFieldModel)
     params = datatype.Dict()
     data = datatype.Str()
     url = datatype.Str()
