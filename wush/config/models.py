@@ -26,9 +26,12 @@ class EnvModel(BaseObject):
             setattr(self, k, v)
         super().__init__(**kwargs)
 
+class Field(Model):
+    pass
+
 
 class RequestModel(Model):
-    __auto_format__ = True
+    AUTO_FORMAT = True
 
     name = datatype.Str()
     title = datatype.Str()
@@ -46,7 +49,7 @@ class RequestModel(Model):
 
 
 class ModuleModel(Model):
-    __auto_format__ = True
+    AUTO_FORMAT = True
 
     name = datatype.Str()
     protocol = datatype.Str(enum = ProtocolEnum,
