@@ -79,19 +79,31 @@ class Model(BaseObject):
         将实例转为 dict 数据
         执行前需要保证实例已经执行过 format 方法或设置成员变量 AUTO_FORMAT=True
         """
+        return self._to_dict(self)
+
+    @classmethod
+    def _to_dict(cls, model):
+        """对 Model 进行循环 to_dict 操作"""
         data = {}
-        for key in self.__get_datatype_fields().keys():
-            data[key] = getattr(self, key)
+        for key in model.__get_datatype_fields().keys():
+            origin_value = getattr(model, key)
+            if isinstance(origin_value, Model):
+                data[key] = cls._to_dict(origin_value)
+            else:
+                data[key] = origin_value
         return data
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.to_dict(), sort_keys=True)
 
-class User(Model):
-    name = None
+#  class Book(Model):
+    #  name = datatype.Str()
 
-if __name__ == "__main__":
-    u = User()
-    u.name = 'wxnacy'
-    print(u.name)
+#  class User(Model):
+    #  book = datatype
+
+#  if __name__ == "__main__":
+    #  u = User()
+    #  u.name = 'wxnacy'
+    #  print(u.name)
     

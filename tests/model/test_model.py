@@ -54,6 +54,14 @@ def test_to_dict():
     assert 'age' not in data
     assert len(data) == 1
 
+    m = Json()
+    m.name = { "value": "wxnacy", "_type": str }
+    m.format()
+    data = m.to_dict()
+    assert data['name']['value'] == 'wxnacy'
+    assert data['name']['_type'] == str
+
+
 def test_format():
     u = User()
     u.name = 1
@@ -66,7 +74,4 @@ def test_default_field_model():
     m.format()
     assert m.name.value == 'wxnacy'
     assert m.name._type == str
-
-
-
 
