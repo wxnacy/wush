@@ -8,6 +8,7 @@ import os
 
 from wpy.base import BaseObject
 
+from wush.common.constants import Constants
 from wush.model import datatype
 from wush.model import Model
 from wush.web.enums import MethodEnum
@@ -46,8 +47,10 @@ class AutoFieldModel(Model):
         for k, v in kwargs.items():
             if isinstance(v, dict) and '_value' in v:
                 # 如果对象字段已经包含当前结构，进行格式转换
-                # TODO 只判断基础类型
                 data_type = v.get("_data_type", str)
+                # 针对字符串转为基础类型
+                if isinstance(data_type, str):
+                    data_type = Constants.str_to_basetype(data_type)
                 v['_value'] = data_type(v['_value'])
             else:
                 # 如果结构不对，则进行结构转换

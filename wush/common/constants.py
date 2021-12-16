@@ -40,9 +40,24 @@ METHODS = ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE')
 
 class Constants(object):
     TMPDIR = '/tmp/wush'
+    BASETYPE_MAP = {
+        'str': str,
+        'string': str,
+        'int': int,
+        'list': list,
+        'dict': dict,
+        'float': float,
+    }
 
     @classmethod
     def build_tmpfile(cls, prefix):
         """创建临时文件"""
         return os.path.join(cls.TMPDIR, f'{prefix}.{random.randint(1, 90000)}')
+
+    @classmethod
+    def str_to_basetype(cls, text):
+        """字符串转为基础类型"""
+        if text not in cls.BASETYPE_MAP:
+            raise ValueError(f'{text} is not basetype')
+        return cls.BASETYPE_MAP[text]
 

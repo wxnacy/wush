@@ -34,14 +34,16 @@ def test_format():
 def test_auto_field():
     data = { "json": {
         "name": "wxnacy",
-        "age": { "_value": "1", "_data_type": int }
+        "age": { "_value": "1", "_data_type": int },
+        "page": { "_value": "1", "_data_type": 'int' }
         } }
 
     af = AutoFieldModel(**data['json'])
     assert af.name._value == 'wxnacy'
     assert af.age._value == 1
+    assert af.page._value == 1
 
     dict_data = af.to_dict()
     assert dict_data.get("name") == 'wxnacy'
     assert dict_data.get("age") == 1
-
+    assert dict_data.get("page") == 1
