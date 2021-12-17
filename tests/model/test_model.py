@@ -21,18 +21,6 @@ class User(Model):
     book = datatype.Object(model=Book)
 
 
-class Field(Model):
-    doc = datatype.Str()
-    _type = datatype.Object()
-    value = datatype.Object()
-
-class Json(Model):
-    DEFAULT_FIELD_MODEL = Field
-
-    cust_field = datatype.Str(default='cust')
-
-class Request(Model):
-    json = datatype.Object(model=Json)
 
 
 def test_init():
@@ -54,6 +42,19 @@ def test_init():
     assert u.name == 'wxnacy'
     u.name = 'wen'
     assert u.name == 'wen'
+
+class Field(Model):
+    doc = datatype.Str()
+    _type = datatype.Object()
+    value = datatype.Object()
+
+class Json(Model):
+    DEFAULT_DATATYPE = datatype.Object(model = Field)
+
+    cust_field = datatype.Str(default='cust')
+
+class Request(Model):
+    json = datatype.Object(model=Json)
 
 def test_to_dict():
     b = Book()
@@ -91,12 +92,17 @@ def test_format():
     assert u.book.age == 1
     assert u.book.name == "wxnacy"
 
-def test_default_field_model():
+class DefaultDatatype(Model):
+    DEFAULT_DATATYPE = datatype.Str(convert=True)
+
+
+def test_default_datatype():
     m = Json()
     m.name = { "value": "wxnacy", "_type": str }
     m.format()
     assert m.name.value == 'wxnacy'
     assert m.name._type == str
+
 
     data = { "json": { "id": { "_value": 1 }, "name": { "_value": "wxnacy" } } }
     r = Request(**data)
@@ -106,5 +112,9 @@ def test_default_field_model():
     # 手动设置的字段，使用原类型
     assert r.json.cust_field == 'cust'
 
-#  if __name__ == "__main__":
-    #  test_default_field_model()
+    # 测试 datatype 类型
+    dd = DefaultDatatype()
+    dd.name = 1
+    dd.format()
+    assert dd.name == '1'
+

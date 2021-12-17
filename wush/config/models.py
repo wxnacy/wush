@@ -15,6 +15,7 @@ from wush.web.enums import MethodEnum
 from wush.web.enums import ProtocolEnum
 
 class EnvModel(BaseObject):
+
     def __init__(self, **kwargs):
         # 将数字类型转为字符串
         for k, v in kwargs.items():
@@ -39,7 +40,7 @@ class FieldModel(Model):
 
 class AutoFieldModel(Model):
     """该模型自动使用 FieldModel"""
-    DEFAULT_FIELD_MODEL = FieldModel
+    DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
     AUTO_FORMAT = True
 
     def __init__(self, **kwargs):
@@ -137,9 +138,6 @@ class ConfigModel(Model):
     env = datatype.Object(model = EnvModel)
     modules_include = datatype.List()
 
-    #  def __init__(self, *args, **kwargs):
-        #  super().__init__(*args, **kwargs)
-
     def format(self):
         """重载 format
         先进行 modules 处理
@@ -151,9 +149,6 @@ class ConfigModel(Model):
         """获取模块"""
         if not self.__is_format__:
             raise Exception('ConfigModel must format first')
-        #  for module in self.modules:
-            #  if module.name == name:
-                #  return module
         module = self.__mod__.get(name)
         return module
 

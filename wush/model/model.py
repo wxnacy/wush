@@ -11,11 +11,14 @@ from wpy.base import BaseObject
 from wush.model.datatype import DataType
 from wush.model.datatype import Object
 
+__FILTER_SET_FIELDS__ = set(('AUTO_FORMAT', 'DEFAULT_DATATYPE',
+    '__is_format__', '__datatype_fields__'))
+
 class Model(BaseObject):
 
     AUTO_FORMAT = False     # 是否自动 format
-    # 字段的默认类型，该属性设置后没有定义过的字段，将按照该类型处理
-    DEFAULT_FIELD_MODEL = None
+    # 字段默认的 datatype
+    DEFAULT_DATATYPE = None
 
     # 装载 Model 的 datatype 类型字段
     __datatype_fields__ = defaultdict(dict)
@@ -38,20 +41,19 @@ class Model(BaseObject):
 
     def __is_need_format_setattr__(self, key, value):
         """是否需要格式化 __setattr__"""
-        if not self.DEFAULT_FIELD_MODEL:
+        if not self.DEFAULT_DATATYPE:
             return False
-        if key in ('__is_format__', '__datatype_fields__', 'AUTO_FORMAT',
-                'DEFAULT_FIELD_MODEL'):
+        if key in __FILTER_SET_FIELDS__:
             return False
 
         return True
 
     def __setattr__(self, key, value):
-        """重载设置值的方法"""
+        #  """重载设置值的方法"""
         # 如果字段的默认模型存在，则设置值之前先添加 datatype
-        if self.__is_need_format_setattr__(key, value):
-            self.__add_datatype_fields(
-                **{ key: Object(model=self.DEFAULT_FIELD_MODEL) })
+        if self.DEFAULT_DATATYPE:
+            default_datatype = self.__build_default_datatype()
+            self.__add_datatype_fields(**{ key: default_datatype })
 
         super().__setattr__(key, value)
 
@@ -59,6 +61,8 @@ class Model(BaseObject):
     def __add_datatype_fields(cls, **kwargs):
         """添加 datatype 字段"""
         for k, v in kwargs.items():
+            if k in __FILTER_SET_FIELDS__:
+                continue
             if not isinstance(v, DataType):
                 continue
             # 设置 datatype 名称
@@ -80,18 +84,25 @@ class Model(BaseObject):
         for clz in classes:
             cls.__add_datatype_fields(**clz.__dict__)
 
+    def __build_default_datatype(self):
+        """构建默认的 datatype"""
+        return self.DEFAULT_DATATYPE
+
     def format(self):
         """将 datatype 字段进行格式化处理"""
         self._format(self)
 
     def _format(self, model):
         """嵌套 format"""
-        # 判断是否为 DEFAULT_FIELD_MODEL
+        # 判断是否有默认字段
         # 并对对象中存在的赋值添加到 __datatype_fields__ 中
-        if self.DEFAULT_FIELD_MODEL:
+        print(self, self.DEFAULT_DATATYPE,  )
+        if self.DEFAULT_DATATYPE:
             for key in self.__dict__.keys():
-                self.__add_datatype_fields(**{
-                    key: Object(model=self.DEFAULT_FIELD_MODEL) })
+                # 符合条件的 key 才会进行添加 datatype 处理
+                #  if self.__is_need_format_setattr__(key, None):
+                default_datatype = self.__build_default_datatype()
+                self.__add_datatype_fields(**{key: default_datatype })
 
         for k, v in model.__get_datatype_fields().items():
             if isinstance(v, DataType):
@@ -103,8 +114,11 @@ class Model(BaseObject):
                 v.valid()
                 set_val = v.value()
                 setattr(model, k, set_val)
+                if k == 'json':
+                    print(set_val)
                 # 嵌套 format
                 if isinstance(set_val, Model):
+                    print(set_val)
                     self._format(set_val)
 
         model.__is_format__ = True
@@ -120,7 +134,6 @@ class Model(BaseObject):
     def _to_dict(cls, model):
         """对 Model 进行循环 to_dict 操作"""
         data = {}
-        #  print(model.__class__.__name__, model.__get_datatype_fields())
         for key in model.__get_datatype_fields().keys():
             if not hasattr(model, key):
                 continue
@@ -134,26 +147,49 @@ class Model(BaseObject):
     def to_json(self):
         return json.dumps(self, default=lambda o: o.to_dict(), sort_keys=True)
 
-#  from wush.model import datatype
-#  class Book(Model):
-    #  name = datatype.Str(default='book')
+from wush.model import datatype
+class Book(Model):
+    name = datatype.Str(default='book')
 
-#  class User(Model):
-    #  AUTO_FORMAT = True
+class User(Model):
+    AUTO_FORMAT = True
+    DEFAULT_DATATYPE = Object(model = Book)
+    #  DEFAULT_DATATYPE = Book
     #  book = datatype.Str()
 
-#  if __name__ == "__main__":
+class Field(Model):
+    doc = datatype.Str()
+    _type = datatype.Object()
+    value = datatype.Object()
+
+class Json(Model):
+    DEFAULT_DATATYPE = datatype.Object(model = Field)
+
+    cust_field = datatype.Str(default='cust')
+
+class Request(Model):
+    json = datatype.Object(model=Json)
+
+if __name__ == "__main__":
 
     #  u = User()
-    #  u.name = ''
+    #  u.name = { "name": 'wxnacy' }
     #  u.format()
+    #  assert u.name.name == 'wxnacy'
 
     #  b = Book()
     #  b.format()
     #  print(b.name)
     #  b.name = 'books'
     #  print(b.name)
-    #  #  u = User()
-    #  #  u.name = 'wxnacy'
-    #  #  print(u.name)
+    #  u = User()
+    #  u.name = 'wxnacy'
+    #  print(u.name)
     
+    data = { "json": { "id": { "_value": 1 }, "name": { "_value": "wxnacy" } } }
+    r = Request(**data)
+    r.format()
+    assert r.json.id._value == 1
+    assert r.json.name._value == 'wxnacy'
+    # 手动设置的字段，使用原类型
+    assert r.json.cust_field == 'cust'
