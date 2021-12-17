@@ -10,12 +10,12 @@ from wpy.base import BaseEnum
 
 # TODO 改为抽象类
 class DataType(BaseObject):
-    _value = None
-    _type = object
-    _default = None
+    _value = None       # 对象实例化或手动设置的值
+    _type = object      # 字段赋值时应该给予的类型
+    _default = None     # 当前类型的默认值
 
-    default = None
-    _name = None
+    default = None      # 使用时赋值的默认数据
+    _name = None        # 字段名称
 
     @property
     def name(self):

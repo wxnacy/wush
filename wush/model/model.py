@@ -14,10 +14,12 @@ from wush.model.datatype import Object
 class Model(BaseObject):
 
     AUTO_FORMAT = False     # 是否自动 format
-    DEFAULT_FIELD_MODEL = None    # 字段的默认类型
+    # 字段的默认类型，该属性设置后没有定义过的字段，将按照该类型处理
+    DEFAULT_FIELD_MODEL = None
 
     # 装载 Model 的 datatype 类型字段
     __datatype_fields__ = defaultdict(dict)
+    # 对象是否已经进行过 format 操作
     __is_format__ = False
 
     def __init__(self, **kwargs):
