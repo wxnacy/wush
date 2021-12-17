@@ -65,7 +65,10 @@ class AutoFieldModel(Model):
         """
         data = super().to_dict()
         for k, v in data.items():
-            data[k] = v._value
+            if isinstance(v, FieldModel):
+                data[k] = v._value
+            if isinstance(v, dict):
+                data[k] = v.get("_value")
         return data
 
 
@@ -83,7 +86,7 @@ class RequestModel(Model):
     cookies = datatype.Dict()
     headers = datatype.Dict()
     json = datatype.Object(model=AutoFieldModel)
-    params = datatype.Dict()
+    params = datatype.Object(model=AutoFieldModel)
     data = datatype.Str()
     url = datatype.Str()
 
@@ -134,17 +137,25 @@ class ConfigModel(Model):
     env = datatype.Object(model = EnvModel)
     modules_include = datatype.List()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        #  self.__mod__ = {o.name: o for o in self.modules}
+    #  def __init__(self, *args, **kwargs):
+        #  super().__init__(*args, **kwargs)
+
+    def format(self):
+        """重载 format
+        先进行 modules 处理
+        """
+        super().format()
+        self.__mod__ = {o.name: o for o in self.modules}
 
     def get_module(self, name):
         """获取模块"""
-        for module in self.modules:
-            if module.name == name:
-                return module
-        #  module = self.__mod__.get(name)
-        return None
+        if not self.__is_format__:
+            raise Exception('ConfigModel must format first')
+        #  for module in self.modules:
+            #  if module.name == name:
+                #  return module
+        module = self.__mod__.get(name)
+        return module
 
     @classmethod
     def _iter_path(cls, filepath):

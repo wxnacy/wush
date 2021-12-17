@@ -18,8 +18,10 @@ class Model(BaseObject):
 
     # 装载 Model 的 datatype 类型字段
     __datatype_fields__ = defaultdict(dict)
+    __is_format__ = False
 
     def __init__(self, **kwargs):
+        #  self.__is_format__ = False
         self.__init_datatype_fields()
         super().__init__(**kwargs)
 
@@ -32,10 +34,20 @@ class Model(BaseObject):
         if self.AUTO_FORMAT:
             self.format()
 
+    def __is_need_format_setattr__(self, key, value):
+        """是否需要格式化 __setattr__"""
+        if not self.DEFAULT_FIELD_MODEL:
+            return False
+        if key in ('__is_format__', '__datatype_fields__', 'AUTO_FORMAT',
+                'DEFAULT_FIELD_MODEL'):
+            return False
+
+        return True
+
     def __setattr__(self, key, value):
         """重载设置值的方法"""
         # 如果字段的默认模型存在，则设置值之前先添加 datatype
-        if self.DEFAULT_FIELD_MODEL:
+        if self.__is_need_format_setattr__(key, value):
             self.__add_datatype_fields(
                 **{ key: Object(model=self.DEFAULT_FIELD_MODEL) })
 
@@ -47,13 +59,15 @@ class Model(BaseObject):
         for k, v in kwargs.items():
             if not isinstance(v, DataType):
                 continue
-            if k not in cls.__datatype_fields__[cls.__name__]:
-                cls.__datatype_fields__[cls.__name__][k] = v
+            # 设置 datatype 名称
+            v._name = k
+            if k not in cls.__datatype_fields__[cls]:
+                cls.__datatype_fields__[cls][k] = v
 
     @classmethod
     def __get_datatype_fields(cls):
         """获取 datatype 字段"""
-        return cls.__datatype_fields__.get(cls.__name__, {})
+        return cls.__datatype_fields__.get(cls, {})
 
     @classmethod
     def __init_datatype_fields(cls):
@@ -65,14 +79,33 @@ class Model(BaseObject):
             cls.__add_datatype_fields(**clz.__dict__)
 
     def format(self):
-        for k, v in self.__get_datatype_fields().items():
+        """将 datatype 字段进行格式化处理"""
+        self._format(self)
+
+    def _format(self, model):
+        """嵌套 format"""
+        # 判断是否为 DEFAULT_FIELD_MODEL
+        # 并对对象中存在的赋值添加到 __datatype_fields__ 中
+        if self.DEFAULT_FIELD_MODEL:
+            for key in self.__dict__.keys():
+                self.__add_datatype_fields(**{
+                    key: Object(model=self.DEFAULT_FIELD_MODEL) })
+
+        for k, v in model.__get_datatype_fields().items():
             if isinstance(v, DataType):
                 try:
-                    v.set_value(getattr(self, k))
+                    v.set_value(getattr(model, k))
                 except:
                     pass
+                # 执行数据校验
                 v.valid()
-                setattr(self, k, v.value())
+                set_val = v.value()
+                setattr(model, k, set_val)
+                # 嵌套 format
+                if isinstance(set_val, Model):
+                    self._format(set_val)
+
+        model.__is_format__ = True
 
     def to_dict(self):
         """
@@ -85,7 +118,10 @@ class Model(BaseObject):
     def _to_dict(cls, model):
         """对 Model 进行循环 to_dict 操作"""
         data = {}
+        #  print(model.__class__.__name__, model.__get_datatype_fields())
         for key in model.__get_datatype_fields().keys():
+            if not hasattr(model, key):
+                continue
             origin_value = getattr(model, key)
             if isinstance(origin_value, Model):
                 data[key] = cls._to_dict(origin_value)
@@ -96,14 +132,26 @@ class Model(BaseObject):
     def to_json(self):
         return json.dumps(self, default=lambda o: o.to_dict(), sort_keys=True)
 
+#  from wush.model import datatype
 #  class Book(Model):
-    #  name = datatype.Str()
+    #  name = datatype.Str(default='book')
 
 #  class User(Model):
-    #  book = datatype
+    #  AUTO_FORMAT = True
+    #  book = datatype.Str()
 
 #  if __name__ == "__main__":
+
     #  u = User()
-    #  u.name = 'wxnacy'
-    #  print(u.name)
+    #  u.name = ''
+    #  u.format()
+
+    #  b = Book()
+    #  b.format()
+    #  print(b.name)
+    #  b.name = 'books'
+    #  print(b.name)
+    #  #  u = User()
+    #  #  u.name = 'wxnacy'
+    #  #  print(u.name)
     

@@ -27,3 +27,4 @@ def test_get_request():
 
     req = test_config.get_request('module_test', 'get_test')
     assert req.path == '/get_test'
+    #  assert req.params.id._value == 12

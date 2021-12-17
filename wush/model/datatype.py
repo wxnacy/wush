@@ -15,6 +15,11 @@ class DataType(BaseObject):
     _default = None
 
     default = None
+    _name = None
+
+    @property
+    def name(self):
+        return self._name
 
     def set_value(self, value):
         self._value = value
@@ -24,10 +29,15 @@ class DataType(BaseObject):
         val = str(self.default()) if callable(self.default) else self.default
         return self._value or val or self._default
 
+    @property
+    def _value_fmt(self):
+        return f'{self.name}:{self._value}'
+
+
     def valid(self):
         """校验赋值"""
         if self._value != None and not isinstance(self._value, self._type):
-            raise ValueError(f'{self._value} is not be {self._type}')
+            raise ValueError(f'{self._value_fmt} is not be {self._type}')
 
 class Str(DataType):
     _type = str
@@ -50,7 +60,7 @@ class Str(DataType):
         super().valid()
         if self.enum and self._value != None and \
                 self._value not in self.enum.values():
-            raise ValueError(f'{self._value} is not {self.enum}')
+            raise ValueError(f'{self._value_fmt} is not {self.enum}')
 
 
 class Dict(DataType):
@@ -81,13 +91,20 @@ class Object(DataType):
 
     def valid(self):
         """校验"""
-        if self._value != None and not isinstance(self._value, dict
-                ) and self.model:
-            raise ValueError(f'{self._value} can not to {self.model}')
+        super().valid()
+        if self._value != None and self.model:
+            # 如果当前类型已经格式化，不在执行检查
+            if isinstance(self._value, self.model):
+                return
+            if not isinstance(self._value, dict):
+                raise ValueError(f'{self._value_fmt} can not to {self.model}')
 
     def value(self):
         """获取数据"""
         if self.model and self._value:
+            # 对于已经格式化的数据不再重复执行
+            if isinstance(self._value, self.model):
+                return self._value
             return self.model(**self._value)
 
         return super().value()
