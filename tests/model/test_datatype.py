@@ -66,3 +66,12 @@ def test_value():
     assert isinstance(val, list)
     assert val[0].name == 'wxnacy'
 
+def test_convert():
+
+    dt = datatype.Str(convert=True)
+    dt.set_value(1)
+    assert dt.value() == "1"
+
+    dt = datatype.Int(convert=True)
+    dt.set_value("1")
+    assert dt.value() == 1

@@ -13,9 +13,10 @@ class DataType(BaseObject):
     _value = None       # 对象实例化或手动设置的值
     _type = object      # 字段赋值时应该给予的类型
     _default = None     # 当前类型的默认值
+    _name = None        # 字段名称
 
     default = None      # 使用时赋值的默认数据
-    _name = None        # 字段名称
+    convert = False     # 是否强制转换当前类型
 
     @property
     def name(self):
@@ -23,6 +24,9 @@ class DataType(BaseObject):
 
     def set_value(self, value):
         self._value = value
+        # 强制转换类型
+        if self.convert:
+            self._value = self._type(self._value)
 
     def value(self):
         """获取数据"""
@@ -32,7 +36,6 @@ class DataType(BaseObject):
     @property
     def _value_fmt(self):
         return f'{self.name}:{self._value}'
-
 
     def valid(self):
         """校验赋值"""
@@ -61,6 +64,16 @@ class Str(DataType):
         if self.enum and self._value != None and \
                 self._value not in self.enum.values():
             raise ValueError(f'{self._value_fmt} is not {self.enum}')
+
+
+class Int(DataType):
+    _type = int
+    _default = int()
+
+
+class Float(DataType):
+    _type = float
+    _default = float()
 
 
 class Dict(DataType):
