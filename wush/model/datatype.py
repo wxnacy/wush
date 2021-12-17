@@ -42,6 +42,15 @@ class DataType(BaseObject):
         if self._value != None and not isinstance(self._value, self._type):
             raise ValueError(f'{self._value_fmt} is not be {self._type}')
 
+    @classmethod
+    def get_base_datatype(cls, basetype):
+        """获取基础类型类"""
+        for clz in cls.__subclasses__():
+            if clz._type == basetype:
+                return clz
+        raise ValueError(f'{basetype} is not basetype')
+
+
 class Str(DataType):
     _type = str
     _default = str()

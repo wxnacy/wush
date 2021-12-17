@@ -75,3 +75,11 @@ def test_convert():
     dt = datatype.Int(convert=True)
     dt.set_value("1")
     assert dt.value() == 1
+
+def test_get_base_datatype():
+    assert datatype.DataType.get_base_datatype(str) == datatype.Str
+    assert datatype.DataType.get_base_datatype(int) == datatype.Int
+
+    with pytest.raises(ValueError) as e:
+        datatype.DataType.get_base_datatype(User)
+        assert str(e) == 'User is not basetype'
