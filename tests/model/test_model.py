@@ -29,6 +29,8 @@ class Field(Model):
 class Json(Model):
     DEFAULT_FIELD_MODEL = Field
 
+    cust_field = datatype.Str(default='cust')
+
 class Request(Model):
     json = datatype.Object(model=Json)
 
@@ -101,6 +103,8 @@ def test_default_field_model():
     r.format()
     assert r.json.id._value == 1
     assert r.json.name._value == 'wxnacy'
+    # 手动设置的字段，使用原类型
+    assert r.json.cust_field == 'cust'
 
 #  if __name__ == "__main__":
     #  test_default_field_model()
