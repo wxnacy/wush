@@ -111,6 +111,11 @@ class Object(DataType):
 
     model = None
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.model:
+            self._default = self.model()
+
     def valid(self):
         """校验"""
         super().valid()

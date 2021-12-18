@@ -17,7 +17,7 @@ class TestEnum(BaseEnum):
 class User(object):
     name = None
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.name = name
 
 
@@ -26,6 +26,15 @@ def test_init():
     with pytest.raises(ValueError) as e:
         datatype.Str(enum = object)
         assert str(e) == 'enum must be wpy.base.BaseEnum'
+
+    # 测试 Object 没有设置默认值的情况
+    assert datatype.Object().value() == None
+
+    dt = datatype.Object(model=User)
+    assert dt.value().name == None
+    u = User(name = 'user')
+    dt = datatype.Object(model=User, default=u)
+    assert dt.value().name == u.name
 
 def test_valid():
 
