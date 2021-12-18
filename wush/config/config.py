@@ -9,17 +9,15 @@ import yaml
 
 from wush.config.models import ConfigModel
 from wush.common.config_value import ConfigValue
+from wush.common.constants import Constants
 from wush.common.loggers import get_logger
 
 class Config(object):
     logger = get_logger('Config')
 
     _config = None
-    #  _config_dir = None
-
-    #  def __init__(self, *args, **kwargs):
-        #  self._config_dir = None
-        #  self._config = None
+    module_name = None
+    space_name = None
 
     @classmethod
     def read_yml(cls, filepath):
@@ -62,6 +60,15 @@ class Config(object):
 
         return ins
 
+    def add_env(self, key, value):
+        """添加环境变量"""
+        setattr(self._config.env, key, value)
+
+    @property
+    def env(self):
+        print(self._config.env)
+        return self._config.env.to_dict()
+
     def get_request(self, module_name, request_name):
         """获取请求模型"""
         req = self._config.get_module(module_name).get_request(request_name)
@@ -71,14 +78,26 @@ class Config(object):
         # 将请求模型做环境变量格式化处理并返回
         return ConfigValue(req).set_env(**env).format()
 
+_config = None
+def load_config():
+    global _config
+    if not _config:
+        print('create config')
+        _config = Config.load(Constants.CONFIG_PATH)
+    return _config
+
 if __name__ == "__main__":
-    filepath = 'tests/data/config/config.yml'
-    config = Config.load(filepath)
-    with open('tests/data/config/config.yml', 'r') as f:
-        data = yaml.safe_load(f)
-    config = ConfigModel(**data)
-    #  print(config.modules)
-    import json
-    print(json.dumps(config.to_dict(), indent=4))
+    #  filepath = 'tests/data/config/config.yml'
+    #  config = Config.load(filepath)
+    #  with open('tests/data/config/config.yml', 'r') as f:
+        #  data = yaml.safe_load(f)
+    #  config = ConfigModel(**data)
+    #  #  print(config.modules)
+    #  import json
+    #  print(json.dumps(config.to_dict(), indent=4))
     #  print('test')
 
+    config = load_config()
+    print(config.env)
+    config = load_config()
+    print(config.env)

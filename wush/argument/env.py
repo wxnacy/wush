@@ -7,9 +7,11 @@
 from collections import deque
 
 from wpy.files import FileUtils
-from wush.common.loggers import create_logger
-from .command import CmdArgumentParser
+from wpy.argument import Action
 from wpy.argument import CommandArgumentParserFactory
+
+#  from wush.common.loggers import create_logger
+from wush.argument.command import CmdArgumentParser
 
 @CommandArgumentParserFactory.register()
 class EnvArgumentParser(CmdArgumentParser):
@@ -22,6 +24,18 @@ class EnvArgumentParser(CmdArgumentParser):
             display = '--{}={}'.format(k, v)
             words.append(dict(text = text, display = display))
         return super().get_completions_after_cmd(argument, words)
+
+    def get_completions_after_argument(self, wapi, word_for_completion):
+        """
+        获取补全的单词列表
+        :param wapi: Wapi
+        :param word_for_completion: 补全需要的单词
+        """
+        if word_for_completion == '--add':
+            words = []
+            return words
+
+        return super().get_completions_after_argument(wapi, word_for_completion)
 
     def _make_args_dict(self, args):
         res = super()._make_args_dict(args)
@@ -45,7 +59,10 @@ class EnvArgumentParser(CmdArgumentParser):
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--save', action='store_true')
+        item.add_argument('--save', action=Action.STORE_TRUE.value,
+            help="保存环境变量")
+        item.add_argument('--add', action=Action.APPEND.value,
+            help="添加环境变量")
         return item
 
     def run(self, args):

@@ -10,17 +10,19 @@ import re
 import argparse
 
 from wpy.argument import CommandArgumentParserFactory
+from wpy.argument import DefaultCommandArgumentParser
 
 from wush.argument.command import CmdArgumentParser
+from wush.argument import RunArgumentParser
 from wush.common.constants import Constants
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
+from wush.config import load_config
 
 from wush.cli.shell import Shell
 from wush.wush import Wapi
 
 logger = create_logger('main')
-
 
 def init_argparse():
     """初始化参数"""
@@ -30,7 +32,7 @@ def init_argparse():
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
     parser.add_argument('-s', '--space', help='Space name')
-    parser.add_argument('--curl', help="是否使用 curl", action='store_true')
+    #  parser.add_argument('--curl', help="是否使用 curl", action='store_true')
     return parser
 
 class Command(object):
@@ -39,21 +41,26 @@ class Command(object):
     def __init__(self, *args, **kwargs):
         if not os.path.exists(Constants.TMPDIR):
             os.makedirs(Constants.TMPDIR)
+        self.config = load_config()
 
     #  @profile
     def run(self):
         RUN_MODE.set_command()
         sys_args = sys.argv[1:]
-        if not sys_args:
+        #  if not sys_args:
+            #  shell = Shell()
+            #  shell.run()
+            #  return
+        parser = init_argparse()
+        args = parser.parse_args()
+        cmd = args.cmd
+        print(cmd)
+        if cmd == 'sh':
             shell = Shell()
             shell.run()
             return
 
-        parser = init_argparse()
-        args = parser.parse_args()
-        cmd = args.cmd
         args_text = ' '.join(sys_args)
-
         # 判断 cmd 是否为 url 格式
         if re.match(r'^https?:/{2}\w.+$', cmd):
             args_text = 'run ' + args_text.replace(cmd, f'--url {cmd}')

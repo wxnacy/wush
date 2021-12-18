@@ -23,8 +23,8 @@ class EnvModel(BaseObject):
                 if isinstance(v, clz):
                     v = str(v)
             kwargs[k] = v
-        for k, v in dict(os.environ).items():
-            setattr(self, k, v)
+        #  for k, v in dict(os.environ).items():
+            #  setattr(self, k, v)
         super().__init__(**kwargs)
 
 class FieldModel(Model):
