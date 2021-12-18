@@ -96,7 +96,6 @@ class Model(BaseObject):
         """嵌套 format"""
         # 判断是否有默认字段
         # 并对对象中存在的赋值添加到 __datatype_fields__ 中
-        print(self, self.DEFAULT_DATATYPE,  )
         if self.DEFAULT_DATATYPE:
             for key in self.__dict__.keys():
                 # 符合条件的 key 才会进行添加 datatype 处理
@@ -105,23 +104,31 @@ class Model(BaseObject):
                 self.__add_datatype_fields(**{key: default_datatype })
 
         for k, v in model.__get_datatype_fields().items():
-            if isinstance(v, DataType):
-                try:
-                    v.set_value(getattr(model, k))
-                except:
-                    pass
-                # 执行数据校验
-                v.valid()
-                set_val = v.value()
-                setattr(model, k, set_val)
-                if k == 'json':
-                    print(set_val)
-                # 嵌套 format
-                if isinstance(set_val, Model):
-                    print(set_val)
-                    self._format(set_val)
+            # 格式化单个字段
+            self._format_field(model, k)
 
         model.__is_format__ = True
+
+    def _format_field(self, model, field):
+        """格式化 field"""
+        # 如果 field 不是 datatype 类型，直接返回
+        datatype_fields = model.__get_datatype_fields()
+        dt_ins = datatype_fields.get(field)
+        if not dt_ins:
+            return
+
+        try:
+            dt_ins.set_value(getattr(model, field))
+        except:
+            pass
+        # 校验
+        dt_ins.valid()
+        set_val = dt_ins.value()
+        setattr(model, field, set_val)
+        # 嵌套 format
+        if isinstance(set_val, Model):
+            self._format(set_val)
+
 
     def to_dict(self):
         """
@@ -179,12 +186,9 @@ if __name__ == "__main__":
 
     #  b = Book()
     #  b.format()
-    #  print(b.name)
     #  b.name = 'books'
-    #  print(b.name)
     #  u = User()
     #  u.name = 'wxnacy'
-    #  print(u.name)
     
     data = { "json": { "id": { "_value": 1 }, "name": { "_value": "wxnacy" } } }
     r = Request(**data)
