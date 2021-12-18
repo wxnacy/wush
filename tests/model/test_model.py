@@ -21,8 +21,6 @@ class User(Model):
     book = datatype.Object(model=Book)
 
 
-
-
 def test_init():
 
     u = User()
@@ -34,6 +32,8 @@ def test_init():
 
     b = Book()
     assert b.name == 'wxnacy'
+    #  with pytest.raises(ValueError):
+        #  b.name = 1
 
     # 重复执行 防止类维度数据导致 bug
     u = User()
