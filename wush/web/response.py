@@ -7,6 +7,7 @@
 import json
 
 from wpy.base import BaseEnum
+from wpy.base import BaseObject
 
 from wush.web.enums import HeaderEnum
 from wush.web.enums import ContentTypeEnum
@@ -20,8 +21,9 @@ class ResponseField(BaseEnum):
     STATUS_CODE = 'status_code'
 
 
-class ResponseClient(object):
+class ResponseClient(BaseObject):
     """返回客户端"""
+    request_builder = None
     content = None
     text = None
     status_code = None
@@ -29,7 +31,8 @@ class ResponseClient(object):
     ok = None
     headers = None
 
-    def __init__(self, response):
+    def __init__(self, request_builder, response):
+        self.request_builder = request_builder
         self.response = response
         for key in ResponseField.values():
             setattr(self, key, getattr(self.response, key))

@@ -17,6 +17,7 @@ from wush.common.run_mode import RUN_MODE
 from wush.config import load_config
 from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
+from wush.web.history import History
 
 from .command import CmdArgumentParser
 
@@ -117,6 +118,7 @@ class RunArgumentParser(CmdArgumentParser):
         req_client = RequestClient(builder)
         res = req_client.request()
         res.print()
+        History.save(res)
 
     def _get_request_builder(self, args):
         """获取请求构造体"""
@@ -153,7 +155,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         self._print('Status: {}'.format(res.status_code))
 
-        # TODO save
+        History.save(res)
         if args.open:
             self._print('See in browser')
             self._open()

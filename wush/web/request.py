@@ -5,6 +5,7 @@
 """
 
 import requests
+from datetime import datetime
 
 from wush.common.loggers import get_logger
 from wush.config.models import RequestModel
@@ -19,6 +20,7 @@ from wush.model import datatype
 class RequestBuilder(Model):
     """请求构造器"""
     logger = get_logger('RequestBuilder')
+    version = datatype.Str()
     method = datatype.Str(enum=MethodEnum, default=MethodEnum.GET.value,
         upper=True)                     # 请求方式
     url = datatype.Str()                # 地址
@@ -69,6 +71,10 @@ class RequestBuilder(Model):
                 pass
         return data
 
+    def format(self):
+        self.version = datetime.now().strftime('%Y%m%d%H%M%S_%s')
+        super().format()
+
 
 class RequestClient(object):
     """请求客户端"""
@@ -79,5 +85,5 @@ class RequestClient(object):
     def request(self):
         """发送请求"""
         res = requests.request(**self.builder.to_requests())
-        return ResponseClient(res)
+        return ResponseClient(self.builder, res)
 
