@@ -5,7 +5,6 @@
 run 命令的参数解析
 """
 import os
-#  import subprocess
 from wpy.argument import Action
 from wpy.argument import CommandArgumentParserFactory
 
@@ -15,10 +14,12 @@ from wush.common.functions import open_version
 from wush.common.functions import run_shell
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
+from wush.config import load_config
 from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
 
 from .command import CmdArgumentParser
+
 
 @CommandArgumentParserFactory.register()
 class RunArgumentParser(CmdArgumentParser):
@@ -46,56 +47,43 @@ class RunArgumentParser(CmdArgumentParser):
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
 
+        item.config = load_config()
+
         return item
 
     def get_completions_after_argument(self, wapi, word_for_completion):
         """
         获取补全的单词列表
-        :param wapi: Wapi
         :param word_for_completion: 补全需要的单词
         """
         words = []
         if not self.argument:
             return words
         arg = self.argument
-        try:
-            wapi.init_config(
-                module_name = arg.module,
-                request_name = arg.name
-            )
-        except:
-            pass
         if word_for_completion == '--name':
-            module_name = wapi.module_name
-            requests = wapi.config.get_requests(module_name)
+            # 针对 --name 参数的自动补全
+            requests = self.config.get_requests(arg.module)
             words = []
             for req in requests:
-                words.append(dict( text = req.get("name"),
-                    display_meta=req.get("title")
-                    ))
+                words.append(dict( text = req.name, display_meta=req.title))
             return words
         elif word_for_completion == '--module':
-            modules = wapi.config.get_modules()
-            words = [ dict(text = o) for o in modules ]
+            modules = self.config.get_modules()
+            words = [ dict(text = o.name) for o in modules ]
             return words
         elif word_for_completion == '--params':
             # 参数补全
-            module_name = wapi.module_name
-            request = wapi.config.get_module(module_name
-                ).get_request(wapi.request_name)
-            params = request.params or {}
+            request = self.config.get_request(arg.module, arg.name)
+            params = request.params.to_dict()
             words = self._dict_to_completions(params)
             return words
         elif word_for_completion == '--json':
             # 参数补全
-            module_name = wapi.module_name
-            request = wapi.config.get_module(module_name
-                ).get_request(wapi.request_name)
-            params = request.json or {}
-            words = self._dict_to_completions(params)
+            request = self.config.get_request(arg.module, arg.name)
+            words = self._dict_to_completions(request.json.to_dict())
             return words
 
-        return super().get_completions_after_argument(wapi, word_for_completion)
+        return super().get_completions_after_argument(None, word_for_completion)
 
     def _dict_to_completions(self, data):
         words = []
@@ -111,7 +99,6 @@ class RunArgumentParser(CmdArgumentParser):
         # curl 模式下打开一个文件并输入文本供后续使用
         builder = RequestBuilder()
         if args.curl:
-            print('curl')
             filepath = Constants.build_tmpfile('curl')
             run_shell(f'echo "# 请输入 cUrl 文本\n" > {filepath}')
             vim_cmd = f'vim {filepath}'
@@ -135,17 +122,11 @@ class RunArgumentParser(CmdArgumentParser):
         """获取请求构造体"""
         params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
-
-        self.wapi.build(
-            space_name = args.space,
-            module_name = args.module,
-            request_name = args.name,
-            params = params,
-            json = json_data
-        )
         self.logger.info('arg params %s', params)
         self.logger.info('arg json %s', json_data)
-        return self.wapi.request_builder
+        request_model = self.config.get_request(args.module, args.name)
+        builder = RequestBuilder.loads_request_model(request_model)
+        return builder
 
     def run(self, text):
         args = self.parse_args(text)
@@ -157,30 +138,31 @@ class RunArgumentParser(CmdArgumentParser):
         if not args.name:
             raise Exception
 
-        self._get_request_builder(args)
+        builder = self._get_request_builder(args)
+        request_client = RequestClient(builder)
 
-        self._print('Space: {}'.format(self.wapi.space_name))
-        self._print('Module: {}'.format(self.wapi.module_name))
-        self._print('Request: {}'.format(self.wapi.request_name))
-        self._print('Url: {}'.format(self.wapi.url))
-        self._print('Params: {}'.format(self.wapi._request_data.get("params")))
-        self._print('Json: {}'.format(self.wapi._request_data.get("json")))
+        self._print('Space: {}'.format(args.space))
+        self._print('Module: {}'.format(args.module))
+        self._print('Request: {}'.format(args.name))
+        self._print('Url: {}'.format(builder.url))
+        self._print('Params: {}'.format(builder.params))
+        self._print('Json: {}'.format(builder.json))
         self._print('请求中。。。')
 
-        self.wapi.request()
+        res = request_client.request()
 
-        self._print('Status: {}'.format(self.wapi.response.status_code))
-        #  self._print('Response:')
+        self._print('Status: {}'.format(res.status_code))
 
-        self.wapi.save()
+        # TODO save
         if args.open:
             self._print('See in browser')
             self._open()
         else:
-            #  self._print(self.wapi.get_pertty_response_content())
-            self.wapi.config.get_function().handler_response(
-                self.wapi._request, self.wapi.response)
+            self.config.function.handler_response(
+                builder, res)
 
     def _open(self):
         #  """打开请求信息"""
-        open_version(self.wapi.version, 'response')
+        # TODO open
+        version = ''
+        open_version(version, 'response')

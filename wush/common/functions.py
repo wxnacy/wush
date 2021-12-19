@@ -5,6 +5,7 @@
 
 """
 import random
+import traceback
 import hashlib
 import importlib
 import sys
@@ -21,6 +22,9 @@ from wpy.base import BaseFactory
 from wpy.tools import randoms
 
 from wush.common import constants
+from wush.common.loggers import get_logger
+
+logger = get_logger('function')
 
 class FunctionFactory(BaseFactory):
     pass
@@ -61,14 +65,13 @@ def get_current_web_port():
     return os.getenv('WUSH_WEB_PORT')
 
 @FunctionFactory.register()
-def handler_response(request, response):
-    #  print('Status: {}'.format(response.status_code))
+def handler_response(request_builder, response):
     print('Response:')
     try:
         data = response.json()
         data = json.dumps(data, indent=4, ensure_ascii=False)
     except:
-        self.logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         data = response.content
     print(data)
 
@@ -138,6 +141,15 @@ def get_super_function():
     return _function
 
 super_function = get_super_function()
+
+_super_function = None
+
+def load_super_function():
+    """加载 super function"""
+    global _super_function
+    if not _super_function:
+        _super_function = Function(FunctionFactory.get_factory())
+    return _super_function
 
 if __name__ == "__main__":
     print(random_int(5, 4, 9))

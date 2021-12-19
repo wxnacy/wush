@@ -6,6 +6,7 @@
 
 import requests
 
+from wush.common.loggers import get_logger
 from wush.config.models import RequestModel
 from wush.web.curl_utils import cUrl
 from wush.web.enums import MethodEnum
@@ -17,6 +18,7 @@ from wush.model import datatype
 
 class RequestBuilder(Model):
     """请求构造器"""
+    logger = get_logger('RequestBuilder')
     method = datatype.Str(enum=MethodEnum, default=MethodEnum.GET.value,
         upper=True)                     # 请求方式
     url = datatype.Str()                # 地址
@@ -38,12 +40,14 @@ class RequestBuilder(Model):
     def loads_request_model(cls, request_model: RequestModel):
         """加载 RequestModel 模型"""
         ins = cls()
+        #  request_model.format()
+        request_dict = request_model.to_dict()
         for key in RequestsParamsEnum.values():
-            setattr(ins, key, getattr(request_model, key))
-            #  try:
-                #  data[key] = getattr(self, key)
-            #  except:
-                #  pass
+            #  val = getattr(request_model, key)
+            #  if key in ('params', 'json'):
+                #  val = val.to_dict()
+            val = request_dict.get(key)
+            setattr(ins, key, val)
         ins.format()
         return ins
 

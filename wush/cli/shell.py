@@ -4,47 +4,38 @@
 """
 
 """
-#  import sys
 import os
 import argparse
-#  import shutil
 import traceback
 import multiprocessing as mp
 import pygments
 
-#  from datetime import datetime
-#  from pygments.token import Token
 from pygments.lexers.python import PythonLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit import PromptSession
-#  from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-#  from prompt_toolkit.completion import Completer, Completion
-#  from prompt_toolkit.completion import WordCompleter
-
-from wush.argument import CmdArgumentParser
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
-#  from wush.common import utils
+
+from wush.argument import CmdArgumentParser
 from wush.common.functions import super_function
-#  from wush.common.functions import run_shell
-#  from wush.common.functions import random_int
-#  from wush.common.files import FileUtils
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
+from wush.common.constants import Constants
 from wush.completion.command import CommandCompleter
+from wush.config import load_config
 from wush.wush import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
 from .server import run_server
-#  from .server import PORT
 
 def init_argparse():
     """初始化参数"""
-    parser = argparse.ArgumentParser(description='Wapi command',)
+    parser = argparse.ArgumentParser(description='Wush command',)
+    parser.add_argument('cmd', help='You can use run, body, env, module')
     parser.add_argument('-c', '--config', help='Config dir name')
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
@@ -63,6 +54,7 @@ class Shell():
 
     def __init__(self):
         self.parser = self._get_parser()
+        self.config = load_config()
         args = init_argparse().parse_args()
         client = Wapi()
         client.init_config(config_root = args.config, space_name = args.space,
@@ -70,7 +62,8 @@ class Shell():
         self.client = client
         self.session = PromptSession(
             completer=CommandCompleter(self.parser, client),
-            history = FileHistory(os.path.expanduser('~/.wapi_history')),
+            # 设置历史记录文件
+            history = FileHistory(Constants.HISTORY_PATH),
             auto_suggest = AutoSuggestFromHistory(),
             complete_in_thread=True
         )
