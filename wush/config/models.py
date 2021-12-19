@@ -95,20 +95,6 @@ class RequestModel(Model):
     data = datatype.Str()
     url = datatype.Str()
 
-    def format(self):
-        super().format()
-        self.params.format()
-
-    #  def to_dict(self):
-        #  """重载方法
-        #  手动 to_dict params 和 json 字段
-        #  """
-        #  data = super().to_dict()
-        #  data['params'] = self.params.to_dict()
-        #  data['json'] = self.json.to_dict()
-        #  return data
-
-
 
 class ModuleModel(Model):
     AUTO_FORMAT = True

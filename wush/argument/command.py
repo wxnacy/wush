@@ -15,11 +15,16 @@ from prompt_toolkit import print_formatted_text
 from wpy.argument import CommandArgumentParser
 
 from wush.common.loggers import create_logger
+from wush.config import load_config
 
 class CmdArgumentParser(CommandArgumentParser):
     logger = create_logger('CmdArgumentParser')
     wapi = None
     prompt_session = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = load_config()
 
     def set_wapi(self, client):
         self.wapi = client
@@ -54,3 +59,4 @@ class CmdArgumentParser(CommandArgumentParser):
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))
         print_formatted_text(PygmentsTokens(tokens), end='')
+

@@ -4,35 +4,41 @@
 """
 
 """
+import argparse
 from collections import deque
 
 from wpy.files import FileUtils
 from wpy.argument import Action
 from wpy.argument import CommandArgumentParserFactory
 
-#  from wush.common.loggers import create_logger
 from wush.argument.command import CmdArgumentParser
+
+def init_argparse():
+    """初始化参数"""
+    parser = argparse.ArgumentParser(description='Wush command',)
+    parser.add_argument('cmd', help='You can use run, body, env, module')
+    parser.add_argument('-a', '--add', help='Config dir name', action='append')
+    parser.add_argument('-v', '--verbose', help='Config dir name')
+    parser.add_argument('-s', '--save', help='Config dir name')
+    parser.add_argument('-f', '--file', action='store_true',
+            help='Config dir name')
+    return parser
 
 @CommandArgumentParserFactory.register()
 class EnvArgumentParser(CmdArgumentParser):
     cmd = 'env'
 
-    def get_completions_after_cmd(self, argument, words=None):
-        words = []
-        for k ,v in self.wapi.config.env.dict().items():
-            text = '--{}'.format(k)
-            display = '--{}={}'.format(k, v)
-            words.append(dict(text = text, display = display))
-        return super().get_completions_after_cmd(argument, words)
-
     def get_completions_after_argument(self, wapi, word_for_completion):
         """
         获取补全的单词列表
-        :param wapi: Wapi
         :param word_for_completion: 补全需要的单词
         """
         if word_for_completion == '--add':
             words = []
+            for k, v in self.config.env.items():
+                text = '{}='.format(k)
+                display = '{}={}'.format(k, v)
+                words.append(dict(text = text, display = display))
             return words
 
         return super().get_completions_after_argument(wapi, word_for_completion)
@@ -63,22 +69,40 @@ class EnvArgumentParser(CmdArgumentParser):
             help="保存环境变量")
         item.add_argument('--add', action=Action.APPEND.value,
             help="添加环境变量")
+
+        item.sys_parser = init_argparse()
+
         return item
 
     def run(self, args):
         """执行"""
-        args = self.parse_args(args)
-        if args.has_args():
-            arg_names = [o.name for o in self.get_arguments()]
-            for k, v in args.__dict__.items():
-                if k not in arg_names:
-                    self.wapi.config.env.add(**{ k: v })
-                    print('{}={}'.format(k, v))
-            self.wapi.init_config()
-        else:
-            for k, v in self.wapi.config.env.dict().items():
-                print('{}={}'.format(k, v))
+        self.logger.info(args)
+        # TODO 替换本身的 argparse
+        args_list = args.split(' ')
+        args_list.append('--file')
+        sys_args = self.sys_parser.parse_args(args_list)
 
+        args = self.parse_args(args)
+        for arg in self.get_arguments():
+            self.logger.info(f'{self.cmd} {arg.name} {getattr(args, arg.name)}')
+        if sys_args.add:
+            for key_val in sys_args.add:
+                key, val = key_val.split('=')
+                self.config.add_env(key, val)
+
+        output = {
+            'headers': [
+                { "display": "Key" },
+                { "display": "Value" },
+                ],
+            "items": []
+            }
+        for k, v in self.config.env.items():
+            line = (k, v)
+            output['items'].append(line)
+        self.config.function.print_table(output)
+
+        # TODO 保存数据去掉 wapi
         # 保存数据
         if args.save:
             env_path = self.wapi.config.get_env_path()

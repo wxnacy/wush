@@ -71,7 +71,6 @@ class Config(object):
 
     @property
     def env(self):
-        print(self._config.env)
         return self._config.env.to_dict()
 
     @property
@@ -98,6 +97,7 @@ class Config(object):
         return req
 
 _config = None
+
 def load_config():
     global _config
     if not _config:
