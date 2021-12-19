@@ -69,6 +69,10 @@ class Config(object):
         print(self._config.env)
         return self._config.env.to_dict()
 
+    def get_modules(self):
+        """获取模块列表"""
+        return self._config.modules
+
     def get_request(self, module_name, request_name):
         """获取请求模型"""
         req = self._config.get_module(module_name).get_request(request_name)
@@ -83,6 +87,7 @@ def load_config():
     global _config
     if not _config:
         print('create config')
+        print(Constants.CONFIG_PATH)
         _config = Config.load(Constants.CONFIG_PATH)
     return _config
 

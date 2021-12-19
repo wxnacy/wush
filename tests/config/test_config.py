@@ -16,8 +16,8 @@ request_name = 'test_get'
 def test_load():
     #  assert test_config._config_dir == 'tests/data/config'
     assert len(test_config._config.modules) == 4
+    assert len(test_config.get_modules()) == 4
     #  assert test_config
-
 
 def test_get_request():
     req = test_config.get_request(module_name, request_name)
