@@ -4,28 +4,25 @@
 """
 命令补全
 """
-import copy
 
-#  from prompt_toolkit.completion import Completer
 from prompt_toolkit.completion import Completion
 
-#  from wush.common import constants
-from wush.common.loggers import create_logger
-
-#  from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 from wpy.completion import BaseCompleter
 from wpy.completion import WordCompleter
 from wpy.completion import ExecutableCompleter
 
+from wush.common.loggers import create_logger
+from wush.config import load_config
+
 class CommandCompleter(BaseCompleter):
     """shell 环境补全管理"""
     logger = create_logger("CommandCompleter")
 
-    def __init__(self, argparser, wapi):
+    def __init__(self, argparser):
         self.argparser = argparser
-        self.wapi = wapi
         self.path_completer = ExecutableCompleter()
+        self.config = load_config()
 
     def yield_words(self, words):
         """获取命令参数的补全器"""
@@ -50,8 +47,6 @@ class CommandCompleter(BaseCompleter):
             self.argparser = CommandArgumentParserFactory.build_parser(document.text)
             self.logger.info('completer argparser %s', self.argparser.cmd)
             arg = self.argparser.parse_args(document.text)
-            if arg.cmd == 'env':
-                self.argparser.set_wapi(self.wapi)
             self.logger.info('args %s', arg)
             cmd = self.first_word
 
@@ -64,7 +59,7 @@ class CommandCompleter(BaseCompleter):
             word_for_completion = self.word_for_completion
 
             # 使用自定义方法返回补全单词
-            words = self.wapi.config.get_function().get_completion_words(
+            words = self.config.function.get_completion_words(
                 word_for_completion)
             if words:
                 yield from self.yield_completer(WordCompleter(words))
@@ -72,7 +67,7 @@ class CommandCompleter(BaseCompleter):
 
             # 补全参数后的信息
             words = self.argparser.get_completions_after_argument(
-                    copy.deepcopy(self.wapi), word_for_completion)
+                    word_for_completion)
             if words:
                 yield from self.yield_words(words)
                 return

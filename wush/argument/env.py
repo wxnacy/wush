@@ -28,7 +28,7 @@ def init_argparse():
 class EnvArgumentParser(CmdArgumentParser):
     cmd = 'env'
 
-    def get_completions_after_argument(self, wapi, word_for_completion):
+    def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
         :param word_for_completion: 补全需要的单词
@@ -41,7 +41,7 @@ class EnvArgumentParser(CmdArgumentParser):
                 words.append(dict(text = text, display = display))
             return words
 
-        return super().get_completions_after_argument(wapi, word_for_completion)
+        return super().get_completions_after_argument(word_for_completion)
 
     def _make_args_dict(self, args):
         res = super()._make_args_dict(args)

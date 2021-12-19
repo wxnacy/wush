@@ -101,8 +101,6 @@ _config = None
 def load_config():
     global _config
     if not _config:
-        print('create config')
-        print(Constants.CONFIG_PATH)
         _config = Config.load(Constants.CONFIG_PATH)
     return _config
 
@@ -118,6 +116,4 @@ if __name__ == "__main__":
     #  print('test')
 
     config = load_config()
-    print(config.env)
     config = load_config()
-    print(config.env)

@@ -52,7 +52,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         return item
 
-    def get_completions_after_argument(self, wapi, word_for_completion):
+    def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
         :param word_for_completion: 补全需要的单词
@@ -84,7 +84,7 @@ class RunArgumentParser(CmdArgumentParser):
             words = self._dict_to_completions(request.json.to_dict())
             return words
 
-        return super().get_completions_after_argument(None, word_for_completion)
+        return super().get_completions_after_argument(word_for_completion)
 
     def _dict_to_completions(self, data):
         words = []

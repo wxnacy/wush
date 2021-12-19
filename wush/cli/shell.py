@@ -61,7 +61,7 @@ class Shell():
             module_name = args.module)
         self.client = client
         self.session = PromptSession(
-            completer=CommandCompleter(self.parser, client),
+            completer=CommandCompleter(self.parser),
             # 设置历史记录文件
             history = FileHistory(Constants.HISTORY_PATH),
             auto_suggest = AutoSuggestFromHistory(),
@@ -80,7 +80,7 @@ class Shell():
 
     #  def _is_run(self):
         #  """判断程序是否运行"""
-        #  stdout, stderr = run_shell("ps -ef | grep 'Python.*wapi'")
+        #  stdout, stderr = run_shell("ps -ef | grep 'Python.*wush'")
         #  stdout_len = len(stdout.decode().split('\n'))
         #  return True if stdout_len >= 4 else False
 
