@@ -11,10 +11,9 @@ import sys
 from flask import Flask
 from flask import request
 
-from wush.common.functions import random_int
 from wush.common.loggers import create_logger
-from wush.wush import Wapi
 from wush.web.utils import telnet
+from wush.web.history import History
 
 app = Flask(__name__)
 client = None
@@ -23,16 +22,16 @@ logger = create_logger(__name__)
 
 @app.route('/api/version/<string:version>')
 def detail(version):
-    client.reload_by_version(version)
-    res = client.read()
-    data = res
-    return data
+    return History.read(version)
 
 @app.route('/api/version/<string:version>/<string:type>')
 def detail_type(version, type):
-    client.reload_by_version(version)
-    res = client.read()
-    return res.get(type, {})
+    data = History.read(version)
+    res = data.get(type, {})
+    if res.get("is_json"):
+        return res.get("json")
+    else:
+        return res.get("text")
 
 @app.route('/api/test', methods=['post', 'get'])
 def test():
@@ -45,13 +44,10 @@ def test():
     }
     return res
 
-#  PORT = 12000 + int(random_int(3, 1))
 PORT = 6060
 os.environ['WUSH_WEB_PORT'] = str(PORT)
 
-def run_server(wapi, port=None):
-    #  global client
-
+def run_server(port=None):
     # 刷新缓冲区
     sys.stdout.flush()
     sys.stderr.flush()
@@ -64,10 +60,8 @@ def run_server(wapi, port=None):
         os.dup2(write_null.fileno(), sys.stdout.fileno())
         os.dup2(write_null.fileno(), sys.stderr.fileno())
 
-    #  client = wapi
     if not port:
         port = PORT
-
 
     # 如果端口还没有启动，则启动服务
     if not telnet('0.0.0.0', port):

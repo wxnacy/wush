@@ -158,13 +158,11 @@ class RunArgumentParser(CmdArgumentParser):
         History.save(res)
         if args.open:
             self._print('See in browser')
-            self._open()
+            self._open(builder.version)
         else:
             self.config.function.handler_response(
                 builder, res)
 
-    def _open(self):
+    def _open(self, version):
         #  """打开请求信息"""
-        # TODO open
-        version = ''
         open_version(version, 'response')

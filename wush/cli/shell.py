@@ -86,7 +86,7 @@ class Shell():
 
     def run(self):
         RUN_MODE.set_shell()
-        p = mp.Process(target=run_server, args=(self.client, ), daemon=True)
+        p = mp.Process(target=run_server, daemon=True)
         p.start()
         self._run_shell()
         p.terminate()
