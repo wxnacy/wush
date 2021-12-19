@@ -49,16 +49,7 @@ class AutoFieldModel(Model):
     def __init__(self, **kwargs):
         """对数据进行前置过滤"""
         for k, v in kwargs.items():
-            if isinstance(v, dict) and '_value' in v:
-                # 如果对象字段已经包含当前结构，进行格式转换
-                data_type = v.get("_data_type", str)
-                # 针对字符串转为基础类型
-                if isinstance(data_type, str):
-                    data_type = Constants.str_to_basetype(data_type)
-                v['_value'] = data_type(v['_value'])
-            else:
-                # 如果结构不对，则进行结构转换
-                v = { "_value": v, "_data_type": type(v) }
+            v = self._format_value(v)
             kwargs[k] = v
 
         super().__init__(**kwargs)
@@ -75,6 +66,23 @@ class AutoFieldModel(Model):
             if isinstance(v, dict):
                 data[k] = v.get("_value")
         return data
+
+    def _format_value(self, v):
+        if isinstance(v, dict) and '_value' in v:
+            # 如果对象字段已经包含当前结构，进行格式转换
+            data_type = v.get("_data_type", str)
+            # 针对字符串转为基础类型
+            if isinstance(data_type, str):
+                data_type = Constants.str_to_basetype(data_type)
+            v['_value'] = data_type(v['_value'])
+        else:
+            # 如果结构不对，则进行结构转换
+            v = { "_value": v, "_data_type": type(v) }
+        return v
+
+    #  def __setattr__(self, key, value):
+        #  value = self._format_value(value)
+        #  super().__setattr__(key, value)
 
 
 class RequestModel(Model):
@@ -94,6 +102,16 @@ class RequestModel(Model):
     params = datatype.Object(model=AutoFieldModel)
     data = datatype.Str()
     url = datatype.Str()
+
+    def add_params(self, **kwargs):
+        for k, v in kwargs.items():
+            origin_value = None
+            if hasattr(self.params, k):
+                origin_value = getattr(self.params, k)
+                v = origin_value._data_type(v)
+            v = self.params._format_value(v)
+            setattr(self.params, k, v)
+        self.params.format()
 
 
 class ModuleModel(Model):

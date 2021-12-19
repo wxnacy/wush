@@ -122,11 +122,14 @@ class RunArgumentParser(CmdArgumentParser):
 
     def _get_request_builder(self, args):
         """获取请求构造体"""
+        self.logger.info(f'arg params {args.params}')
+        self.logger.info(f'arg json {args.json}')
         params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
         self.logger.info('arg params %s', params)
         self.logger.info('arg json %s', json_data)
         request_model = self.config.get_request(args.module, args.name)
+        request_model.add_params(**params)
         builder = RequestBuilder.loads_request_model(request_model)
         return builder
 
