@@ -4,11 +4,9 @@
 """
 
 """
-import random
 import traceback
 import hashlib
 import importlib
-import sys
 import os
 import subprocess
 import json
@@ -77,10 +75,24 @@ def handler_response(request_builder, response):
 
 @FunctionFactory.register()
 def print_table(config):
+    """打印表格
+    :param dict config: 表格数据
+        结构如下：
+        {
+            "headers": [
+                { "display": "列名", 'width': '列宽度，非必传' }
+            ],
+            "items": [
+                ('列数据, 长度需要和 headers 长度保持一致')
+            ]
+        }
+    """
     headers = config.get("headers") or []
-    table = Table(show_header=True, show_lines=True, header_style="bold magenta")
+    table = Table(show_header=True, show_lines=True,
+        header_style="bold magenta")
     for header in headers:
-        table.add_column(header.get("display", '未命名'), )
+        name = header.pop("display", '未命名')
+        table.add_column(name, **header)
     items = config.get("items", [])
     for item in items:
         table.add_row(*item)
