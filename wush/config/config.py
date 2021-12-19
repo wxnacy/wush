@@ -10,12 +10,14 @@ import yaml
 from wush.config.models import ConfigModel
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
+from wush.common.functions import load_super_function
 from wush.common.loggers import get_logger
 
 class Config(object):
     logger = get_logger('Config')
 
     _config = None
+    _function = None
     module_name = None
     space_name = None
 
@@ -58,6 +60,9 @@ class Config(object):
         # 格式化模型
         ins._config.format()
 
+        # 加载方法
+        ins._function = load_super_function()
+
         return ins
 
     def add_env(self, key, value):
@@ -69,9 +74,17 @@ class Config(object):
         print(self._config.env)
         return self._config.env.to_dict()
 
+    @property
+    def function(self):
+        return self._function
+
     def get_modules(self):
         """获取模块列表"""
         return self._config.modules
+
+    def get_requests(self, module_name):
+        """获取请求列表"""
+        return self._config.get_module(module_name).requests
 
     def get_request(self, module_name, request_name):
         """获取请求模型"""
@@ -80,7 +93,9 @@ class Config(object):
         self.logger.info('config env {}'.format(env))
 
         # 将请求模型做环境变量格式化处理并返回
-        return ConfigValue(req).set_env(**env).format()
+        req = ConfigValue(req).set_env(**env).format()
+        req.format()
+        return req
 
 _config = None
 def load_config():

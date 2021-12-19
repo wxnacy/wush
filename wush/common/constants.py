@@ -49,6 +49,7 @@ class Constants(object):
         'float': float,
     }
     CONFIG_PATH = os.path.join(os.path.expanduser('~/.wush'), 'config.yml')
+    HISTORY_PATH = os.path.expanduser('~/.wush_history')
 
     @classmethod
     def build_tmpfile(cls, prefix):

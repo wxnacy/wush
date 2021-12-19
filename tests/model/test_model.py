@@ -104,13 +104,16 @@ def test_default_datatype():
     assert m.name._type == str
 
 
-    data = { "json": { "id": { "_value": 1 }, "name": { "_value": "wxnacy" } } }
+    data = { "json": { "id": { "value": 1 }, "name": { "value": "wxnacy" } } }
     r = Request(**data)
     r.format()
-    assert r.json.id._value == 1
-    assert r.json.name._value == 'wxnacy'
+    assert r.json.id.value == 1
+    assert r.json.name.value == 'wxnacy'
     # 手动设置的字段，使用原类型
     assert r.json.cust_field == 'cust'
+
+    req_dict = r.to_dict()
+    assert req_dict['json']['id']['value'] == 1
 
     # 测试 datatype 类型
     dd = DefaultDatatype()

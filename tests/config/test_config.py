@@ -25,6 +25,18 @@ def test_get_request():
     assert req.url == 'http://localhost:6060/api/test'
     assert req.domain == 'localhost:6060'
 
-    req = test_config.get_request('module_test', 'get_test')
-    assert req.path == '/get_test'
+    req = test_config.get_request('wush', 'test_get')
+    assert req.path == '/test'
+    #  req.format()
+    #  req.params.format()
+    assert req.params.id._value == 12
+
+    req_dict = req.params.to_dict()
+    req_dict = req.to_dict()['params']
+    assert req_dict['id'] == 12
     #  assert req.params.id._value == 12
+
+
+
+if __name__ == "__main__":
+    test_get_request()

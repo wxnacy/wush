@@ -96,12 +96,11 @@ class Model(BaseObject):
         """嵌套 format"""
         # 判断是否有默认字段
         # 并对对象中存在的赋值添加到 __datatype_fields__ 中
-        if self.DEFAULT_DATATYPE:
-            for key in self.__dict__.keys():
+        if model.DEFAULT_DATATYPE:
+            for key in model.__dict__.keys():
                 # 符合条件的 key 才会进行添加 datatype 处理
-                #  if self.__is_need_format_setattr__(key, None):
-                default_datatype = self.__build_default_datatype()
-                self.__add_datatype_fields(**{key: default_datatype })
+                default_datatype = model.__build_default_datatype()
+                model.__add_datatype_fields(**{key: default_datatype })
 
         for k, v in model.__get_datatype_fields().items():
             # 格式化单个字段
@@ -127,8 +126,8 @@ class Model(BaseObject):
         setattr(model, field, set_val)
         # 嵌套 format
         if isinstance(set_val, Model):
-            self._format(set_val)
-
+            #  self._format(set_val)
+            set_val.format()
 
     def to_dict(self):
         """
@@ -146,7 +145,7 @@ class Model(BaseObject):
                 continue
             origin_value = getattr(model, key)
             if isinstance(origin_value, Model):
-                data[key] = cls._to_dict(origin_value)
+                data[key] = origin_value.to_dict()
             else:
                 data[key] = origin_value
         return data

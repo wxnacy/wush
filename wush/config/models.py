@@ -9,10 +9,13 @@ import os
 from wpy.base import BaseObject
 
 from wush.common.constants import Constants
+from wush.common.loggers import get_logger
 from wush.model import datatype
 from wush.model import Model
 from wush.web.enums import MethodEnum
 from wush.web.enums import ProtocolEnum
+
+logger = get_logger('config.models')
 
 class EnvModel(BaseObject):
 
@@ -40,8 +43,8 @@ class FieldModel(Model):
 
 class AutoFieldModel(Model):
     """该模型自动使用 FieldModel"""
-    DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
     AUTO_FORMAT = True
+    DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
 
     def __init__(self, **kwargs):
         """对数据进行前置过滤"""
@@ -64,6 +67,7 @@ class AutoFieldModel(Model):
         """重载方法
         value 值只保留 _value 部分
         """
+        logger.info('AutoFieldModel.to_dict')
         data = super().to_dict()
         for k, v in data.items():
             if isinstance(v, FieldModel):
@@ -90,6 +94,20 @@ class RequestModel(Model):
     params = datatype.Object(model=AutoFieldModel)
     data = datatype.Str()
     url = datatype.Str()
+
+    def format(self):
+        super().format()
+        self.params.format()
+
+    #  def to_dict(self):
+        #  """重载方法
+        #  手动 to_dict params 和 json 字段
+        #  """
+        #  data = super().to_dict()
+        #  data['params'] = self.params.to_dict()
+        #  data['json'] = self.json.to_dict()
+        #  return data
+
 
 
 class ModuleModel(Model):
