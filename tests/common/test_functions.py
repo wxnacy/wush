@@ -8,7 +8,7 @@
 from wush.common import functions
 from wush.common import constants
 
-super_function = functions.super_function
+super_function = functions.load_super_function()
 
 def test_random_int():
     res = super_function.random_int(2)

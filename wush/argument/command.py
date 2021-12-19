@@ -32,7 +32,7 @@ class CmdArgumentParser(CommandArgumentParser):
     def set_prompt_session(self, client):
         self.prompt_session = client
 
-    def get_completions_after_argument(self, wapi, word_for_completion):
+    def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
         :param wapi: Wapi

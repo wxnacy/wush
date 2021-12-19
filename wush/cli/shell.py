@@ -20,7 +20,6 @@ from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 
 from wush.argument import CmdArgumentParser
-from wush.common.functions import super_function
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
 from wush.common.constants import Constants
@@ -179,8 +178,6 @@ class Shell():
             #  print(k, v)
         sname = self.client.config.get_function().get_current_space_name()
         print(sname)
-        oname = super_function.get_current_space_name()
-        print(oname)
 
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))

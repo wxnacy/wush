@@ -135,12 +135,12 @@ class Function:
     def get_functions(self):
         return self._functions
 
-_function = Function(FunctionFactory.get_factory())
+#  _function = Function(FunctionFactory.get_factory())
 
-def get_super_function():
-    return _function
+#  def get_super_function():
+    #  return _function
 
-super_function = get_super_function()
+#  super_function = get_super_function()
 
 _super_function = None
 
@@ -151,8 +151,3 @@ def load_super_function():
         _super_function = Function(FunctionFactory.get_factory())
     return _super_function
 
-if __name__ == "__main__":
-    print(random_int(5, 4, 9))
-    print(random_str(5))
-    func = get_super_function()
-    print(func.random_int(2))

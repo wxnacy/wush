@@ -4,17 +4,13 @@
 """
 run 命令的参数解析
 """
-import os
-from wpy.argument import Action
-
-from wush.common import utils
-from wush.common.loggers import create_logger
-from .command import CmdArgumentParser
-from wush.cli.server import PORT
-from wpy.argument import CommandArgumentParserFactory
 
 from rich.console import Console
 from rich.table import Table
+from wpy.argument import CommandArgumentParserFactory
+from wush.common.loggers import create_logger
+from .command import CmdArgumentParser
+
 
 console = Console()
 
@@ -33,7 +29,7 @@ class FuncArgumentParser(CmdArgumentParser):
         return item
 
     def run(self, text):
-        functions = self.wapi.config.get_function().get_functions()
+        functions = self.config.function.get_functions()
         max_func_length = max([len(o) for o in functions.keys()])
         table = Table(show_header=True, show_lines=True, header_style="bold magenta")
         table.add_column("方法名", width=max_func_length)

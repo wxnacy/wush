@@ -4,18 +4,13 @@
 """
 run 命令的参数解析
 """
-import os
-from wpy.argument import Action
-
-from wush.common import utils
-from wush.common.functions import open_version
-from wush.common.loggers import create_logger
-from .command import CmdArgumentParser
-from wush.cli.server import PORT
 from wpy.argument import CommandArgumentParserFactory
 
+from wush.common.functions import open_version
+from wush.common.loggers import create_logger
 from wush.models import Version
-from wush.common.functions import super_function
+from .command import CmdArgumentParser
+
 
 @CommandArgumentParserFactory.register()
 class ViewArgumentParser(CmdArgumentParser):
@@ -81,9 +76,9 @@ class ViewArgumentParser(CmdArgumentParser):
                 item.request_name))
         if end < total_count:
             data['after_table'] = 'With `--page {}` to see more'.format(args.page + 1)
-        super_function.print_table(data)
+        self.config.function.print_table(data)
 
-    def get_completions_after_argument(self, wapi, word_for_completion):
+    def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
         :param wapi: Wapi
@@ -104,4 +99,4 @@ class ViewArgumentParser(CmdArgumentParser):
                 words.append(dict( text = item._id, display_meta=dm))
             return words
 
-        return super().get_completions_after_argument(wapi, word_for_completion)
+        return super().get_completions_after_argument(word_for_completion)

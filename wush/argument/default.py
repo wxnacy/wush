@@ -5,11 +5,8 @@
 run 命令的参数解析
 """
 
-from .decorates import argparser_register
-from .enum import Action
 from .parse import ArgumentParser
 
-#  @argparser_register()
 class DefaultArgumentParser(ArgumentParser):
     cmd = 'default'
 

@@ -13,7 +13,7 @@ from wush.common import constants
 from wush.common import utils
 from wush.common.files import FileUtils
 from wush.common.functions import load_module
-from wush.common.functions import super_function
+from wush.common.functions import load_super_function
 from wush.common.functions import Function
 from wush.common.functions import FunctionFactory
 from wush.common.loggers import create_logger
@@ -118,7 +118,7 @@ class Config():
         """加载方法"""
         self.logger.info('Config functions %s', self.function_modules)
         if not self.function_modules:
-            self.function = super_function
+            self.function = load_super_function()
             return
         for module_name in self.function_modules:
             load_module(module_name)
