@@ -6,19 +6,20 @@
 """
 import copy
 
-from prompt_toolkit.completion import Completer
+#  from prompt_toolkit.completion import Completer
 from prompt_toolkit.completion import Completion
 
-from wush.common import constants
+#  from wush.common import constants
 from wush.common.loggers import create_logger
 
-from wpy.argument import CommandArgumentParser
+#  from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 from wpy.completion import BaseCompleter
 from wpy.completion import WordCompleter
 from wpy.completion import ExecutableCompleter
 
 class CommandCompleter(BaseCompleter):
+    """shell 环境补全管理"""
     logger = create_logger("CommandCompleter")
 
     def __init__(self, argparser, wapi):
@@ -37,7 +38,15 @@ class CommandCompleter(BaseCompleter):
         super().get_completions(document, complete_event)
         self.document = document
         self.complete_event = complete_event
+        self.logger.info(f'document.text {document.text}')
         try:
+            # 没输入命令时，将命令列表作为补全列表
+            if not document.text:
+                all_cmds = list(CommandArgumentParserFactory.get_cmd_names())
+                # 补全命令
+                yield from self.yield_words(all_cmds)
+                return
+
             self.argparser = CommandArgumentParserFactory.build_parser(document.text)
             self.logger.info('completer argparser %s', self.argparser.cmd)
             arg = self.argparser.parse_args(document.text)
