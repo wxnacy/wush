@@ -4,7 +4,6 @@
 """
 
 """
-import os
 import argparse
 import traceback
 import multiprocessing as mp
@@ -19,13 +18,11 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 
-from wush.argument import CmdArgumentParser
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
 from wush.common.constants import Constants
 from wush.completion.command import CommandCompleter
 from wush.config import load_config
-from wush.wush import Wapi
 
 from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
@@ -46,7 +43,6 @@ class Shell():
 
     parser_dict = {}
     parser = None
-    client = None
     _prompt_default = ''
     web_port = None
     session = None
@@ -54,11 +50,7 @@ class Shell():
     def __init__(self):
         self.parser = self._get_parser()
         self.config = load_config()
-        args = init_argparse().parse_args()
-        client = Wapi()
-        client.init_config(config_root = args.config, space_name = args.space,
-            module_name = args.module)
-        self.client = client
+        #  args = init_argparse().parse_args()
         self.session = PromptSession(
             completer=CommandCompleter(self.parser),
             # 设置历史记录文件
@@ -70,8 +62,6 @@ class Shell():
     def _get_parser(self, cmd=None):
         if cmd not in self.parser_dict:
             parser = CommandArgumentParserFactory.build_parser(cmd)
-            if isinstance(parser, CmdArgumentParser):
-                parser.set_wapi(self.client)
             if isinstance(parser, CommandArgumentParser):
                 parser.set_prompt(self.session)
             self.parser_dict[cmd] = parser
@@ -94,8 +84,8 @@ class Shell():
         while True:
             try:
                 left_prompt = 'wush/{space}/{module}> '.format(
-                    space = self.client.space_name,
-                    module = self.client.module_name
+                    space = self.config.space_name,
+                    module = self.config.module_name
                 )
                 right_prompt = ''
                 text = self.session.prompt(
@@ -153,9 +143,6 @@ class Shell():
                 history_num = int(text)
                 self.logger.info(history_num)
                 cmd = self.get_history_by_num(history_num)
-                #  def _print_cmd():
-                    #  print(cmd)
-                #  run_in_terminal(_print_cmd)
                 self._prompt_default = cmd
             except:
                 self.logger.error(traceback.format_exc())
@@ -176,8 +163,7 @@ class Shell():
     def _test(self, text):
         #  for k, v in os.environ.items():
             #  print(k, v)
-        sname = self.client.config.get_function().get_current_space_name()
-        print(sname)
+        pass
 
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))

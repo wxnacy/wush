@@ -81,7 +81,6 @@ class ViewArgumentParser(CmdArgumentParser):
     def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
-        :param wapi: Wapi
         :param word_for_completion: 补全需要的单词
         """
         words = []

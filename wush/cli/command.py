@@ -18,7 +18,6 @@ from wush.config import load_config
 
 from wush.cli.shell import Shell
 from wush.cli.shell import init_argparse
-from wush.wush import Wapi
 
 logger = create_logger('main')
 
@@ -53,6 +52,5 @@ class Command(object):
 
         parser = CommandArgumentParserFactory.build_parser(cmd)
         if isinstance(parser, CmdArgumentParser):
-            parser.set_wapi(Wapi())
             parser.run(args_text)
 

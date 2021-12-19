@@ -41,9 +41,9 @@ def test_format_model():
 
 def test_format_environ():
     """测试格式化环境变量"""
-    text = '${test_wapi_name}'
+    text = '${test_name}'
     name = 'wxnacy'
-    assert name == ConfigValue(text).set_env(test_wapi_name = name).format()
+    assert name == ConfigValue(text).set_env(test_name = name).format()
 
     text = '${test(3, "wxnacy")}'
     res = ConfigValue(text).set_functions(**env_functions).format()

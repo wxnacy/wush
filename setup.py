@@ -19,7 +19,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'wush'
 DESCRIPTION = 'Useful api client on terminal'
-URL = 'https://github.com/wxnacy/wapi'
+URL = 'https://github.com/wxnacy/wush'
 EMAIL = 'wxnacy@gmail.com'
 AUTHOR = 'wxnacy'
 REQUIRES_PYTHON = '>=3.6.0'

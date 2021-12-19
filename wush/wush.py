@@ -15,7 +15,6 @@ from datetime import datetime
 from wush.common import utils
 from wush.common.loggers import create_logger
 from wush.common.config import Config
-#  from wush.common.exceptions import RequestException
 from wush.web.request import RequestBuilder
 from wush.web.request import RequestClient
 
@@ -23,7 +22,7 @@ from .models import Version
 from .models import Request
 from .models import Response
 
-class Wapi():
+class Wush():
     logger = create_logger('Wush')
     module_name = ''
     request_name = ''

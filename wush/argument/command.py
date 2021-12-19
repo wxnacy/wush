@@ -19,15 +19,11 @@ from wush.config import load_config
 
 class CmdArgumentParser(CommandArgumentParser):
     logger = create_logger('CmdArgumentParser')
-    wapi = None
     prompt_session = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config = load_config()
-
-    def set_wapi(self, client):
-        self.wapi = client
 
     def set_prompt_session(self, client):
         self.prompt_session = client
@@ -35,7 +31,6 @@ class CmdArgumentParser(CommandArgumentParser):
     def get_completions_after_argument(self, word_for_completion):
         """
         获取补全的单词列表
-        :param wapi: Wapi
         :param word_for_completion: 补全需要的单词
         """
         return []
