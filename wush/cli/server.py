@@ -22,7 +22,10 @@ logger = create_logger(__name__)
 
 @app.route('/api/version/<string:version>')
 def detail(version):
-    return History.read(version)
+    res =  History.read(version)
+    log_text = f'{request.path} {res}'
+    logger.info(log_text)
+    return res
 
 @app.route('/api/version/<string:version>/<string:type>')
 def detail_type(version, type):
@@ -47,7 +50,7 @@ def test():
 PORT = 6060
 os.environ['WUSH_WEB_PORT'] = str(PORT)
 
-def run_server(port=None):
+def clear_stdout():
     # 刷新缓冲区
     sys.stdout.flush()
     sys.stderr.flush()
@@ -60,6 +63,9 @@ def run_server(port=None):
         os.dup2(write_null.fileno(), sys.stdout.fileno())
         os.dup2(write_null.fileno(), sys.stderr.fileno())
 
+def run_server(port=None):
+    # 清空输出
+    clear_stdout()
     if not port:
         port = PORT
 

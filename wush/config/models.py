@@ -169,6 +169,7 @@ class ConfigModel(Model):
     modules = datatype.List(model = ModuleModel)
     env = datatype.Object(model = EnvModel)
     modules_include = datatype.List()
+    server_port = datatype.Str(default = Constants.SERVER_PORT)
 
     def format(self):
         """重载 format

@@ -36,6 +36,8 @@ def init_argparse():
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
     parser.add_argument('-s', '--space', help='Space name')
+    parser.add_argument('-O', '--open', action='store_true',
+            help='打开浏览器')
     return parser
 
 class Shell():

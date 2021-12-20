@@ -8,6 +8,7 @@ import os
 import yaml
 
 from wush.config.models import ConfigModel
+from wush.config.models import EnvModel
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
 from wush.config.function import load_super_function
@@ -20,6 +21,7 @@ class Config(object):
     _function = None
     module_name = None
     space_name = None
+    builtin_env = EnvModel()
 
     @classmethod
     def read_yml(cls, filepath):
@@ -62,6 +64,9 @@ class Config(object):
 
         # 加载方法
         ins._function = load_super_function()
+
+        for key in ('server_port',):
+            setattr(ins, key, getattr(ins._config, key))
 
         return ins
 
