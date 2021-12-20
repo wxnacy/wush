@@ -97,6 +97,7 @@ class RequestModel(Model):
     protocol = datatype.Str()
     domain = datatype.Str()
     cookies = datatype.Dict()
+    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
     headers = datatype.Dict()
     json = datatype.Object(model=AutoFieldModel)
     params = datatype.Object(model=AutoFieldModel)
@@ -104,6 +105,7 @@ class RequestModel(Model):
     url = datatype.Str()
 
     def add_params(self, **kwargs):
+        """添加 params 参数"""
         for k, v in kwargs.items():
             origin_value = None
             if hasattr(self.params, k):
@@ -122,7 +124,7 @@ class ModuleModel(Model):
             default=ProtocolEnum.HTTP.value)
     domain = datatype.Str()
     url_prefix = datatype.Str()
-    cookie_domains = datatype.List()
+    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
     cookies = datatype.Dict()
     headers = datatype.Dict()
     requests = datatype.List(model=RequestModel)
@@ -137,16 +139,24 @@ class ModuleModel(Model):
         req = self.__req__.get(name)
         if req:
             # 继承 module 的字段
-            inherit_keys = ('protocol', 'domain', 'cookies', 'headers')
+            inherit_keys = ('protocol', 'domain', 'cookies', 'headers',
+                'cookie_domains')
             for key in inherit_keys:
                 super_value = getattr(self, key)
-                if not getattr(req, key):
+                sub_value = getattr(req, key)
+                if not sub_value:
                     setattr(req, key, super_value)
                 else:
+                    # 字段结构进行拼接
                     if isinstance(super_value, dict):
                         super_value = dict(super_value)
-                        super_value.update(getattr(req, key))
-                        setattr(req, key, super_value)
+                        super_value.update(sub_value)
+                    # 列表结构进行拼接
+                    if isinstance(super_value, list):
+                        super_value = list(super_value)
+                        super_value.extend(sub_value)
+
+                    setattr(req, key, super_value)
 
             # 拼装 url
             if not req.url:

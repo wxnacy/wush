@@ -5,11 +5,13 @@
 """
 
 import requests
+import json
 from datetime import datetime
 
 from wush.common.loggers import get_logger
 from wush.config.models import RequestModel
 from wush.web.curl_utils import cUrl
+from wush.web.cookie import Cookie
 from wush.web.enums import MethodEnum
 from wush.web.enums import RequestsParamsEnum
 from wush.web.response import ResponseClient
@@ -50,6 +52,13 @@ class RequestBuilder(Model):
                 #  val = val.to_dict()
             val = request_dict.get(key)
             setattr(ins, key, val)
+
+        # 对 cookie_domains 进行解析
+        cookie_domains = request_model.cookie_domains
+        if cookie_domains:
+            cookies  = Cookie.get_browser_cookie(*cookie_domains)
+            ins.cookies = cookies
+
         ins.format()
         return ins
 
@@ -78,12 +87,15 @@ class RequestBuilder(Model):
 
 class RequestClient(object):
     """请求客户端"""
+    logger = get_logger('RequestClient')
 
     def __init__(self, builder: RequestBuilder):
         self.builder = builder
 
     def request(self):
         """发送请求"""
-        res = requests.request(**self.builder.to_requests())
+        params = self.builder.to_requests()
+        self.logger.info('request builder %s', json.dumps(params, indent=4))
+        res = requests.request(**params)
         return ResponseClient(self.builder, res)
 
