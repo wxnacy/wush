@@ -192,5 +192,8 @@ class ConfigModel(Model):
             for path in self._iter_path(module_path):
                 if not path:
                     continue
+                # 过滤掉不是 yml 结尾的配置文件
+                if not path.endswith('.yml'):
+                    continue
                 yield path
 

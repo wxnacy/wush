@@ -105,15 +105,4 @@ def load_config():
     return _config
 
 if __name__ == "__main__":
-    #  filepath = 'tests/data/config/config.yml'
-    #  config = Config.load(filepath)
-    #  with open('tests/data/config/config.yml', 'r') as f:
-        #  data = yaml.safe_load(f)
-    #  config = ConfigModel(**data)
-    #  #  print(config.modules)
-    #  import json
-    #  print(json.dumps(config.to_dict(), indent=4))
-    #  print('test')
-
-    config = load_config()
     config = load_config()
