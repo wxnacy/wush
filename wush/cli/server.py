@@ -14,6 +14,7 @@ from flask import request
 from wush.common.loggers import create_logger
 from wush.web.utils import telnet
 from wush.web.history import History
+from wush.config import load_config
 
 app = Flask(__name__)
 client = None
@@ -47,9 +48,6 @@ def test():
     }
     return res
 
-PORT = 6060
-os.environ['WUSH_WEB_PORT'] = str(PORT)
-
 def clear_stdout():
     # 刷新缓冲区
     sys.stdout.flush()
@@ -66,9 +64,9 @@ def clear_stdout():
 def run_server(port=None):
     # 清空输出
     clear_stdout()
-    if not port:
-        port = PORT
-
+    # 获取配置
+    config = load_config()
+    port = config.server_port
     # 如果端口还没有启动，则启动服务
     if not telnet('0.0.0.0', port):
         app.run(host = '0.0.0.0', port=port)
