@@ -51,6 +51,16 @@ class CmdArgumentParser(CommandArgumentParser):
             res.append(dict(text = '--' + arg.name, display_meta = arg.help))
         return res
 
+    def parse_args(self, text):
+        """解析参数"""
+        args = super().parse_args(text)
+        arg_list = self.get_arguments()
+        for arg in arg_list:
+            log_text = f'{self.cmd} argument {arg.name}' \
+                f' {getattr(args, arg.name)}'
+            self.logger.info(log_text)
+        return args
+
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))
         print_formatted_text(PygmentsTokens(tokens), end='')
