@@ -4,102 +4,17 @@
 """
 
 """
-import traceback
-import hashlib
 import importlib
 import os
 import subprocess
-import json
 
 from rich.console import Console
-from rich.table import Table
 
 console = Console()
 
-from wpy.base import BaseFactory
-from wpy.tools import randoms
-
-from wush.common import constants
 from wush.common.loggers import get_logger
 
 logger = get_logger('function')
-
-class FunctionFactory(BaseFactory):
-    pass
-
-@FunctionFactory.register()
-def random_int(length, min_int=None, max_int=None):
-    """随机 int 值"""
-    return randoms.random_int(length, min_int, max_int)
-
-RANDOM_STR = ()
-
-@FunctionFactory.register()
-def random_str(length, source=None):
-    """随机 int 值"""
-    return randoms.random_str(length, source)
-
-@FunctionFactory.register()
-def md5(text):
-    """计算 md5 摘要"""
-    return hashlib.md5(text.encode('utf-8')).hexdigest()
-
-@FunctionFactory.register()
-def get_current_space_name():
-    """获取当前 space 名称"""
-    return constants.DEFAULT_SPACE_NAME
-
-@FunctionFactory.register()
-def get_completion_words(word_for_completion):
-    """获取补全的单词列表"""
-    return []
-
-@FunctionFactory.register()
-def request(wapi, module_name, request_name):
-    return wapi.request(request_name = request_name, module_name = module_name)
-
-@FunctionFactory.register()
-def get_current_web_port():
-    return os.getenv('WUSH_WEB_PORT')
-
-@FunctionFactory.register()
-def handler_response(request_builder, response):
-    print('Response:')
-    try:
-        data = response.json()
-        data = json.dumps(data, indent=4, ensure_ascii=False)
-    except:
-        logger.error(traceback.format_exc())
-        data = response.content
-    print(data)
-
-@FunctionFactory.register()
-def print_table(config):
-    """打印表格
-    :param dict config: 表格数据
-        结构如下：
-        {
-            "headers": [
-                { "display": "列名", 'width': '列宽度，非必传' }
-            ],
-            "items": [
-                ('列数据, 长度需要和 headers 长度保持一致')
-            ]
-        }
-    """
-    headers = config.get("headers") or []
-    table = Table(show_header=True, show_lines=True,
-        header_style="bold magenta")
-    for header in headers:
-        name = header.pop("display", '未命名')
-        table.add_column(name, **header)
-    items = config.get("items", [])
-    for item in items:
-        table.add_row(*item)
-    console.print(table)
-    after_table = config.get("after_table")
-    if after_table:
-        console.print(after_table)
 
 def run_shell(command):
     """运行 shell 语句"""
@@ -121,45 +36,3 @@ def load_module(module_name):
     """加载模块"""
     views_module = importlib.import_module(module_name)
     return views_module
-
-class Function:
-    get_current_space_name = None
-    get_completion_words = None
-    random_int = None
-    random_str = None
-    get_current_web_port = None
-    handler_response = None
-    test = None
-
-    _functions = {}
-
-    def __init__(self, functions):
-        self._functions = functions
-        for name, func in functions.items():
-            if isinstance(func, str):
-                raise Exception('func {} can not be str'.format(name))
-            setattr(self, name, func)
-
-    def add_function(self, func):
-        setattr(self, func.__name__, func)
-        self._functions[func.__name__] = func
-
-    def get_functions(self):
-        return self._functions
-
-#  _function = Function(FunctionFactory.get_factory())
-
-#  def get_super_function():
-    #  return _function
-
-#  super_function = get_super_function()
-
-_super_function = None
-
-def load_super_function():
-    """加载 super function"""
-    global _super_function
-    if not _super_function:
-        _super_function = Function(FunctionFactory.get_factory())
-    return _super_function
-

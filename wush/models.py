@@ -14,9 +14,9 @@ from lfsdb import FSColumn
 
 from wush.common import constants
 from wush.common.config_value import ConfigValue
-from wush.common.cookie import Cookie
 from wush.common.files import FileUtils
 from wush.common.loggers import create_logger
+from wush.web.cookie import Cookie
 
 class BaseModel(object):
 

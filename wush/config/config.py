@@ -10,7 +10,7 @@ import yaml
 from wush.config.models import ConfigModel
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
-from wush.common.functions import load_super_function
+from wush.config.function import load_super_function
 from wush.common.loggers import get_logger
 
 class Config(object):
