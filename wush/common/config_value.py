@@ -8,17 +8,10 @@
 import json
 import os
 import re
-#  import subprocess
-#  import yaml
 
-#  from functools import singledispatch
-
-#  from wpy.base import BaseObject
-
-from wush.common.files import FileUtils
+from wpy.files import FileUtils
 from wush.common.loggers import create_logger
 from wush.model import Model
-#  from wush.config.models import RequestModel
 
 class ConfigValue():
     logger = create_logger('ConfigValue')
