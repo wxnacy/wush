@@ -41,7 +41,8 @@ class RequestBuilder(Model):
         return
 
     @classmethod
-    def loads_request_model(cls, request_model: RequestModel):
+    def loads_request_model(cls, request_model: RequestModel,
+            with_browser_cookie=False):
         """加载 RequestModel 模型"""
         ins = cls()
         #  request_model.format()
@@ -55,7 +56,7 @@ class RequestBuilder(Model):
 
         # 对 cookie_domains 进行解析
         cookie_domains = request_model.cookie_domains
-        if cookie_domains:
+        if cookie_domains and with_browser_cookie:
             cookies  = Cookie.get_browser_cookie(*cookie_domains)
             ins.cookies = cookies
 

@@ -57,7 +57,7 @@ class CmdArgumentParser(CommandArgumentParser):
         arg_list = self.get_arguments()
         for arg in arg_list:
             log_text = f'{self.cmd} argument {arg.name}' \
-                f' {getattr(args, arg.name)}'
+                f' {getattr(args, arg.name.replace("-", "_"))}'
             self.logger.info(log_text)
         return args
 

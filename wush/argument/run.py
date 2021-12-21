@@ -33,9 +33,9 @@ class RunArgumentParser(CmdArgumentParser):
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--module', help='模块名称')
-        item.add_argument('--space', help='空间名称')
-        item.add_argument('--name', help='请求名称')
+        item.add_argument('-m', '--module', help='模块名称')
+        item.add_argument('-s', '--space', help='空间名称')
+        item.add_argument('-n', '--name', help='请求名称')
         item.add_argument('--params', action = Action.APPEND.value,
             help='请求地址参数')
         item.add_argument('--json', action = Action.APPEND.value,
@@ -43,6 +43,9 @@ class RunArgumentParser(CmdArgumentParser):
         item.add_argument('--open', action = Action.STORE_TRUE.value,
             help = '是否通过浏览器打开请求结果')
         item.add_argument('--curl', action = Action.STORE_TRUE.value,
+            help = '是否使用 curl 文本')
+        item.add_argument('--with-browser-cookie',
+            action = Action.STORE_TRUE.value,
             help = '是否使用 curl 文本')
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
@@ -130,7 +133,8 @@ class RunArgumentParser(CmdArgumentParser):
         request_model.add_params(**params)
         # TODO 对 json 进行解析
 
-        builder = RequestBuilder.loads_request_model(request_model)
+        builder = RequestBuilder.loads_request_model(request_model,
+            args.with_browser_cookie)
         return builder
 
     def run(self, text):
