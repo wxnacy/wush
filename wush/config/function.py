@@ -12,7 +12,7 @@ import json
 from rich.console import Console
 from rich.table import Table
 from wpy.base import BaseFactory
-from wpy.tools import randoms
+from wpy import RandomUtils
 
 from wush.common.loggers import get_logger
 
@@ -24,12 +24,12 @@ class FunctionFactory(BaseFactory):
 @FunctionFactory.register()
 def random_int(length, min_int=None, max_int=None):
     """随机 int 值"""
-    return randoms.random_int(length, min_int, max_int)
+    return RandomUtils.random_int(length, min_int, max_int)
 
 @FunctionFactory.register()
 def random_str(length, source=None):
     """随机 int 值"""
-    return randoms.random_str(length, source)
+    return RandomUtils.random_str(length, source)
 
 @FunctionFactory.register()
 def md5(text):
