@@ -5,6 +5,4 @@
 
 """
 
-from .common import functions
-
 __all__ = []

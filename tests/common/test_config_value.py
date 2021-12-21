@@ -6,7 +6,7 @@
 """
 
 from wush.common.config_value import ConfigValue
-from wush.common.functions import FunctionFactory
+from wush.config.function import FunctionFactory
 from wush.config.models import EnvModel
 
 from wush.model import datatype

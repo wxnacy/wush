@@ -7,10 +7,11 @@
 
 import json
 import os
+import importlib
+import subprocess
 
 from collections import defaultdict
 
-from wush.common.functions import run_shell
 from wush.common.exceptions import JsonException
 
 def filter_json(data, rules):
@@ -67,3 +68,14 @@ def list_key_val_to_dict(data):
             k, v = item.split('=')
             res[k] = v
     return res
+
+def run_shell(command):
+    """运行 shell 语句"""
+    res = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+        stderr = subprocess.PIPE)
+    return res.communicate()
+
+def load_module(module_name):
+    """加载模块"""
+    views_module = importlib.import_module(module_name)
+    return views_module

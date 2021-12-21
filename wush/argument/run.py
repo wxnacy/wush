@@ -10,8 +10,7 @@ from wpy.argument import CommandArgumentParserFactory
 
 from wush.common import utils
 from wush.common.constants import Constants
-from wush.common.functions import open_version
-from wush.common.functions import run_shell
+from wush.common.utils import run_shell
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
 from wush.config import load_config
