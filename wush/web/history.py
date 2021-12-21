@@ -5,23 +5,23 @@
 """
 
 
-from lfsdb import FSModel
-from lfsdb import FSColumn
+from wpy.files import FileUtils
 
 from wush.web.response import ResponseClient
 
-class HistoryModel(FSModel):
+class HistoryModel(object):
     db = 'wush'
     table = 'history'
 
-    version = FSColumn(str)
-    request = FSColumn(dict)
-    response = FSColumn(dict)
+    version = ''
+    request = dict()
+    response = dict()
 
 class History(object):
 
     @classmethod
     def save(cls, response_client: ResponseClient):
+        pass
 
         h = HistoryModel()
         h.version = response_client.request_builder.version
@@ -37,5 +37,6 @@ class History(object):
 
     @classmethod
     def read(cls, version):
+        return {}
         h = HistoryModel.find_one_by_id(version)
         return h.to_dict()

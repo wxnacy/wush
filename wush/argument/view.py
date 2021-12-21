@@ -7,7 +7,7 @@ run 命令的参数解析
 from wpy.argument import CommandArgumentParserFactory
 
 from wush.common.loggers import create_logger
-from wush.models import Version
+#  from wush.models import Version
 from .command import CmdArgumentParser
 
 
