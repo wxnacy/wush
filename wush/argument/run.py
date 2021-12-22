@@ -120,7 +120,7 @@ class RunArgumentParser(CmdArgumentParser):
         req_client = RequestClient(builder)
         res = req_client.request()
         res.print()
-        History.save(res)
+        History().save(res)
 
     def _get_request_builder(self, args):
         """获取请求构造体"""
@@ -162,7 +162,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         self._print('Status: {}'.format(res.status_code))
 
-        History.save(res)
+        History().save(res)
         if args.open:
             self._print('See in browser')
             self._open(builder.version)

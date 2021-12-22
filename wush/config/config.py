@@ -14,6 +14,8 @@ from wush.common.constants import Constants
 from wush.config.function import load_super_function
 from wush.common.loggers import get_logger
 
+__all__ = ['load_config']
+
 class Config(object):
     logger = get_logger('Config')
 
@@ -65,7 +67,7 @@ class Config(object):
         # 加载方法
         ins._function = load_super_function()
 
-        for key in ('server_port',):
+        for key in ConfigModel.__all__:
             setattr(ins, key, getattr(ins._config, key))
 
         return ins

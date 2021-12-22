@@ -23,14 +23,14 @@ logger = create_logger(__name__)
 
 @app.route('/api/version/<string:version>')
 def detail(version):
-    res =  History.read(version)
+    res =  History().read(version)
     log_text = f'{request.path} {res}'
     logger.info(log_text)
     return res
 
 @app.route('/api/version/<string:version>/<string:type>')
 def detail_type(version, type):
-    data = History.read(version)
+    data = History().read(version)
     res = data.get(type, {})
     if res.get("is_json"):
         return res.get("json")

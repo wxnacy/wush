@@ -20,6 +20,7 @@ class Constants(object):
     }
     CONFIG_PATH = os.path.join(os.path.expanduser('~/.wush'), 'config.yml')
     HISTORY_PATH = os.path.expanduser('~/.wush_history')
+    API_HISTORY_DIR = os.path.expanduser('~/.wush_api_history')
     SERVER_PORT = '6060'
 
     @classmethod
