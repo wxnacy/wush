@@ -38,6 +38,8 @@ def init_argparse():
     parser.add_argument('-s', '--space', help='Space name')
     parser.add_argument('-O', '--open', action='store_true',
             help='打开浏览器')
+    parser.add_argument('--init', action='store_true',
+            help='初始化')
     return parser
 
 class Shell():

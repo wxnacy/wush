@@ -4,9 +4,14 @@
 """
 run 命令的参数解析
 """
+import os
 
-from .command import CmdArgumentParser
 from wpy.argument import CommandArgumentParserFactory
+from wpy.argument import Action
+from wpy.files import FileUtils
+
+from wush.common.constants import Constants
+from .command import CmdArgumentParser
 
 @CommandArgumentParserFactory.register()
 class ConfigArgumentParser(CmdArgumentParser):
@@ -19,10 +24,26 @@ class ConfigArgumentParser(CmdArgumentParser):
         """
         item = cls()
         item.add_argument('cmd')
-        item.add_argument('--config')
-        item.add_argument('--module')
-        item.add_argument('--space')
+        item.add_argument('--init', action=Action.STORE_TRUE.value,
+            help="初始化配置文件")
         return item
 
     def run(self, text):
         args = self.parse_args(text)
+
+        # 初始化配置文件
+        if args.init:
+            config_path = Constants.CONFIG_PATH
+            if os.path.exists(config_path):
+                print("配置文件已存在")
+                return
+
+            # 判断配置目录是否存在
+            if not os.path.exists(Constants.CONFIG_DIR):
+                os.mkdir(Constants.CONFIG_DIR)
+
+            FileUtils.write_yml(config_path, Constants.INIT_CONIFG_TEXT)
+
+
+
+

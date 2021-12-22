@@ -105,10 +105,26 @@ class Config(object):
 
 _config = None
 
-def load_config():
+def load_config(config_path = None):
+    """加载配置
+    :param str config_path: 配置文件路径
+
+    1、优先使用用户指定配置文件
+    2、否则使用默认配置文件路径
+    3、否则使用初始化的配置
+
+    """
     global _config
     if not _config:
-        _config = Config.load(Constants.CONFIG_PATH)
+        if config_path:
+            _config = Config.load(config_path)
+        else:
+            if os.path.exists(Constants.CONFIG_PATH):
+                _config = Config.load(Constants.CONFIG_PATH)
+            else:
+                _config = Config.loads(yaml.safe_load(
+                    Constants.INIT_CONIFG_YML))
+
     return _config
 
 if __name__ == "__main__":

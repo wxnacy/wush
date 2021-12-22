@@ -8,6 +8,27 @@
 import os
 import random
 
+__all__ = ['Constants']
+
+INIT_CONIFG_YML = """
+env:
+  github_domain: 'api.github.com'
+modules:
+  - name: github_user
+    domain: '${github_domain}'
+    protocol: https
+    url_prefix: /users
+    requests:
+      - name: user_profile
+        path: /psf
+"""
+
+INIT_CONIFG_TEXT = f"""
+# wush 工具的配置文档
+# env:
+{INIT_CONIFG_YML}
+"""
+
 class Constants(object):
     TMPDIR = '/tmp/wush'
     BASETYPE_MAP = {
@@ -18,10 +39,13 @@ class Constants(object):
         'dict': dict,
         'float': float,
     }
-    CONFIG_PATH = os.path.join(os.path.expanduser('~/.wush'), 'config.yml')
+    CONFIG_DIR = os.path.expanduser('~/.wush')
+    CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.yml')
     HISTORY_PATH = os.path.expanduser('~/.wush_history')
     API_HISTORY_DIR = os.path.expanduser('~/.wush_api_history')
     SERVER_PORT = '6060'
+    INIT_CONIFG_YML = INIT_CONIFG_YML
+    INIT_CONIFG_TEXT = INIT_CONIFG_TEXT
 
     @classmethod
     def build_tmpfile(cls, prefix):
