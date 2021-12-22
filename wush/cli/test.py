@@ -9,7 +9,6 @@ from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
 
 
-
 def main():
     builder = RequestBuilder(method='get', url = 'https://ipconfig.io/json')
     client = RequestClient(builder)

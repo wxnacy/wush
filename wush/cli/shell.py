@@ -10,11 +10,11 @@ import multiprocessing as mp
 import pygments
 
 from pygments.lexers.python import PythonLexer
-from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.history import FileHistory
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
 
@@ -115,7 +115,7 @@ class Shell():
         self._prompt_default = ''
 
     def _run_once_time(self, text):
-        """运行"""
+        """运行单次命令"""
         if not text:
             return
         parser = self._get_parser()
