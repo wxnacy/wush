@@ -8,12 +8,14 @@
 from prompt_toolkit.completion import Completion
 
 from wpy.argument import CommandArgumentParserFactory
-from wpy.completion import BaseCompleter
-from wpy.completion import WordCompleter
-from wpy.completion import ExecutableCompleter
+from .base import BaseCompleter
+from .word import WordCompleter
+from .filesystem import ExecutableCompleter
 
 from wush.common.loggers import create_logger
 from wush.config import load_config
+
+__all__ = ['CommandCompleter']
 
 class CommandCompleter(BaseCompleter):
     """shell 环境补全管理"""
