@@ -5,10 +5,10 @@
 run 命令的参数解析
 """
 import os
+import shutil
 
 from wpy.argument import CommandArgumentParserFactory
 from wpy.argument import Action
-from wpy.files import FileUtils
 
 from wush.common.constants import Constants
 from .command import CmdArgumentParser
@@ -42,8 +42,5 @@ class ConfigArgumentParser(CmdArgumentParser):
             if not os.path.exists(Constants.CONFIG_DIR):
                 os.mkdir(Constants.CONFIG_DIR)
 
-            FileUtils.write_yml(config_path, Constants.INIT_CONIFG_TEXT)
-
-
-
-
+            shutil.copyfile(Constants.get_sys_config_path(), config_path)
+            print('生成配置文件:', config_path)

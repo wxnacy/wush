@@ -7,12 +7,13 @@
 import os
 import yaml
 
-from wush.config.models import ConfigModel
-from wush.config.models import EnvModel
+from wush.common import utils
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
-from wush.config.function import load_super_function
 from wush.common.loggers import get_logger
+from wush.config.models import ConfigModel
+from wush.config.models import EnvModel
+from wush.config.function import load_super_function
 
 __all__ = ['load_config']
 
@@ -105,6 +106,21 @@ class Config(object):
 
 _config = None
 
+def _get_config_path(config_path=None):
+    """
+    获取配置地址
+    """
+    if config_path:
+        Config.logger.info('配置文件: 用户指定 {}'.format(config_path))
+        return config_path
+    if os.path.exists(Constants.CONFIG_PATH):
+        Config.logger.info('配置文件: 默认 {}'.format(Constants.CONFIG_PATH))
+        return Constants.CONFIG_PATH
+
+    config_path = Constants.get_sys_config_path()
+    Config.logger.info('配置文件: 系统 {}'.format(config_path))
+    return config_path
+
 def load_config(config_path = None):
     """加载配置
     :param str config_path: 配置文件路径
@@ -116,14 +132,8 @@ def load_config(config_path = None):
     """
     global _config
     if not _config:
-        if config_path:
-            _config = Config.load(config_path)
-        else:
-            if os.path.exists(Constants.CONFIG_PATH):
-                _config = Config.load(Constants.CONFIG_PATH)
-            else:
-                _config = Config.loads(yaml.safe_load(
-                    Constants.INIT_CONIFG_YML))
+        config_path = _get_config_path(config_path)
+        _config = Config.load(config_path)
 
     return _config
 

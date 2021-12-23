@@ -43,3 +43,6 @@ def test_list_key_val_to_dict():
     assert res == { 'name': 'wxnacy', 'key': 'True' }
 
 
+def test_get_current_module_path():
+    import os
+    assert utils.get_current_module_path() == os.getcwd() + '/wush'

@@ -8,6 +8,8 @@
 import os
 import random
 
+from .utils import get_current_module_path
+
 __all__ = ['Constants']
 
 INIT_CONIFG_YML = """
@@ -46,6 +48,10 @@ class Constants(object):
     SERVER_PORT = '6060'
     INIT_CONIFG_YML = INIT_CONIFG_YML
     INIT_CONIFG_TEXT = INIT_CONIFG_TEXT
+
+    @classmethod
+    def get_sys_config_path(cls):
+        return os.path.join(get_current_module_path(), 'config/config.yml')
 
     @classmethod
     def build_tmpfile(cls, prefix):

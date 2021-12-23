@@ -2,7 +2,9 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 
+from wush.common.utils import get_current_module_path
 from wush.config.config import Config
+from wush.config.config import _get_config_path
 from wush.config.models import ConfigModel
 from wush.config.models import ModuleModel
 from wush.config.models import RequestModel
@@ -36,6 +38,13 @@ def test_get_request():
     assert req_dict['id'] == 12
     #  assert req.params.id._value == 12
 
+def test_get_config_path():
+    import os
+    assert _get_config_path() == os.path.join(get_current_module_path(),
+            'config/config.yml')
+
+    _path = 'tests/data/config/config.yml'
+    assert _get_config_path(_path) == _path
 
 
 if __name__ == "__main__":
