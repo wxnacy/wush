@@ -66,9 +66,10 @@ def run_server(port=None):
     # 获取配置
     config = load_config()
     port = config.server_port
+    host = config.server_host
     # 如果端口还没有启动，则启动服务
-    if not telnet('0.0.0.0', port):
-        app.run(host = '0.0.0.0', port=port)
+    if not telnet(host, port):
+        app.run(host = host, port=port)
 
 if __name__ == "__main__":
     run_server()

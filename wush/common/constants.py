@@ -45,9 +45,11 @@ class Constants(object):
     CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.yml')
     HISTORY_PATH = os.path.expanduser('~/.wush_history')
     API_HISTORY_DIR = os.path.expanduser('~/.wush_api_history')
+    SERVER_HOST = 'localhost'
     SERVER_PORT = '6060'
     INIT_CONIFG_YML = INIT_CONIFG_YML
     INIT_CONIFG_TEXT = INIT_CONIFG_TEXT
+    CLOCK_FMT = '[耗时][{T:0.4f}s] {F}({A}, {K})'
 
     @classmethod
     def get_sys_config_path(cls):

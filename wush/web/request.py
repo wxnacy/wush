@@ -8,6 +8,9 @@ import requests
 import json
 from datetime import datetime
 
+from wpy.functools import clock
+
+from wush.common.constants import Constants
 from wush.common.loggers import get_logger
 from wush.config.models import RequestModel
 from wush.web.curl_utils import cUrl
@@ -97,6 +100,9 @@ class RequestClient(object):
         """发送请求"""
         params = self.builder.to_requests()
         self.logger.info('request builder %s', json.dumps(params, indent=4))
-        res = requests.request(**params)
+        res = self._request(**params)
         return ResponseClient(self.builder, res)
 
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
+    def _request(self, **params):
+        return requests.request(**params)

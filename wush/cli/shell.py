@@ -17,6 +17,7 @@ from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.history import FileHistory
 from wpy.argument import CommandArgumentParser
 from wpy.argument import CommandArgumentParserFactory
+from wpy.functools import clock
 
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
@@ -116,6 +117,7 @@ class Shell():
     def _end_run(self):
         self._prompt_default = ''
 
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def _run_once_time(self, text):
         """运行单次命令"""
         if not text:

@@ -166,12 +166,13 @@ class ModuleModel(Model):
 
 class ConfigModel(Model):
     """客户端全局配置模型"""
-    __all__ = ['api_history_dir','server_port']
+    __all__ = ['api_history_dir','server_port', 'server_host']
 
     modules = datatype.List(model = ModuleModel)
     env = datatype.Object(model = EnvModel)
     modules_include = datatype.List()
     server_port = datatype.Str(default = Constants.SERVER_PORT)
+    server_host = datatype.Str(default = Constants.SERVER_HOST)
     api_history_dir = datatype.Str(default = Constants.API_HISTORY_DIR)
 
     def format(self):
