@@ -92,3 +92,14 @@ def test_get_base_datatype():
     with pytest.raises(ValueError) as e:
         datatype.DataType.get_base_datatype(User)
         assert str(e) == 'User is not basetype'
+
+def test_clear():
+
+    d = datatype.Dict()
+    assert d.value() == {}
+    d.set_value({ "name": "wxnacy" })
+    assert d.value() == { "name": "wxnacy"  }
+    d.clear()
+    assert d.value() == {}
+
+

@@ -1,12 +1,12 @@
 name: 'module_test'
 requests:
-  - name: 'get_test'
+  - name: 'get_test2'
     title: 'get_test'
     path: /get_test
     params:
       name: 'get_test'
 
-  - name: 'post_test'
+  - name: 'post_test1'
     title: 'test'
     path: /test
     json:

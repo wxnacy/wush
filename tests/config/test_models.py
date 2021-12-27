@@ -9,6 +9,8 @@ from wush.config.models import ModuleModel
 from wush.config.models import RequestModel
 
 test_config_path = 'tests/data/config/config.yml'
+config = Config.load(test_config_path)
+_config = config._config
 
 def test_format():
     config = Config.load(test_config_path)
@@ -47,3 +49,19 @@ def test_auto_field():
     assert dict_data.get("name") == 'wxnacy'
     assert dict_data.get("age") == 1
     assert dict_data.get("page") == 1
+
+def test_get_request():
+    request = config.get_request('wush', 'test_get')
+    assert isinstance(request, RequestModel)
+    print(request.to_dict())
+
+    #  assert request.name == 'test_get'
+    #  assert request.path == '/test'
+    #  req_dict = request.to_dict()
+    #  assert req_dict.get("params") == { "id": 12 }
+    #  assert req_dict.get("json") == {}
+
+    #  assert request.name == 'test_post'
+    #  req_dict = request.to_dict()
+    #  assert req_dict.get("json") == { "id": 12 }
+    #  assert req_dict.get("params") == {}

@@ -33,6 +33,10 @@ class DataType(BaseObject):
         val = str(self.default()) if callable(self.default) else self.default
         return self._value or val or self._default
 
+    def clear(self):
+        """清空数据"""
+        self._value = None
+
     @property
     def _value_fmt(self):
         return f'{self.name}:{self._value}'

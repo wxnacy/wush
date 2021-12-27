@@ -5,6 +5,7 @@
 配置模型
 """
 import os
+from collections import defaultdict
 
 from wpy.base import BaseObject
 
@@ -46,8 +47,13 @@ class AutoFieldModel(Model):
     AUTO_FORMAT = True
     DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
 
+    #  def __new__(cls, *args, **kwargs):
+        #  cls.__datatype_fields__ = {}
+        #  return Model.__new__(cls, *args, **kwargs)
+
     def __init__(self, **kwargs):
         """对数据进行前置过滤"""
+        #  self.__class__.__datatype_fields__ = defaultdict(dict)
         for k, v in kwargs.items():
             v = self._format_value(v)
             kwargs[k] = v
@@ -132,6 +138,8 @@ class ModuleModel(Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for req in self.requests:
+            logger.info('test %s', req.to_dict())
         self.__req__ = {o.name: o for o in self.requests}
 
     def get_request(self, name):

@@ -25,8 +25,10 @@ class Model(BaseObject):
     # 对象是否已经进行过 format 操作
     __is_format__ = False
 
+
     def __init__(self, **kwargs):
-        #  self.__is_format__ = False
+        if self.DEFAULT_DATATYPE:
+            self.__clear_datatype_fields()
         self.__init_datatype_fields()
         super().__init__(**kwargs)
 
@@ -51,11 +53,20 @@ class Model(BaseObject):
     def __setattr__(self, key, value):
         #  """重载设置值的方法"""
         # 如果字段的默认模型存在，则设置值之前先添加 datatype
+        if key == 'id':
+            print(self.__dict__)
+            print(key, value)
+            print(self.__get_datatype_fields())
         if self.DEFAULT_DATATYPE:
             default_datatype = self.__build_default_datatype()
             self.__add_datatype_fields(**{ key: default_datatype })
+        if key == 'id':
+            print(self.__get_datatype_fields())
 
         super().__setattr__(key, value)
+        if key == 'id':
+            print(type(value), isinstance(value, datatype.DataType))
+            print('after', self.__dict__)
 
     @classmethod
     def __add_datatype_fields(cls, **kwargs):
@@ -84,6 +95,15 @@ class Model(BaseObject):
         for clz in classes:
             cls.__add_datatype_fields(**clz.__dict__)
 
+    @classmethod
+    def __clear_datatype_fields(cls):
+        '''获取默认 dict'''
+        classes = [cls]
+        # 兼容父类的 __dict__
+        #  classes.extend(cls.__bases__)
+        for clz in classes:
+            cls.__datatype_fields__[cls] = dict()
+
     def __build_default_datatype(self):
         """构建默认的 datatype"""
         return self.DEFAULT_DATATYPE
@@ -91,6 +111,8 @@ class Model(BaseObject):
     def format(self):
         """将 datatype 字段进行格式化处理"""
         self._format(self)
+        if self.__class__.__name__ == 'Json':
+            print('format to_dict', self.__dict__)
 
     def _format(self, model):
         """嵌套 format"""
@@ -123,6 +145,8 @@ class Model(BaseObject):
         # 校验
         dt_ins.valid()
         set_val = dt_ins.value()
+        # 清空数据
+        dt_ins.clear()
         setattr(model, field, set_val)
         # 嵌套 format
         if isinstance(set_val, Model):
@@ -134,17 +158,24 @@ class Model(BaseObject):
         将实例转为 dict 数据
         执行前需要保证实例已经执行过 format 方法或设置成员变量 AUTO_FORMAT=True
         """
+        print('------')
+        print('to_dict', self.__dict__)
+        print(self.__get_datatype_fields())
         return self._to_dict(self)
 
     @classmethod
     def _to_dict(cls, model):
         """对 Model 进行循环 to_dict 操作"""
+        if model.__class__.__name__ == 'Json':
+            print('format to_dict', model.__dict__)
         data = {}
         for key in model.__get_datatype_fields().keys():
             if not hasattr(model, key):
                 continue
+            print(key)
             origin_value = getattr(model, key)
             if isinstance(origin_value, Model):
+                print(origin_value.to_dict())
                 data[key] = origin_value.to_dict()
             else:
                 data[key] = origin_value

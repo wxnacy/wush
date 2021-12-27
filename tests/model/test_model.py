@@ -56,6 +56,7 @@ class Json(Model):
 class Request(Model):
     json = datatype.Object(model=Json)
 
+
 def test_to_dict():
     b = Book()
     b.age = 1
@@ -103,7 +104,6 @@ def test_default_datatype():
     assert m.name.value == 'wxnacy'
     assert m.name._type == str
 
-
     data = { "json": { "id": { "value": 1 }, "name": { "value": "wxnacy" } } }
     r = Request(**data)
     r.format()
@@ -121,3 +121,46 @@ def test_default_datatype():
     dd.format()
     assert dd.name == '1'
 
+    #  data = { "id": { "value": 12, "_type": int } }
+    #  m2 = Json( **data )
+    #  #  m2.id = { "value": 12, "_type": int }
+    #  m2.format()
+    #  assert m.to_dict() == { "id": { "value": 12, "_type": int } ,
+            #  "cust_field": "cust"}
+
+
+
+class InitTwo(Model):
+    AUTO_FORMAT = True
+
+    params = datatype.Dict()
+    json = datatype.Dict()
+
+class InitTwoGroup(Model):
+    AUTO_FORMAT = True
+
+    init_two = datatype.List(model = InitTwo)
+
+def test_format_field():
+
+    item = InitTwo(params = {"id": 12})
+    assert item.params == {"id": 12}
+    assert item.json == {}
+
+    item = InitTwo(json = {"id": 12})
+    assert item.json == {"id": 12}
+    assert item.params == {}
+
+    data = [
+            { "params": { "id": 12 } },
+            { "json": { "id": 12 } },
+            ]
+    item_group = InitTwoGroup(init_two = data)
+    assert item_group.init_two[0].params == {"id": 12}
+    assert item_group.init_two[0].json == {}
+
+    assert item_group.init_two[1].json == {"id": 12}
+    assert item_group.init_two[1].params == {}
+
+if __name__ == "__main__":
+    test_default_datatype()
