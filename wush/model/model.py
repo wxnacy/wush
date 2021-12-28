@@ -5,14 +5,13 @@
 基础模块
 """
 import json
-#  from collections import defaultdict
 
 from wpy.base import BaseObject
 from wush.model.datatype import DataType
 from wush.model.datatype import Object
 
 __FILTER_SET_FIELDS__ = set(('AUTO_FORMAT', 'DEFAULT_DATATYPE',
-    '__is_format__', '__datatype_fields__', '__datatype_dict__'))
+    '__is_format__',  '__datatype_dict__'))
 
 class Model(BaseObject):
 
@@ -27,28 +26,19 @@ class Model(BaseObject):
 
 
     def __init__(self, **kwargs):
+        # 初始化 __datatype_dict__
         self.__datatype_dict__ = {}
-        super().__init__(**kwargs)
         self.__add_datatype_dict__(**self.get_cls_datatype_dict())
+        super().__init__(**kwargs)
 
         # 将未赋值的字段设置为 None
         for key in self.__datatype_dict__.keys():
             if hasattr(self, key) and isinstance(getattr(self, key), DataType):
                 self.__dict__[key] = None
-                #  setattr(self, key, None)
 
         # 判断自动 format
         if self.AUTO_FORMAT:
             self.format()
-
-    def __is_need_format_setattr__(self, key, value):
-        """是否需要格式化 __setattr__"""
-        if not self.DEFAULT_DATATYPE:
-            return False
-        if key in __FILTER_SET_FIELDS__:
-            return False
-
-        return True
 
     def __setattr__(self, key, value):
         #  """重载设置值的方法"""
