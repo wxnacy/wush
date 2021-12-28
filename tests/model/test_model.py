@@ -121,12 +121,12 @@ def test_default_datatype():
     dd.format()
     assert dd.name == '1'
 
-    #  data = { "id": { "value": 12, "_type": int } }
-    #  m2 = Json( **data )
-    #  #  m2.id = { "value": 12, "_type": int }
-    #  m2.format()
-    #  assert m.to_dict() == { "id": { "value": 12, "_type": int } ,
-            #  "cust_field": "cust"}
+    data = { "id": { "value": 12, "_type": int } }
+    m2 = Json( **data )
+    #  m2.id = { "value": 12, "_type": int }
+    m2.format()
+    assert m2.dict() == { "id": {  "value": 12, "_type": int, 'doc': '' } ,
+            "cust_field": "cust"}
 
 
 
