@@ -38,6 +38,17 @@ def test_get_request():
     assert req_dict['id'] == 12
     #  assert req.params.id._value == 12
 
+    test_req = test_config.get_request(module_name, 'test')
+    assert test_req.json.id._value == 12
+    assert test_req.json.type._value == 0
+    assert test_req.json.name._value == ''
+    assert test_req.json.biz_id._value == 1234
+    data = test_req.dict()
+    assert data['json']['id'] == 12
+    assert data['json']['type'] == 0
+    assert data['json']['name'] == ''
+    assert data['json']['biz_id'] == 1234
+
 def test_get_config_path():
     import os
     #  assert _get_config_path() == os.path.join(get_current_module_path(),

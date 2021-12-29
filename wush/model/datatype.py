@@ -31,7 +31,10 @@ class DataType(BaseObject):
     def value(self):
         """获取数据"""
         val = str(self.default()) if callable(self.default) else self.default
-        return self._value or val or self._default
+        # 只有等 None 的时候才会返回默认值
+        if self._value == None:
+            return val or self._default
+        return self._value # or val or self._default
 
     def clear(self):
         """清空数据"""
@@ -132,7 +135,7 @@ class Object(DataType):
 
     def value(self):
         """获取数据"""
-        if self.model and self._value:
+        if self.model and self._value != None:
             # 对于已经格式化的数据不再重复执行
             if isinstance(self._value, self.model):
                 return self._value

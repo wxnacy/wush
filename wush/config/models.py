@@ -47,13 +47,9 @@ class AutoFieldModel(Model):
     AUTO_FORMAT = True
     DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
 
-    #  def __new__(cls, *args, **kwargs):
-        #  cls.__datatype_fields__ = {}
-        #  return Model.__new__(cls, *args, **kwargs)
 
     def __init__(self, **kwargs):
         """对数据进行前置过滤"""
-        #  self.__class__.__datatype_fields__ = defaultdict(dict)
         for k, v in kwargs.items():
             v = self._format_value(v)
             kwargs[k] = v
@@ -85,10 +81,6 @@ class AutoFieldModel(Model):
             # 如果结构不对，则进行结构转换
             v = { "_value": v, "_data_type": type(v) }
         return v
-
-    #  def __setattr__(self, key, value):
-        #  value = self._format_value(value)
-        #  super().__setattr__(key, value)
 
 
 class RequestModel(Model):

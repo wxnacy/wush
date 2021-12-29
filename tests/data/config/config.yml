@@ -19,6 +19,19 @@ modules:
         json:
           id: 12
 
+      - name: 'test'
+        title: 'wush 测试接口 POST'
+        method: 'post'
+        path: '/test'
+        json:
+          id: 12
+          type: 0
+          name: ''
+          biz_id:
+            _doc: '项目id'
+            _value: '1234'
+            _data_type: int
+
   - name: 'api_github'
     protocol: 'https'
     domain: 'api.github.com'

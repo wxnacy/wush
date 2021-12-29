@@ -33,7 +33,8 @@ class Model(BaseObject):
 
         # 将未赋值的字段设置为 None
         for key in self.__datatype_dict__.keys():
-            if hasattr(self, key) and isinstance(getattr(self, key), DataType):
+            if key not in kwargs:
+            #  if hasattr(self, key) and isinstance(getattr(self, key), DataType):
                 self.__dict__[key] = None
 
         # 判断自动 format
