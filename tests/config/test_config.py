@@ -43,11 +43,13 @@ def test_get_request():
     assert test_req.json.type._value == 0
     assert test_req.json.name._value == ''
     assert test_req.json.biz_id._value == 1234
+    assert test_req.json.is_sync._value == False
     data = test_req.dict()
     assert data['json']['id'] == 12
     assert data['json']['type'] == 0
     assert data['json']['name'] == ''
     assert data['json']['biz_id'] == 1234
+    assert data['json']['is_sync'] == False
 
 def test_get_config_path():
     import os

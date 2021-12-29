@@ -27,6 +27,7 @@ modules:
           id: 12
           type: 0
           name: ''
+          is_sync: false
           biz_id:
             _doc: '项目id'
             _value: '1234'
