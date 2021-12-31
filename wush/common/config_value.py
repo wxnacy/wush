@@ -8,10 +8,54 @@
 import json
 import os
 import re
+from functools import singledispatch
 
 from wpy.files import FileUtils
 from wush.common.loggers import create_logger
 from wush.model import Model
+
+_REG_ENV = r'(\${.*?})'
+
+
+@singledispatch
+def environ_keys(text):
+    """获取环境变量 keys"""
+    return []
+
+@environ_keys.register(str)
+def _(text):
+    lines = re.findall(_REG_ENV, text)
+    return set(o[2:-1] for o in lines)
+
+@environ_keys.register(dict)
+def _(data):
+    res = set()
+    for key, value in data.items():
+        for name in environ_keys(key):
+            if name not in res:
+                res.add(name)
+        for name in environ_keys(value):
+            if name not in res:
+                res.add(name)
+    return res
+
+@environ_keys.register(list)
+def _(data):
+    res = set()
+    for line in data:
+        for name in environ_keys(line):
+            if name not in res:
+                res.add(name)
+    return res
+
+@environ_keys.register(Model)
+def _(model):
+    res = set()
+    for value in model.dict().values():
+        for name in environ_keys(value):
+            if name not in res:
+                res.add(name)
+    return res
 
 class ConfigValue():
     logger = create_logger('ConfigValue')

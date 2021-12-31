@@ -6,6 +6,7 @@
 """
 
 from wush.common.config_value import ConfigValue
+from wush.common.config_value import environ_keys
 from wush.config.function import FunctionFactory
 from wush.config.models import EnvModel
 
@@ -56,3 +57,28 @@ def test_format_environ():
     text = '${test()}'
     res = ConfigValue(text).set_functions(**env_functions).format()
     assert res == '(None, None)'
+
+def test_environ_keys():
+    text = '${name} ${test()} ${name}'
+    keys = environ_keys(text)
+    assert keys == {'name', 'test()'}
+
+    data = {
+            '${name}': '${value}',
+            'data': {
+                "name": "${test()}"
+            },
+            'list': [
+                '${name}',
+                '${id}',
+                ]
+            }
+    keys = environ_keys(data)
+    assert keys == {'name', 'value', 'test()', 'id'}
+
+    u = User()
+    u.name = '${test_name}'
+    u.params = { "name": "${name}" }
+    u.domains = ['${domain}']
+
+    assert environ_keys(u) == { 'test_name', 'name', 'domain'}
