@@ -13,6 +13,7 @@ from wush.common.constants import Constants
 from wush.common.utils import run_shell
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
+from wush.common.config_value import environ_keys
 from wush.config import load_config
 from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
@@ -40,6 +41,8 @@ class RunArgumentParser(CmdArgumentParser):
             help='请求地址参数')
         item.add_argument('--json', action = Action.APPEND.value,
             help='请求 body 参数，json 格式')
+        item.add_argument('--env', action = Action.APPEND.value,
+            help='传递环境变量')
         item.add_argument('--open', action = Action.STORE_TRUE.value,
             help = '是否通过浏览器打开请求结果')
         item.add_argument('--curl', action = Action.STORE_TRUE.value,
@@ -85,10 +88,24 @@ class RunArgumentParser(CmdArgumentParser):
             request = self.config.get_request(arg.module, arg.name)
             words = self._dict_to_completions(request.json.to_dict())
             return words
+        elif word_for_completion == '--env':
+            # 环境变量
+            # 使用当前请求的环境变量 keys 做补全
+            request = self.config.get_request(arg.module, arg.name,
+                    set_env=False)
+            keys = environ_keys(request)
+            self.logger.info(request.path)
+            self.logger.info(
+                f'request {arg.module} {arg.name} environ_keys {keys}')
+            data = { f"{o}": "" for o in keys }
+
+            words = self._dict_to_completions(data)
+            return words
 
         return super().get_completions_after_argument(word_for_completion)
 
     def _dict_to_completions(self, data):
+        """字典转为自动补全信息"""
         words = []
         for k, v in data.items():
             words.append(dict(
@@ -126,10 +143,13 @@ class RunArgumentParser(CmdArgumentParser):
         """获取请求构造体"""
         params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
+        environs = utils.list_key_val_to_dict(args.env or [])
         self.logger.info('arg params %s', params)
         self.logger.info('arg json %s', json_data)
+        self.logger.info('arg env %s', environs)
 
-        request_model = self.config.get_request(args.module, args.name)
+        request_model = self.config.get_request(args.module, args.name,
+                environs = environs)
         request_model.add_params(**params)
         # TODO 对 json 进行解析
 

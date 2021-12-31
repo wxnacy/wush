@@ -6,6 +6,7 @@
 """
 import os
 import yaml
+import copy
 
 from wush.common import utils
 from wush.common.config_value import ConfigValue
@@ -93,14 +94,21 @@ class Config(object):
         """获取请求列表"""
         return self._config.get_module(module_name).requests
 
-    def get_request(self, module_name, request_name):
-        """获取请求模型"""
+    def get_request(self, module_name, request_name, set_env=True, environs=None):
+        """获取请求模型
+        :param bool set_env: 是否设置环境变量
+        :param dict environs: 编辑变量
+        """
         req = self._config.get_module(module_name).get_request(request_name)
+        req = copy.deepcopy(req)
         env = self._config.env.to_dict()
+        if isinstance(environs, dict):
+            env.update(environs)
         self.logger.info('config env {}'.format(env))
 
         # 将请求模型做环境变量格式化处理并返回
-        req = ConfigValue(req).set_env(**env).format()
+        if set_env:
+            req = ConfigValue(req).set_env(**env).format()
         req.format()
         return req
 
