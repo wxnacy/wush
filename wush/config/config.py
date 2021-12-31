@@ -59,6 +59,8 @@ class Config(object):
         ins._config = ConfigModel(**data)
 
         # 对模块地址进行解析
+        if not ins._config.modules:
+            ins._config.modules = []
         for module_path in ins._config.iter_module_path():
             module = cls.read_yml(module_path)
             ins._config.modules.append(module)

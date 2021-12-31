@@ -22,9 +22,12 @@ class ProtocolEnum(BaseEnum):
 
 class HeaderEnum(BaseEnum):
     CONTENT_TYPE = 'Content-Type'
+    CONTENT_LENGTH = 'Content-Length'
+    LOCATION = 'Location'
 
 class ContentTypeEnum(BaseEnum):
     APPLICATION_JSON = 'application/json'
+    TEXT_HTML = 'text/html'
 
 class RequestsParamsEnum(BaseEnum):
     METHOD = 'method'

@@ -101,7 +101,13 @@ class RequestClient(object):
         params = self.builder.to_requests()
         self.logger.info('request builder %s', json.dumps(params, indent=4))
         res = self._request(**params)
-        return ResponseClient(self.builder, res)
+        res_client = ResponseClient(self.builder, res)
+        if res_client.status_code in (301, 302):
+            url = res_client.location
+            res = self._request(url = url)
+            res_client = ResponseClient(self.builder, res)
+
+        return res_client
 
     @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def _request(self, **params):

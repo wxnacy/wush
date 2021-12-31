@@ -27,13 +27,14 @@ class Command(object):
     def __init__(self, *args, **kwargs):
         if not os.path.exists(Constants.TMPDIR):
             os.makedirs(Constants.TMPDIR)
-        self.config = load_config()
+        #  self.config = load_config()
 
     #  @profile
     def run(self):
         RUN_MODE.set_command()
         parser = init_argparse()
         args = parser.parse_args()
+        self.config = load_config(args.config)
         self.config.module_name = args.module
         self.config.space_name = args.space
         cmd = args.cmd

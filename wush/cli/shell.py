@@ -54,8 +54,8 @@ class Shell():
 
     def __init__(self):
         self.parser = self._get_parser()
-        self.config = load_config()
         #  args = init_argparse().parse_args()
+        self.config = load_config()
         self.session = PromptSession(
             completer=CommandCompleter(self.parser),
             # 设置历史记录文件

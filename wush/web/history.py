@@ -36,7 +36,6 @@ class HistoryModel(BaseObject):
         return FileUtils.read_dict(filepath)
 
 
-
 class History(object):
 
     def __init__(self, *args, **kwargs):
@@ -48,10 +47,11 @@ class History(object):
         h._id = h.version
         h.request = response_client.request_builder.to_dict()
         res = {
-            'is_json': response_client.is_json(),
-            'json': response_client.json(),
+            'is_json': response_client.is_json,
             'text': response_client.text
         }
+        if response_client.is_json:
+            res['json'] = response_client.json()
         h.response = res
         h.save(self.config.api_history_dir)
 

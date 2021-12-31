@@ -41,6 +41,15 @@ class ResponseClient(BaseObject):
     def content_type(self):
         return self.headers[HeaderEnum.CONTENT_TYPE.value]
 
+    @property
+    def location(self):
+        return self.headers[HeaderEnum.LOCATION.value]
+
+    @property
+    def is_html(self):
+        return ContentTypeEnum.TEXT_HTML.value in self.content_type
+
+    @property
     def is_json(self):
         """判断结果是否为 json 格式"""
         if ContentTypeEnum.APPLICATION_JSON.value in self.content_type:
@@ -52,7 +61,7 @@ class ResponseClient(BaseObject):
 
     def save(self, savepath=None):
         """保存"""
-        if self.is_json():
+        if self.is_json:
             with open(savepath, 'w') as f:
                 f.write(json.dumps(self.json(), indent=4))
         else:
@@ -60,7 +69,7 @@ class ResponseClient(BaseObject):
                 f.write(self.content)
 
     def print(self):
-        if self.is_json():
+        if self.is_json:
             print(json.dumps(self.json(), indent=4))
         else:
             print(self.text)

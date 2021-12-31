@@ -136,6 +136,9 @@ class RunArgumentParser(CmdArgumentParser):
 
         req_client = RequestClient(builder)
         res = req_client.request()
+        if res.is_html:
+            self._print('See in browser')
+            self._open_url(res.url)
         res.print()
         History().save(res)
 
@@ -183,6 +186,11 @@ class RunArgumentParser(CmdArgumentParser):
         self._print('Status: {}'.format(res.status_code))
 
         History().save(res)
+        # 判断是否为 html 结果
+        if res.is_html:
+            self._print('See in browser')
+            self._open_url(res.url)
+
         if args.open:
             self._print('See in browser')
             self._open(builder.version)
@@ -195,4 +203,7 @@ class RunArgumentParser(CmdArgumentParser):
         port = self.config.server_port
         url = f"http://localhost:{port}/api/version/{version}"
         # TODO 适配更多系统
+        self._open_url(url)
+
+    def _open_url(self, url):
         os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')

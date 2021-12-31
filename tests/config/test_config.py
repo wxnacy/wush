@@ -15,6 +15,11 @@ test_config = Config.load(test_config_path)
 module_name = 'wush'
 request_name = 'test_get'
 
+def test_config_init():
+    _config = ConfigModel()
+    _config.format()
+    assert _config.modules == []
+
 def test_load():
     #  assert test_config._config_dir == 'tests/data/config'
     assert len(test_config._config.modules) == 4
