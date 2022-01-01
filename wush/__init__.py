@@ -5,4 +5,6 @@
 
 """
 
-__all__ = []
+from .cli.run import run
+
+__all__ = ['run']

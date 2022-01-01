@@ -37,6 +37,9 @@ def init_argparse():
     parser.add_argument('-m', '--module', help='Module name')
     parser.add_argument('-n', '--name', help='Request name')
     parser.add_argument('-s', '--space', help='Space name')
+    parser.add_argument('--params', help='GET 请求参数')
+    parser.add_argument('--env', help='GET 请求参数')
+    parser.add_argument('--json', help='GET 请求参数')
     parser.add_argument('-O', '--open', action='store_true',
             help='打开浏览器')
     parser.add_argument('--init', action='store_true',

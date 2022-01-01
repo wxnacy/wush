@@ -100,7 +100,6 @@ class cUrl(object):
                 continue
             texts.append(line)
         text = ''.join(texts)
-        print(text)
         return cls.dumps(text)
 
     @classmethod

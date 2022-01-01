@@ -48,7 +48,6 @@ class Command(object):
         # 判断 cmd 是否为 url 格式
         if re.match(r'^https?:/{2}\w.+$', cmd):
             args_text = 'run ' + args_text.replace(cmd, f'--url {cmd}')
-            #  print(args_text)
             cmd = 'run'
 
         parser = CommandArgumentParserFactory.build_parser(cmd)
