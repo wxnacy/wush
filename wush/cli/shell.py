@@ -29,22 +29,6 @@ from .exceptions import ContinueException
 from .exceptions import CommnadNotFoundException
 from .server import run_server
 
-#  def init_argparse():
-    #  """初始化参数"""
-    #  parser = argparse.ArgumentParser(description='Wush command',)
-    #  parser.add_argument('cmd', help='You can use run, body, env, module')
-    #  parser.add_argument('-c', '--config', help='Config dir name')
-    #  parser.add_argument('-m', '--module', help='Module name')
-    #  parser.add_argument('-n', '--name', help='Request name')
-    #  parser.add_argument('-s', '--space', help='Space name')
-    #  parser.add_argument('--params', help='GET 请求参数')
-    #  parser.add_argument('--env', help='GET 请求参数')
-    #  parser.add_argument('--json', help='GET 请求参数')
-    #  parser.add_argument('-O', '--open', action='store_true',
-            #  help='打开浏览器')
-    #  parser.add_argument('--init', action='store_true',
-            #  help='初始化')
-    #  return parser
 
 class Shell():
     logger = create_logger('Shell')

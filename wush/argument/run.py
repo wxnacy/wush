@@ -115,8 +115,9 @@ class RunArgumentParser(CmdArgumentParser):
                 display_meta=''))
         return words
 
-    def _run_command(self, args):
+    def run_command(self, text):
         """运行命令行模式"""
+        args = self.parse_args(text)
         # curl 模式下打开一个文件并输入文本供后续使用
         builder = RequestBuilder()
         if args.curl:
@@ -155,18 +156,14 @@ class RunArgumentParser(CmdArgumentParser):
         request_model = self.config.get_request(args.module, args.name,
                 environs = environs)
         request_model.add_params(**params)
-        # TODO 对 json 进行解析
+        request_model.add_json(**json_data)
 
         builder = RequestBuilder.loads_request_model(request_model,
             args.with_browser_cookie)
         return builder
 
-    def run(self, text):
+    def run_shell(self, text):
         args = self.parse_args(text)
-        # 判断运行模式
-        if RUN_MODE.is_command:
-            self._run_command(args)
-            return
 
         if not args.name:
             raise Exception

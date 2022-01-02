@@ -12,23 +12,29 @@ class ModeEnum(BaseEnum):
     SHELL = 'shell'
 
 class RunMode(object):
-    name = 'run_mode'
-    value = None
+    #  name = 'run_mode'
+    _mode = None
+
+    @property
+    def mode(self):
+        """模式"""
+        return self._mode
 
     @property
     def is_command(self):
         """是否为命令模式"""
-        return self.value == ModeEnum.COMMAND.value
+        return self._mode == ModeEnum.COMMAND.value
 
     @property
     def is_shell(self):
         """是否为 shell 模式"""
-        return self.value == ModeEnum.SHELL.value
+        return self._mode == ModeEnum.SHELL.value
 
     def set_command(self):
-        self.value = ModeEnum.COMMAND.value
+        self._mode = ModeEnum.COMMAND.value
 
     def set_shell(self):
-        self.value = ModeEnum.SHELL.value
+        self._mode = ModeEnum.SHELL.value
+
 
 RUN_MODE = RunMode()

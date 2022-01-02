@@ -5,7 +5,7 @@
 配置模型
 """
 import os
-from collections import defaultdict
+#  from collections import defaultdict
 
 from wpy.base import BaseObject
 
@@ -113,6 +113,16 @@ class RequestModel(Model):
             setattr(self.params, k, v)
         self.params.format()
 
+    def add_json(self, **kwargs):
+        """添加 params 参数"""
+        for k, v in kwargs.items():
+            origin_value = None
+            if hasattr(self.json, k):
+                origin_value = getattr(self.json, k)
+                v = origin_value._data_type(v)
+            v = self.json._format_value(v)
+            setattr(self.json, k, v)
+        self.json.format()
 
 class ModuleModel(Model):
     AUTO_FORMAT = True

@@ -4,10 +4,10 @@
 """
 
 """
-import abc
+#  import abc
 import pygments
 
-from pygments.token import Token
+#  from pygments.token import Token
 from pygments.lexers.python import PythonLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
@@ -15,18 +15,19 @@ from prompt_toolkit import print_formatted_text
 from wpy.argument import CommandArgumentParser
 
 from wush.common.loggers import create_logger
+from wush.common.run_mode import RUN_MODE
 from wush.config import load_config
 
 class CmdArgumentParser(CommandArgumentParser):
     logger = create_logger('CmdArgumentParser')
-    prompt_session = None
+    #  prompt_session = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config = load_config()
 
-    def set_prompt_session(self, client):
-        self.prompt_session = client
+    #  def set_prompt_session(self, client):
+        #  self.prompt_session = client
 
     def get_completions_after_argument(self, word_for_completion):
         """
@@ -65,3 +66,11 @@ class CmdArgumentParser(CommandArgumentParser):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))
         print_formatted_text(PygmentsTokens(tokens), end='')
 
+    def run(self, text):
+        func_name = f'run_{RUN_MODE.mode}'
+        try:
+            func = getattr(self, func_name)
+        except:
+            return
+
+        func(text)
