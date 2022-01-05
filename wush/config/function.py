@@ -18,8 +18,19 @@ from wush.common.loggers import get_logger
 
 logger = get_logger('function')
 
+__all__ = ['FunctionFactory']
+
 class FunctionFactory(BaseFactory):
-    pass
+
+    @classmethod
+    def get_super_factory(cls):
+        factory = cls.get_factory()
+        _super_factory = {}
+        for key, value in factory.items():
+            module = value.__module__
+            if module.startswith('wush'):
+                _super_factory[key] = value
+        return _super_factory
 
 @FunctionFactory.register()
 def random_int(length, min_int=None, max_int=None):
@@ -112,6 +123,17 @@ def load_super_function():
     """加载 super function"""
     global _super_function
     if not _super_function:
-        _super_function = Function(FunctionFactory.get_factory())
+        _super_function = Function(FunctionFactory.get_super_factory())
     return _super_function
 
+
+_function = None
+def load_function():
+    """加载全部 function"""
+    global _function
+    if not _function:
+        _function = Function(FunctionFactory.get_factory())
+    return _function
+
+if __name__ == "__main__":
+    load_super_function()

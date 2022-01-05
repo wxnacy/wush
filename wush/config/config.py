@@ -8,13 +8,13 @@ import os
 import yaml
 import copy
 
-from wush.common import utils
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
 from wush.common.loggers import get_logger
+from wush.common.utils import load_module
 from wush.config.models import ConfigModel
 from wush.config.models import EnvModel
-from wush.config.function import load_super_function
+from wush.config.function import load_function
 
 __all__ = ['load_config']
 
@@ -67,9 +67,12 @@ class Config(object):
 
         # 格式化模型
         ins._config.format()
+        # 加载插件模块
+        for module_name in ins._config.function_modules:
+            load_module(module_name)
 
         # 加载方法
-        ins._function = load_super_function()
+        ins._function = load_function()
 
         for key in ConfigModel.__all__:
             setattr(ins, key, getattr(ins._config, key))

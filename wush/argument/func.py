@@ -5,8 +5,13 @@
 run 命令的参数解析
 """
 
+from csarg import Action
 from csarg import CommandArgumentParserFactory
+from inspect import getargspec
+
+from wush.common.utils import list_key_val_to_dict
 from wush.common.loggers import create_logger
+from wush.config.function import load_function
 from .command import CmdArgumentParser
 
 
@@ -23,9 +28,12 @@ class FuncArgumentParser(CmdArgumentParser):
         item = cls()
         item.add_argument('cmd')
         item.add_argument('--doc', help='展示方法的文档信息')
+        item.add_argument('--exec', help='执行方法')
+        item.add_argument('--params', action = Action.APPEND.value,
+            help='请求参数')
         return item
 
-    def run(self, text):
+    def run_shell(self, text):
         functions = self.config.function.get_functions()
         args = self.parse_args(text)
         # 打印方法的文档
@@ -33,6 +41,14 @@ class FuncArgumentParser(CmdArgumentParser):
             for k, v in functions.items():
                 if args.doc == k:
                     self._print(getattr(v, '__doc__'))
+            return
+
+        if args.exec:
+            func_name = args.exec
+            func = functions.get(func_name)
+            params = list_key_val_to_dict(args.params or [])
+            res = func(**params)
+            print(res)
             return
 
         # 方法名的最大长度
@@ -65,12 +81,53 @@ class FuncArgumentParser(CmdArgumentParser):
         words = []
         if not self.argument:
             return words
+        arg = self.argument
         if word_for_completion == '--doc':
             # 自动补全返回方法名列表
-            functions = self.config.function.get_functions()
+            functions = load_function().get_functions()
             words = []
             for name, func in functions.items():
                 words.append(dict( text = name,
                     display_meta=self._get_short_doc(func)))
             return words
+        elif word_for_completion == '--exec':
+            # 执行方法的自动补全
+            functions = load_function().get_functions()
+            words = []
+            for name, func in functions.items():
+                argspec = getargspec(func)
+                arg_text = ', '.join(argspec.args)
+                if argspec.varargs:
+                    arg_text += f', *{argspec.varargs}'
+                if argspec.keywords:
+                    arg_text += f', **{argspec.keywords}'
+                text = f'{name}({arg_text})'
+                words.append(dict( text = name,
+                    display = text,
+                    display_meta=self._get_short_doc(func)))
+            return words
+
+        elif word_for_completion == '--params':
+            # 参数
+            functions = load_function().get_functions()
+            params = {}
+            for name, func in functions.items():
+                if name != arg.exec:
+                    continue
+                argspec = getargspec(func)
+                for arg_name in argspec.args:
+                    params[arg_name] = ''
+            words = self._dict_to_completions(params)
+            return words
+
         return super().get_completions_after_argument(word_for_completion)
+
+    def _dict_to_completions(self, data):
+        """字典转为自动补全信息"""
+        words = []
+        for k, v in data.items():
+            words.append(dict(
+                text = '{}='.format(k),
+                display = '{}={}'.format(k, v),
+                display_meta=''))
+        return words

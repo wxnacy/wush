@@ -181,6 +181,7 @@ class ConfigModel(Model):
     modules = datatype.List(model = ModuleModel)
     env = datatype.Object(model = EnvModel)
     modules_include = datatype.List()
+    function_modules = datatype.List()
     server_port = datatype.Str(default = Constants.SERVER_PORT)
     server_host = datatype.Str(default = Constants.SERVER_HOST)
     api_history_dir = datatype.Str(default = Constants.API_HISTORY_DIR)

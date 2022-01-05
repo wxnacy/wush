@@ -33,6 +33,7 @@ REQUIRED = [
     'prompt_toolkit',
     'flask',
     'rich',
+    'csarg',
     'wpy',
 ]
 

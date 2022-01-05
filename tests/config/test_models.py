@@ -55,13 +55,14 @@ def test_get_request():
     assert isinstance(request, RequestModel)
     print(request.to_dict())
 
-    #  assert request.name == 'test_get'
-    #  assert request.path == '/test'
-    #  req_dict = request.to_dict()
-    #  assert req_dict.get("params") == { "id": 12 }
-    #  assert req_dict.get("json") == {}
+    assert request.name == 'test_get'
+    assert request.path == '/test'
+    req_dict = request.to_dict()
+    assert req_dict.get("params") == { "id": 12 }
+    assert req_dict.get("json") == {}
 
-    #  assert request.name == 'test_post'
-    #  req_dict = request.to_dict()
-    #  assert req_dict.get("json") == { "id": 12 }
-    #  assert req_dict.get("params") == {}
+    request = config.get_request('wush', 'test_post')
+    assert request.name == 'test_post'
+    req_dict = request.to_dict()
+    assert req_dict.get("json") == { "id": 12 }
+    assert req_dict.get("params") == {}
