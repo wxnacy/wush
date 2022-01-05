@@ -9,7 +9,7 @@ import sys
 import os
 import re
 
-from wpy.argument import CommandArgumentParserFactory
+from csarg import CommandArgumentParserFactory
 
 from wush.argument.command import CmdArgumentParser
 from wush.common.constants import Constants

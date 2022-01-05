@@ -5,7 +5,7 @@
 run 命令的参数解析
 """
 
-from wpy.argument import CommandArgumentParserFactory
+from csarg import CommandArgumentParserFactory
 from wush.common.loggers import create_logger
 from .command import CmdArgumentParser
 

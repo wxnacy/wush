@@ -5,8 +5,8 @@
 run 命令的参数解析
 """
 import os
-from wpy.argument import Action
-from wpy.argument import CommandArgumentParserFactory
+from csarg import Action
+from csarg import CommandArgumentParserFactory
 
 from wush.common import utils
 from wush.common.constants import Constants
@@ -53,8 +53,6 @@ class RunArgumentParser(CmdArgumentParser):
             help = '是否使用 curl 文本')
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
-
-        item.config = load_config()
 
         return item
 

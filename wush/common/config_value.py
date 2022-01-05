@@ -10,7 +10,7 @@ import os
 import re
 from functools import singledispatch
 
-from wpy.files import FileUtils
+from wpy.path import read_dict
 from wush.common.loggers import create_logger
 from wush.model import Model
 
@@ -164,7 +164,7 @@ class ConfigValue():
             text = text[len(parse_type) + 1:]
             if self._is_file(text):
                 if parse_type == 'json':
-                    return FileUtils.read_dict(text)
+                    return read_dict(text)
             else:
                 if parse_type == 'json':
                     return json.loads(text)
@@ -181,14 +181,14 @@ class ConfigValue():
     def _format_file_content(self, filepath):
         '''格式化文件内容'''
         if filepath.endswith('.json') or filepath.endswith('.yml'):
-            return FileUtils.read_dict(filepath)
+            return read_dict(filepath)
 
         with open(filepath, 'r') as f:
             lines = f.readlines()
             if not lines:
                 return ''
             if lines[0].startswith('{') and lines[-1].endswith('}'):
-                return FileUtils.read_dict(filepath)
+                return read_dict(filepath)
             return ''.join(lines)
 
     def _is_file(self, filepath):

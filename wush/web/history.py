@@ -6,7 +6,9 @@
 
 import os
 from wpy.base import BaseObject
-from wpy.files import FileUtils
+from wpy.path import (
+    read_dict, write_dict
+)
 
 from wush.config import load_config
 from wush.web.response import ResponseClient
@@ -26,14 +28,14 @@ class HistoryModel(BaseObject):
         if not os.path.exists(dirname):
             os.mkdir(dirname)
         filepath = os.path.join(dirname, self.version)
-        FileUtils.write_dict(filepath, self.to_dict())
+        write_dict(filepath, self.to_dict())
 
     @classmethod
     def find_one(cls, version, dirname):
         if not os.path.exists(dirname):
             os.mkdir(dirname)
         filepath = os.path.join(dirname, version)
-        return FileUtils.read_dict(filepath)
+        return read_dict(filepath)
 
 
 class History(object):

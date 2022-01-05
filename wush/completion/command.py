@@ -7,7 +7,7 @@
 
 from prompt_toolkit.completion import Completion
 
-from wpy.argument import CommandArgumentParserFactory
+from csarg import CommandArgumentParserFactory
 from .base import BaseCompleter
 from .word import WordCompleter
 from .filesystem import ExecutableCompleter

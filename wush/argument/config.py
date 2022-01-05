@@ -7,8 +7,8 @@ run 命令的参数解析
 import os
 import shutil
 
-from wpy.argument import CommandArgumentParserFactory
-from wpy.argument import Action
+from csarg import CommandArgumentParserFactory
+from csarg import Action
 
 from wush.common.constants import Constants
 from .command import CmdArgumentParser
