@@ -15,11 +15,19 @@ __all__ = ['run']
 
 def run(module_name, request_name, **kwargs):
     params = kwargs.get("params", {})
+    env = kwargs.get("env", {})
+    json_data = kwargs.get("json", {})
     config = kwargs.get("config")
     cmd = f'wush run --module {module_name} --name {request_name}'
     if params:
         for key, value in params.items():
             cmd += f' --params {key}={value}'
+    if env:
+        for key, value in env.items():
+            cmd += f' --env {key}={value}'
+    if json_data:
+        for key, value in json_data.items():
+            cmd += f' --json {key}={value}'
     if config:
         cmd += f' --config {config}'
     logger.info(f'run cmd {cmd}')
@@ -40,6 +48,5 @@ def run(module_name, request_name, **kwargs):
 
 if __name__ == "__main__":
     res = run('wush', 'test_get', params={"age": 1})
-    print(res)
 
 

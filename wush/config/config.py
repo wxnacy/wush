@@ -113,7 +113,8 @@ class Config(object):
 
         # 将请求模型做环境变量格式化处理并返回
         if set_env:
-            req = ConfigValue(req).set_env(**env).format()
+            req = ConfigValue(req).set_env(**env).set_functions(
+                **self.function.get_functions()).format()
         req.format()
         return req
 

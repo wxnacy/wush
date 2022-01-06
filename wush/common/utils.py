@@ -49,7 +49,7 @@ def list_key_val_to_dict(data):
     res = {}
     for item in data:
         if '=' in item:
-            k, v = item.split('=')
+            k, v = item.split('=', 1)
             res[k] = v
     return res
 
