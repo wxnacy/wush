@@ -5,9 +5,9 @@
 run 命令的参数解析
 """
 
-from .parse import ArgumentParser
+from .command import CmdArgumentParser
 
-class DefaultArgumentParser(ArgumentParser):
+class DefaultArgumentParser(CmdArgumentParser):
     cmd = 'default'
 
     @classmethod

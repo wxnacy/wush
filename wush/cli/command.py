@@ -9,6 +9,9 @@ import os
 import re
 
 from csarg import CommandArgumentParserFactory
+from wpy.path import walkfile
+from wush.common.utils import get_current_module_path
+from wush.common.utils import load_module
 
 from wush.argument.command import CmdArgumentParser
 from wush.common.constants import Constants
@@ -25,6 +28,14 @@ class Command(object):
         # 初始化创建临时文件目录
         if not os.path.exists(Constants.TMPDIR):
             os.makedirs(Constants.TMPDIR)
+
+        # 动态加载参数解析器模板
+        argument_dir = os.path.join(get_current_module_path(), 'argument')
+        for name in os.listdir(argument_dir):
+            if not name.endswith('.py'):
+                continue
+            module = f'wush.argument.{name[:-3]}'
+            load_module(module)
 
     def convert_argparse(self, cmd):
         """转换参数解析器"""
