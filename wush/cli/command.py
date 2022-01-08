@@ -21,12 +21,13 @@ __all__ = ['Command']
 class Command(object):
     logger = create_logger('Command')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
+        # 初始化创建临时文件目录
         if not os.path.exists(Constants.TMPDIR):
             os.makedirs(Constants.TMPDIR)
 
     def convert_argparse(self, cmd):
-
+        """转换参数解析器"""
         for clz in CmdArgumentParser.__subclasses__():
             if clz.cmd == cmd:
                 return clz.default()
@@ -61,6 +62,5 @@ class Command(object):
         if hasattr(args, 'space'):
             self.config.space_name = args.space
 
-        if isinstance(parser, CmdArgumentParser):
-            parser.run(args_text)
+        parser.run(args_text)
 
