@@ -54,6 +54,8 @@ class RunArgumentParser(CmdArgumentParser):
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
 
+        item.config = load_config()
+
         return item
 
     def get_completions_after_argument(self, word_for_completion):
