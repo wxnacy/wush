@@ -28,6 +28,8 @@ class CookieArgumentParser(CmdArgumentParser):
         item.add_argument('cmd')
         item.add_argument('--domain', action = Action.APPEND.value,
             help='域名')
+        item.add_argument('--to-str', action = Action.STORE_TRUE.value,
+            help='是否转为字符串')
 
         return item
 
@@ -55,7 +57,12 @@ class CookieArgumentParser(CmdArgumentParser):
         args = self.parse_args(text)
         if args.domain:
             res = Cookie.get_browser_cookie(*args.domain)
-            print(json.dumps(res, indent=4))
+            if args.to_str:
+                lines = [f'{k}={v};' for k, v in res.items()]
+                print(' '.join(lines))
+
+            else:
+                print(json.dumps(res, indent=4))
             return
         print('使用 --domain 指定域名')
 
