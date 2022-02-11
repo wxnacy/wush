@@ -118,7 +118,6 @@ class Config(object):
         req.format()
         return req
 
-_config = None
 
 def _get_config_path(config_path=None):
     """
@@ -134,6 +133,9 @@ def _get_config_path(config_path=None):
     config_path = Constants.get_sys_config_path()
     Config.logger.info('配置文件: 系统 {}'.format(config_path))
     return config_path
+
+_config = None
+_config_dict = {}
 
 def load_config(config_path = None):
     """加载配置
