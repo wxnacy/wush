@@ -12,6 +12,7 @@ from wpy.functools import clock
 
 from wush.common.constants import Constants
 from wush.common.loggers import get_logger
+from wush.common.run_mode import RunMode
 from wush.config.models import RequestModel
 from wush.web.curl_utils import cUrl
 from wush.web.cookie import Cookie
@@ -34,6 +35,7 @@ class RequestBuilder(Model):
     body = datatype.Str()               # body 请求参数
     headers = datatype.Dict()           # headers 请求参数
     cookies = datatype.Dict()           # cookies 请求参数
+    run_mode = datatype.Object(model = RunMode)
 
     @classmethod
     def load_curl(cls, curl_file):
@@ -73,6 +75,9 @@ class RequestBuilder(Model):
     def add_cookies(self, **kwargs):
         """添加 cookies"""
         self.cookies.update(kwargs)
+
+    def set_run_mode(self, mode):
+        self.run_mode = RunMode(mode)
 
     def to_requests(self):
         """转换为 requests 参数"""

@@ -120,6 +120,7 @@ class RunArgumentParser(CmdArgumentParser):
         args = self.parse_args(text)
         # curl 模式下打开一个文件并输入文本供后续使用
         builder = RequestBuilder()
+        builder.set_run_mode(RUN_MODE.mode)
         if args.curl:
             filepath = Constants.build_tmpfile('curl')
             run_shell(f'echo "# 请输入 cUrl 文本\n" > {filepath}')
@@ -138,11 +139,16 @@ class RunArgumentParser(CmdArgumentParser):
 
         req_client = RequestClient(builder)
         res = req_client.request()
-        if res.is_html:
-            self._print('See in browser')
-            self._open_url(res.url)
-        res.print()
+        #  if res.is_html:
+            #  self._print('See in browser')
+            #  self._open_url(res.url)
+        #  res.print()
         History().save(res)
+        if args.open:
+            self._print('See in browser')
+            self._open(builder.version)
+        else:
+            self.config.function.handler_response( res)
 
     def _get_request_builder(self, args):
         """获取请求构造体"""
@@ -169,6 +175,7 @@ class RunArgumentParser(CmdArgumentParser):
             raise Exception
 
         builder = self._get_request_builder(args)
+        builder.set_run_mode(RUN_MODE.mode)
         request_client = RequestClient(builder)
 
         self._print('Space: {}'.format(args.space))
@@ -184,17 +191,12 @@ class RunArgumentParser(CmdArgumentParser):
         self._print('Status: {}'.format(res.status_code))
 
         History().save(res)
-        # 判断是否为 html 结果
-        if res.is_html:
-            self._print('See in browser')
-            self._open_url(res.url)
 
         if args.open:
             self._print('See in browser')
             self._open(builder.version)
         else:
-            self.config.function.handler_response(
-                builder, res)
+            self.config.function.handler_response( res)
 
     def _open(self, version):
         #  """打开请求信息"""

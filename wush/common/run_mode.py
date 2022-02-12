@@ -15,6 +15,9 @@ class RunMode(object):
     #  name = 'run_mode'
     _mode = None
 
+    def __init__(self, mode = None):
+        self._mode = mode
+
     @property
     def mode(self):
         """模式"""

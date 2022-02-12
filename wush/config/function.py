@@ -6,6 +6,7 @@
 """
 
 import traceback
+import os
 import hashlib
 import json
 
@@ -53,8 +54,14 @@ def get_completion_words(word_for_completion):
     return []
 
 @FunctionFactory.register()
-def handler_response(request_builder, response):
-    print('Response:')
+def handler_response(response):
+    #  print('Response:')
+    # 判断是否为 html 结果
+    url = response.url
+    if response.is_html:
+        print('See in browser')
+        os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')
+        print('')
     try:
         data = response.json()
         data = json.dumps(data, indent=4, ensure_ascii=False)
