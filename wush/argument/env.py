@@ -5,6 +5,7 @@
 
 """
 import argparse
+import os
 from collections import deque
 
 from wpy.path import (
@@ -93,6 +94,9 @@ class EnvArgumentParser(CmdArgumentParser):
             for key_val in sys_args.add:
                 key, val = key_val.split('=')
                 self.config.add_env(key, val)
+                # 写入当前环境变量
+                # TODO 需要禁止修改敏感字段
+                os.environ[key] = val
 
         output = {
             'headers': [
