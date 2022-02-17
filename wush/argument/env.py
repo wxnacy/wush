@@ -13,6 +13,7 @@ from wpy.path import (
 from csarg import Action
 from csarg import CommandArgumentParserFactory
 
+from wush.config import load_config
 from wush.argument.command import CmdArgumentParser
 
 def init_argparse():
@@ -73,6 +74,7 @@ class EnvArgumentParser(CmdArgumentParser):
             help="添加环境变量")
 
         item.sys_parser = init_argparse()
+        item.config = load_config()
 
         return item
 
@@ -126,3 +128,8 @@ class EnvArgumentParser(CmdArgumentParser):
                 env_data[k] = v
             write_yml(env_path, env_data)
 
+    def run_shell(self, args):
+        self.run(args)
+
+    def run_command(self, args):
+        self.run(args)
