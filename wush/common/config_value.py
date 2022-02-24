@@ -14,10 +14,11 @@ from wpy.path import read_dict
 from wush.common.loggers import create_logger
 from wush.model import Model
 
-__all__ = ['environ_keys']
+__all__ = ['environ_keys', 'ConfigValue']
 
-_REG_ENV = r'(\${.*?})'
-
+#  _REG_ENV = r'(\${.*?})'
+_REG_ENV = r'\{(.+?)\}'
+_REG_ENV2 = r'\${(.+?)\}'
 
 @singledispatch
 def environ_keys(text):
@@ -26,8 +27,7 @@ def environ_keys(text):
 
 @environ_keys.register(str)
 def _(text):
-    lines = re.findall(_REG_ENV, text)
-    return set(o[2:-1] for o in lines)
+    return set(re.findall(_REG_ENV, text))
 
 @environ_keys.register(dict)
 def _(data):
@@ -107,28 +107,6 @@ class ConfigValue():
 
         return value
 
-    #  @singledispatch
-    #  def _format(self, obj):
-        #  self.logger.info('type %s', type(obj))
-        #  return obj
-
-    #  @_format.register(dict)
-    #  def _(self, value):
-        #  """格式化字典"""
-        #  return self._format_dict(dict)
-
-    #  @_format.register(list)
-    #  def _(self, lines):
-        #  """格式化数组"""
-        #  self.logger.info('-' * 200)
-        #  return self._format_list(lines)
-
-    #  @_format.register(str)
-    #  def _(self, text):
-        #  """格式化字符窜"""
-        #  self.logger.info('-' * 200)
-        #  return self._format_str(text)
-
     def _format_dict(self, value):
         """格式化字典"""
         for v_k, v_v in value.items():
@@ -200,64 +178,90 @@ class ConfigValue():
         '''是否有环境变量'''
         if not isinstance(text, str):
             return False
-        lines = re.findall(self.REG_ENV, text)
-        self.environ_names = [o[2:-1] for o in lines]
-        # TODO 优化
-        lines = re.findall(self.REG_ENV2, text)
-        self.environ_names.extend([o[1:-1] for o in lines])
+        self.environ_names = environ_keys(text)
         return True if self.environ_names else False
+
+    def _replace(self, match):
+        """正则替换方法"""
+        groups = match.groups()
+        if not groups:
+            return
+
+        k = groups[0]
+        if '(' not  in k and ')' not in k:
+            return self.env.get(k)
+
+        k = k.strip(')').strip(' ')
+        func_name, args_str = k.split('(')
+        func = self.functions.get(func_name)
+        self.logger.info('func_name %s %s', func_name, func)
+
+        if not func:
+            return
+        if not args_str:
+            args_str = '()'
+        else:
+            args_str = '({},)'.format(args_str)
+        args = eval(args_str)
+        repl = func(*args)
+        repl = str(repl)
+        return repl
 
     def _format_environ(self, text):
         '''格式化环境变量'''
         if not self.environ_names:
             return text
 
-        self.logger.info('environ_names %s', self.environ_names)
-
-        for k in self.environ_names:
-            # 处理函数的执行和替换
-            orgl = '${' + k + '}'
-            if '(' in k and ')' in k:
-                k = k.strip(')').strip(' ')
-                func_name, args_str = k.split('(')
-                func = self.functions.get(func_name)
-                self.logger.info('func_name %s %s', func_name, func)
-
-                if not func:
-                    continue
-                if not args_str:
-                    args_str = '()'
-                else:
-                    args_str = '({},)'.format(args_str)
-                args = eval(args_str)
-                repl = func(*args)
-                repl = str(repl)
-                text = text.replace(orgl, repl)
-            else:
-                text = text.replace(orgl, self.env.get(k) or '')
-
-        # TODO 优化
-        for k in self.environ_names:
-            # 处理函数的执行和替换
-            orgl = '{' + k + '}'
-            if '(' in k and ')' in k:
-                k = k.strip(')').strip(' ')
-                func_name, args_str = k.split('(')
-                func = self.functions.get(func_name)
-                self.logger.info('func_name %s %s', func_name, func)
-
-                if not func:
-                    continue
-                if not args_str:
-                    args_str = '()'
-                else:
-                    args_str = '({},)'.format(args_str)
-                args = eval(args_str)
-                repl = func(*args)
-                repl = str(repl)
-                text = text.replace(orgl, repl)
-            else:
-                text = text.replace(orgl, self.env.get(k) or '')
-
+        text = re.sub(_REG_ENV2, self._replace, text)
+        text = re.sub(_REG_ENV, self._replace, text)
         return text
+
+        #  self.logger.info('environ_names %s', self.environ_names)
+
+        #  for k in self.environ_names:
+            #  # 处理函数的执行和替换
+            #  orgl = '${' + k + '}'
+            #  if '(' in k and ')' in k:
+                #  k = k.strip(')').strip(' ')
+                #  func_name, args_str = k.split('(')
+                #  func = self.functions.get(func_name)
+                #  self.logger.info('func_name %s %s', func_name, func)
+
+                #  if not func:
+                    #  continue
+                #  if not args_str:
+                    #  args_str = '()'
+                #  else:
+                    #  args_str = '({},)'.format(args_str)
+                #  args = eval(args_str)
+                #  repl = func(*args)
+                #  repl = str(repl)
+                #  text = text.replace(orgl, repl)
+            #  else:
+                #  text = text.replace(orgl, self.env.get(k) or '')
+
+        #  # TODO 优化
+        #  for k in self.environ_names:
+            #  # 处理函数的执行和替换
+            #  orgl = '{' + k + '}'
+            #  if '(' in k and ')' in k:
+                #  k = k.strip(')').strip(' ')
+                #  func_name, args_str = k.split('(')
+                #  func = self.functions.get(func_name)
+                #  self.logger.info('func_name %s %s', func_name, func)
+
+                #  if not func:
+                    #  continue
+                #  if not args_str:
+                    #  args_str = '()'
+                #  else:
+                    #  args_str = '({},)'.format(args_str)
+                #  args = eval(args_str)
+                #  repl = func(*args)
+                #  repl = str(repl)
+                #  text = text.replace(orgl, repl)
+            #  else:
+                #  text = text.format(**self.env)
+
+        #  return text
 
