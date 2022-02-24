@@ -139,10 +139,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         req_client = RequestClient(builder)
         res = req_client.request()
-        #  if res.is_html:
-            #  self._print('See in browser')
-            #  self._open_url(res.url)
-        #  res.print()
+        # 保存历史记录
         History().save(res)
         if args.open:
             self._print('See in browser')
@@ -190,6 +187,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         self._print('Status: {}'.format(res.status_code))
 
+        # 保存历史记录
         History().save(res)
 
         if args.open:
