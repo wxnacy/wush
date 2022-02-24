@@ -57,11 +57,6 @@ def get_completion_words(word_for_completion):
 def handler_response(response):
     #  print('Response:')
     # 判断是否为 html 结果
-    url = response.url
-    if response.is_html:
-        print('See in browser')
-        os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')
-        print('')
     try:
         data = response.json()
         data = json.dumps(data, indent=4, ensure_ascii=False)
@@ -69,6 +64,10 @@ def handler_response(response):
         logger.error(traceback.format_exc())
         data = response.content
     print(data)
+    url = response.url
+    if response.is_html:
+        print('Html page see in browser')
+        os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')
 
 @FunctionFactory.register()
 def print_table(config):
