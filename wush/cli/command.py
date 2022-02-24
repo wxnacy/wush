@@ -73,5 +73,5 @@ class Command(object):
         if hasattr(args, 'space'):
             self.config.space_name = args.space
 
-        parser.run(args_text)
+        parser.run(sys_args)
 
