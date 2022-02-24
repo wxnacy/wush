@@ -46,11 +46,23 @@ def test_format_environ():
     name = 'wxnacy'
     assert name == ConfigValue(text).set_env(test_name = name).format()
 
+    text = '{test_name}'
+    name = 'wxnacy'
+    assert name == ConfigValue(text).set_env(test_name = name).format()
+
     text = '${test(3, "wxnacy")}'
     res = ConfigValue(text).set_functions(**env_functions).format()
     assert res == "(3, 'wxnacy')"
 
+    text = '{test(3, "wxnacy")}'
+    res = ConfigValue(text).set_functions(**env_functions).format()
+    assert res == "(3, 'wxnacy')"
+
     text = '${test(3)}'
+    res = ConfigValue(text).set_functions(**env_functions).format()
+    assert res == '(3, None)'
+
+    text = '{test(3)}'
     res = ConfigValue(text).set_functions(**env_functions).format()
     assert res == '(3, None)'
 

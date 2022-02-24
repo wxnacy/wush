@@ -66,6 +66,7 @@ class ConfigValue():
         self.value = value
 
         self.REG_ENV = r'(\${.*?})'
+        self.REG_ENV2 = r'({.*?})'
         self.REG_PARSE = r'(^\b(json|yml|xml)\b@.*?)'
         self.env = dict(os.environ)
         self.functions = {}
@@ -201,6 +202,9 @@ class ConfigValue():
             return False
         lines = re.findall(self.REG_ENV, text)
         self.environ_names = [o[2:-1] for o in lines]
+        # TODO 优化
+        lines = re.findall(self.REG_ENV2, text)
+        self.environ_names.extend([o[1:-1] for o in lines])
         return True if self.environ_names else False
 
     def _format_environ(self, text):
@@ -231,5 +235,29 @@ class ConfigValue():
                 text = text.replace(orgl, repl)
             else:
                 text = text.replace(orgl, self.env.get(k) or '')
+
+        # TODO 优化
+        for k in self.environ_names:
+            # 处理函数的执行和替换
+            orgl = '{' + k + '}'
+            if '(' in k and ')' in k:
+                k = k.strip(')').strip(' ')
+                func_name, args_str = k.split('(')
+                func = self.functions.get(func_name)
+                self.logger.info('func_name %s %s', func_name, func)
+
+                if not func:
+                    continue
+                if not args_str:
+                    args_str = '()'
+                else:
+                    args_str = '({},)'.format(args_str)
+                args = eval(args_str)
+                repl = func(*args)
+                repl = str(repl)
+                text = text.replace(orgl, repl)
+            else:
+                text = text.replace(orgl, self.env.get(k) or '')
+
         return text
 
