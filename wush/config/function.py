@@ -15,6 +15,7 @@ from rich.table import Table
 from wpy.base import BaseFactory
 from wpy import randoms
 
+from wush.common import utils
 from wush.common.loggers import get_logger
 
 logger = get_logger('function')
@@ -67,7 +68,7 @@ def handler_response(response):
     url = response.url
     if response.is_html:
         print('Html page see in browser')
-        os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')
+        utils.open_url(url)
 
 @FunctionFactory.register()
 def print_table(config):

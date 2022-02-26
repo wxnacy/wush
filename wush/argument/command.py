@@ -62,12 +62,16 @@ class CmdArgumentParser(CommandArgumentParser):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))
         print_formatted_text(PygmentsTokens(tokens), end='')
 
-    def run(self, text):
+    def run(self, args):
         self.config = load_config()
         func_name = f'run_{RUN_MODE.mode}'
-        try:
+        func = None
+        if hasattr(self, func_name):
             func = getattr(self, func_name)
-        except:
-            return
+        else:
+            # 如果没有提供模式专用函数，则使用默认 run 方法
+            if not hasattr(self, 'run'):
+                raise RuntimeError('找不到参数运行方法')
+            func = getattr(self, 'run')
 
-        func(text)
+        func(args)

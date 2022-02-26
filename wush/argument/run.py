@@ -200,8 +200,4 @@ class RunArgumentParser(CmdArgumentParser):
         #  """打开请求信息"""
         port = self.config.server_port
         url = f"http://localhost:{port}/api/version/{version}"
-        # TODO 适配更多系统
-        self._open_url(url)
-
-    def _open_url(self, url):
-        os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')
+        utils.open_url(url)

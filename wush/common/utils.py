@@ -10,8 +10,6 @@ import os
 import importlib
 import subprocess
 
-#  from collections import defaultdict
-
 from wush.common.exceptions import JsonException
 
 __all__ = ['get_current_module_path']
@@ -69,3 +67,8 @@ def get_current_module_path():
     import wush as _wush
     module_path = _wush.__path__[0]
     return module_path
+
+def open_url(url):
+    """打开 url"""
+    # TODO 适配更多系统
+    os.system(f'open -a "/Applications/Google Chrome.app" "{url}"')

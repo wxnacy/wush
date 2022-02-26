@@ -52,17 +52,24 @@ class Command(object):
             sys_args = ['shell']
         cmd = sys_args[0]
 
-        args_text = ' '.join(sys_args)
-        # 判断 cmd 是否为 url 格式
-        if re.match(r'^https?:/{2}\w.+$', cmd):
-            args_text = 'run ' + args_text.replace(cmd, f'--url {cmd}')
+        if cmd not in CommandArgumentParserFactory.get_cmd_names():
+            # 不在程序范围内的命令，默认当做 url 处理
+            if not cmd.startswith('http'):
+                sys_args[0] = 'http://' + cmd
+            sys_args.insert(0, 'run')
+            sys_args.insert(1, '--url')
             cmd = 'run'
+            #  args_text = ' '.join(sys_args)
+            #  # 判断 cmd 是否为 url 格式
+            #  if re.match(r'^https?:/{2}\w.+$', cmd):
+                #  args_text = 'run ' + args_text.replace(cmd, f'--url {cmd}')
+                #  cmd = 'run'
 
         RUN_MODE.set_command()
         # 转换参数解析器
         parser = self.convert_argparse(cmd)
 
-        args = parser.parse_args(args_text)
+        args = parser.parse_args(sys_args)
         # 加载配置
         config_path = None
         if hasattr(args, 'config'):
