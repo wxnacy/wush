@@ -38,6 +38,7 @@ class RunArgumentParser(CmdArgumentParser):
         item.add_argument('-s', '--space', help='空间名称')
         item.add_argument('-n', '--name', help='请求名称')
         item.add_argument('-c', '--config', help='配置地址')
+        item.add_argument('--attr', help='属性信息，自定义')
         item.add_argument('--params', action = Action.APPEND.value,
             help='请求地址参数')
         item.add_argument('--json', action = Action.APPEND.value,

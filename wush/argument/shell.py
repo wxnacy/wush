@@ -5,12 +5,14 @@
 run 命令的参数解析
 """
 
+from csarg import CommandArgumentParserFactory
 
 from wush.cli.shell import Shell
 from .command import CmdArgumentParser
 
 __all__ = ['ShellArgumentParser']
 
+@CommandArgumentParserFactory.register()
 class ShellArgumentParser(CmdArgumentParser):
     cmd = 'shell'
 
