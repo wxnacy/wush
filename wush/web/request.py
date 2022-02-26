@@ -35,7 +35,8 @@ class RequestBuilder(Model):
     body = datatype.Str()               # body 请求参数
     headers = datatype.Dict()           # headers 请求参数
     cookies = datatype.Dict()           # cookies 请求参数
-    run_mode = datatype.Object(model = RunMode)
+    run_mode = datatype.Object(model = RunMode)             # 运行模式
+    argument = datatype.Object()  # 参数解析器
 
     @classmethod
     def load_curl(cls, curl_file):

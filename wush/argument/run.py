@@ -51,6 +51,9 @@ class RunArgumentParser(CmdArgumentParser):
         item.add_argument('--with-browser-cookie',
             action = Action.STORE_TRUE.value,
             help = '是否使用 curl 文本')
+        item.add_argument('--no-browser',
+            action = Action.STORE_TRUE.value,
+            help = '不使用浏览器打开结果页面')
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
 
@@ -134,6 +137,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         if args.name:
             builder = self._get_request_builder(args)
+        builder.argument = args
 
         self.logger.info('builder {}'.format(builder.to_dict()))
 
@@ -163,6 +167,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         builder = RequestBuilder.loads_request_model(request_model,
             args.with_browser_cookie)
+        builder.argument = args
         return builder
 
     def run_shell(self, text):

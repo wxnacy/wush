@@ -66,7 +66,7 @@ def handler_response(response):
         data = response.content
     print(data)
     url = response.url
-    if response.is_html:
+    if response.is_html and not response.request_builder.argument.no_browser:
         print('Html page see in browser')
         utils.open_url(url)
 
