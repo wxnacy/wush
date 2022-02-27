@@ -75,3 +75,22 @@ class ResponseClient(BaseObject):
             print(self.text)
 
 
+class ResponseHandler(BaseObject):
+
+    _factory = {}
+
+    @classmethod
+    def register(cls, module, name):
+        def decorate(func):
+            key = f"{module}-{name}"
+            cls._factory[key] = func
+            return func
+        return decorate
+
+    @classmethod
+    def get_handler(cls, module, name):
+        """获取处理结果的方法
+
+        """
+        key = f"{module}-{name}"
+        return cls._factory.get(key)

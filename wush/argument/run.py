@@ -17,6 +17,7 @@ from wush.common.config_value import environ_keys
 from wush.config import load_config
 from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
+from wush.web.response import ResponseHandler
 from wush.web.history import History
 
 from .command import CmdArgumentParser
@@ -144,13 +145,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         req_client = RequestClient(builder)
         res = req_client.request()
-        # 保存历史记录
-        History().save(res)
-        if args.open:
-            self._print('See in browser')
-            self._open(builder.version)
-        else:
-            self.config.function.handler_response( res)
+        self._run(args, builder, res)
 
     def _get_request_builder(self, args):
         """获取请求构造体"""
@@ -193,14 +188,25 @@ class RunArgumentParser(CmdArgumentParser):
 
         self._print('Status: {}'.format(res.status_code))
 
+        self._run(args, builder, res)
+
+    def _run(self, args, builder, res):
+
         # 保存历史记录
         History().save(res)
 
         if args.open:
             self._print('See in browser')
             self._open(builder.version)
-        else:
-            self.config.function.handler_response( res)
+            return
+
+        handler_func = ResponseHandler.get_handler(args.module,
+            args.name)
+        if handler_func:
+            handler_func(res)
+            return
+
+        self.config.function.handler_response( res)
 
     def _open(self, version):
         #  """打开请求信息"""
