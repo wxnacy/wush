@@ -53,6 +53,9 @@ class RunArgumentParser(CmdArgumentParser):
         item.add_argument('--with-browser-cookie',
             action = Action.STORE_TRUE.value,
             help = '是否使用 curl 文本')
+        item.add_argument('--no-handle-response',
+            action = Action.STORE_TRUE.value,
+            help = '不对 response 做处理')
         item.add_argument('--no-browser',
             action = Action.STORE_TRUE.value,
             help = '不使用浏览器打开结果页面')
@@ -202,7 +205,7 @@ class RunArgumentParser(CmdArgumentParser):
 
         handler_func = ResponseHandler.get_handler(args.module,
             args.name)
-        if handler_func:
+        if handler_func and not args.no_handle_response:
             handler_func(res)
             return
 
