@@ -153,5 +153,5 @@ def load_config(config_path = None):
 
     return _config
 
-if __name__ == "__main__":
-    config = load_config()
+#  if __name__ == "__main__":
+    #  config = load_config()

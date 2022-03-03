@@ -62,7 +62,7 @@ class RunArgumentParser(CmdArgumentParser):
         if RUN_MODE.is_command:
             item.add_argument('--url', help='请求地址')
 
-        item.config = load_config()
+        #  item.config = load_config()
 
         return item
 
@@ -71,6 +71,7 @@ class RunArgumentParser(CmdArgumentParser):
         获取补全的单词列表
         :param word_for_completion: 补全需要的单词
         """
+        self.config = load_config()
         words = []
         if not self.argument:
             return words
@@ -125,6 +126,7 @@ class RunArgumentParser(CmdArgumentParser):
 
     def run_command(self, text):
         """运行命令行模式"""
+        self.config = load_config()
         args = self.parse_args(text)
         # curl 模式下打开一个文件并输入文本供后续使用
         builder = RequestBuilder()
@@ -170,6 +172,7 @@ class RunArgumentParser(CmdArgumentParser):
         return builder
 
     def run_shell(self, text):
+        self.config = load_config()
         args = self.parse_args(text)
 
         if not args.name:

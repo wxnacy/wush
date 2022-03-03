@@ -39,6 +39,7 @@ REQUIRED = [
 
 # What packages are optional?
 EXTRAS = {
+    'spider': ['selenium', 'webdriver-manager']
     # 'fancy feature': ['django'],
 }
 

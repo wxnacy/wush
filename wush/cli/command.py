@@ -6,10 +6,10 @@
 """
 import sys
 import os
-import re
+#  import re
 
 from csarg import CommandArgumentParserFactory
-from wpy.path import walkfile
+#  from wpy.path import walkfile
 from wush.common.utils import get_current_module_path
 from wush.common.utils import load_module
 
