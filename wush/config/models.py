@@ -9,6 +9,7 @@ import os
 
 from wpy.base import BaseObject
 
+from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
 from wush.common.loggers import get_logger
 from wush.model import datatype
@@ -191,6 +192,8 @@ class ConfigModel(Model):
         先进行 modules 处理
         """
         super().format()
+        # 对变量进行格式化
+        ConfigValue(self).format()
         self.__mod__ = {o.name: o for o in self.modules}
 
     def get_module(self, name):

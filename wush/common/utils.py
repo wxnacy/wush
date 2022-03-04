@@ -8,6 +8,7 @@
 import json
 import os
 import importlib
+from importlib.machinery import SourceFileLoader
 import subprocess
 
 from wush.common.exceptions import JsonException
@@ -59,7 +60,12 @@ def run_shell(command):
 
 def load_module(module_name):
     """加载模块"""
-    views_module = importlib.import_module(module_name)
+    if module_name.endswith('.py'):
+        name = str(hash(module_name))
+        views_module = SourceFileLoader(name,
+            module_name).load_module()
+    else:
+        views_module = importlib.import_module(module_name)
     return views_module
 
 def get_current_module_path():
