@@ -20,6 +20,7 @@ from wush.web.enums import ProtocolEnum
 logger = get_logger('config.models')
 
 class EnvModel(BaseObject):
+    _default = None
 
     def __init__(self, **kwargs):
         # 将数字类型转为字符串
@@ -31,6 +32,16 @@ class EnvModel(BaseObject):
         #  for k, v in dict(os.environ).items():
             #  setattr(self, k, v)
         super().__init__(**kwargs)
+
+    @classmethod
+    def default(cls):
+        """使用默认环境变量
+
+        """
+        _env = {}
+        if not cls._default:
+            cls._default = cls(**_env)
+        return cls._default
 
 class FieldModel(Model):
     """配置字段
@@ -193,7 +204,11 @@ class ConfigModel(Model):
         """
         super().format()
         # 对变量进行格式化
-        ConfigValue(self).format()
+        default_env = EnvModel.default()
+        for i, _module in enumerate(self.function_modules):
+            self.function_modules[i] = ConfigValue(_module
+                ).set_env(**default_env.to_dict()).format()
+        #  ConfigValue(self).format()
         self.__mod__ = {o.name: o for o in self.modules}
 
     def get_module(self, name):
