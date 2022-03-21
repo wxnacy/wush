@@ -33,6 +33,9 @@ class FuncArgumentParser(CmdArgumentParser):
             help='请求参数')
         return item
 
+    def run_command(self, text):
+        self.run_shell(text)
+
     def run_shell(self, text):
         functions = self.config.function.get_functions()
         args = self.parse_args(text)
