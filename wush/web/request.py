@@ -60,11 +60,14 @@ class RequestBuilder(Model):
             val = request_dict.get(key)
             setattr(ins, key, val)
 
+        request_cookies = {}
         # 对 cookie_domains 进行解析
         cookie_domains = request_model.cookie_domains
         if cookie_domains and with_browser_cookie:
             cookies  = Cookie.get_browser_cookie(*cookie_domains)
-            ins.cookies = cookies
+            request_cookies.update(cookies)
+        request_cookies.update(ins.cookies)
+        ins.cookies = request_cookies
 
         ins.format()
         return ins
