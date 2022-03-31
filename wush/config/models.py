@@ -19,6 +19,27 @@ from wush.web.enums import ProtocolEnum
 
 logger = get_logger('config.models')
 
+class BaseModel(BaseObject):
+
+    def inherit(self, super_ins, keys):
+        """继承数据"""
+        for key in keys:
+            super_value = getattr(super_ins, key)
+            sub_value = getattr(self, key)
+            if not sub_value:
+                setattr(self, key, super_value)
+            else:
+                # 字段结构进行拼接
+                if isinstance(super_value, dict):
+                    super_value = dict(super_value)
+                    super_value.update(sub_value)
+                # 列表结构进行拼接
+                if isinstance(super_value, list):
+                    super_value = list(super_value)
+                    super_value.extend(sub_value)
+
+                setattr(self, key, super_value)
+
 class EnvModel(BaseObject):
     _default = None
 
@@ -95,7 +116,7 @@ class AutoFieldModel(Model):
         return v
 
 
-class RequestModel(Model):
+class RequestModel(Model, BaseModel):
     """请求配置模型"""
     AUTO_FORMAT = True
 
@@ -136,26 +157,8 @@ class RequestModel(Model):
             setattr(self.json, k, v)
         self.json.format()
 
-    def inherit(self, super_ins, keys):
-        """继承数据"""
-        for key in keys:
-            super_value = getattr(super_ins, key)
-            sub_value = getattr(self, key)
-            if not sub_value:
-                setattr(self, key, super_value)
-            else:
-                # 字段结构进行拼接
-                if isinstance(super_value, dict):
-                    super_value = dict(super_value)
-                    super_value.update(sub_value)
-                # 列表结构进行拼接
-                if isinstance(super_value, list):
-                    super_value = list(super_value)
-                    super_value.extend(sub_value)
 
-                setattr(self, key, super_value)
-
-class ModuleModel(Model):
+class ModuleModel(Model, BaseModel):
     AUTO_FORMAT = True
 
     name = datatype.Str()
@@ -197,6 +200,7 @@ class ConfigModel(Model):
     modules = datatype.List(model = ModuleModel)
     env = datatype.Object(model = EnvModel)
     cookies = datatype.Dict()
+    headers = datatype.Dict()
     modules_include = datatype.List()
     function_modules = datatype.List()
     server_port = datatype.Str(default = Constants.SERVER_PORT)
@@ -221,6 +225,10 @@ class ConfigModel(Model):
         if not self.__is_format__:
             raise Exception('ConfigModel must format first')
         module = self.__mod__.get(name)
+        if module:
+            inherit_keys = ['headers', 'cookies']
+            module.inherit(self, inherit_keys)
+
         return module
 
     @classmethod
