@@ -111,6 +111,15 @@ class Config(object):
             env.update(environs)
         self.logger.info('config env {}'.format(env))
 
+        for key, value in env.items():
+            # 优先使用环境变量数据
+            env_value = os.getenv(key)
+            if env_value:
+                continue
+            if not value:
+                continue
+            os.environ[key] = value
+
         # 将请求模型做环境变量格式化处理并返回
         if set_env:
             req = ConfigValue(req).set_env(**env).set_functions(
