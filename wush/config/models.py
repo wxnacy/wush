@@ -136,6 +136,25 @@ class RequestModel(Model):
             setattr(self.json, k, v)
         self.json.format()
 
+    def inherit(self, super_ins, keys):
+        """继承数据"""
+        for key in keys:
+            super_value = getattr(super_ins, key)
+            sub_value = getattr(self, key)
+            if not sub_value:
+                setattr(self, key, super_value)
+            else:
+                # 字段结构进行拼接
+                if isinstance(super_value, dict):
+                    super_value = dict(super_value)
+                    super_value.update(sub_value)
+                # 列表结构进行拼接
+                if isinstance(super_value, list):
+                    super_value = list(super_value)
+                    super_value.extend(sub_value)
+
+                setattr(self, key, super_value)
+
 class ModuleModel(Model):
     AUTO_FORMAT = True
 
@@ -163,22 +182,7 @@ class ModuleModel(Model):
             # 继承 module 的字段
             inherit_keys = ('protocol', 'domain', 'cookies', 'headers',
                 'cookie_domains')
-            for key in inherit_keys:
-                super_value = getattr(self, key)
-                sub_value = getattr(req, key)
-                if not sub_value:
-                    setattr(req, key, super_value)
-                else:
-                    # 字段结构进行拼接
-                    if isinstance(super_value, dict):
-                        super_value = dict(super_value)
-                        super_value.update(sub_value)
-                    # 列表结构进行拼接
-                    if isinstance(super_value, list):
-                        super_value = list(super_value)
-                        super_value.extend(sub_value)
-
-                    setattr(req, key, super_value)
+            req.inherit(self, inherit_keys)
 
             # 拼装 url
             if not req.url:
@@ -192,6 +196,7 @@ class ConfigModel(Model):
 
     modules = datatype.List(model = ModuleModel)
     env = datatype.Object(model = EnvModel)
+    cookies = datatype.Dict()
     modules_include = datatype.List()
     function_modules = datatype.List()
     server_port = datatype.Str(default = Constants.SERVER_PORT)

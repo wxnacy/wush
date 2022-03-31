@@ -111,6 +111,9 @@ class Config(object):
             env.update(environs)
         self.logger.info('config env {}'.format(env))
 
+        # 继承 config
+        req.inherit(self._config, ['cookies'])
+
         # 将请求模型做环境变量格式化处理并返回
         if set_env:
             req = ConfigValue(req).set_env(**env).set_functions(
