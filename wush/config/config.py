@@ -115,6 +115,7 @@ class Config(object):
             # 优先使用环境变量数据
             env_value = os.getenv(key)
             if env_value:
+                env[key] = env_value
                 continue
             if not value:
                 continue
