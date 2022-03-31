@@ -201,6 +201,7 @@ class ConfigModel(Model):
     env = datatype.Object(model = EnvModel)
     cookies = datatype.Dict()
     headers = datatype.Dict()
+    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
     modules_include = datatype.List()
     function_modules = datatype.List()
     server_port = datatype.Str(default = Constants.SERVER_PORT)
@@ -226,7 +227,7 @@ class ConfigModel(Model):
             raise Exception('ConfigModel must format first')
         module = self.__mod__.get(name)
         if module:
-            inherit_keys = ['headers', 'cookies']
+            inherit_keys = ['headers', 'cookies', 'cookie_domains']
             module.inherit(self, inherit_keys)
 
         return module
