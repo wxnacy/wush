@@ -38,7 +38,7 @@ class BaseModel(BaseObject):
                     super_value = list(super_value)
                     super_value.extend(sub_value)
 
-                setattr(self, key, super_value)
+                #  setattr(self, key, super_value)
 
 class EnvModel(BaseObject):
     _default = None
