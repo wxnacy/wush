@@ -45,5 +45,5 @@ modules_include:
   - 'test_module/'
   - 'module_test.yml'
 
-function_modules:
-  - '{WUSH_MODULE}/tests/data/config/pythonx/functions.py'
+# function_modules:
+  # - '${WUSH_MODULE}/tests/data/config/pythonx/functions.py'

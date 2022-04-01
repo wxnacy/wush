@@ -2,12 +2,15 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 
+import os
 from wush.common.utils import get_current_module_path
 from wush.config.config import Config
 from wush.config.config import _get_config_path
 from wush.config.models import ConfigModel
 from wush.config.models import ModuleModel
 from wush.config.models import RequestModel
+
+os.environ['WUSH_MODULE'] = get_current_module_path()
 
 test_config_path = 'tests/data/config/config.yml'
 

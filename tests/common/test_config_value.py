@@ -46,25 +46,25 @@ def test_format_environ():
     name = 'wxnacy'
     assert name == ConfigValue(text).set_env(test_name = name).format()
 
-    text = '{test_name}'
-    name = 'wxnacy'
-    assert name == ConfigValue(text).set_env(test_name = name).format()
+    #  text = '{test_name}'
+    #  name = 'wxnacy'
+    #  assert name == ConfigValue(text).set_env(test_name = name).format()
 
     text = '${test(3, "wxnacy")}'
     res = ConfigValue(text).set_functions(**env_functions).format()
     assert res == "(3, 'wxnacy')"
 
-    text = '{test(3, "wxnacy")}'
-    res = ConfigValue(text).set_functions(**env_functions).format()
-    assert res == "(3, 'wxnacy')"
+    #  text = '{test(3, "wxnacy")}'
+    #  res = ConfigValue(text).set_functions(**env_functions).format()
+    #  assert res == "(3, 'wxnacy')"
 
     text = '${test(3)}'
     res = ConfigValue(text).set_functions(**env_functions).format()
     assert res == '(3, None)'
 
-    text = '{test(3)}'
-    res = ConfigValue(text).set_functions(**env_functions).format()
-    assert res == '(3, None)'
+    #  text = '{test(3)}'
+    #  res = ConfigValue(text).set_functions(**env_functions).format()
+    #  assert res == '(3, None)'
 
     text = '${test()}'
     res = ConfigValue(text).set_functions(**env_functions).format()
@@ -94,3 +94,9 @@ def test_environ_keys():
     u.domains = ['${domain}']
 
     assert environ_keys(u) == { 'test_name', 'name', 'domain'}
+
+def test_parse_type():
+    text_value = {"name": "wxnacy"}
+    text = 'json@${text_value}'
+    data = ConfigValue(text).set_env(text_value = text_value).format()
+    assert data == {"name": "wxnacy"}

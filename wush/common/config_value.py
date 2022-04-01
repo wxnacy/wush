@@ -17,7 +17,7 @@ from wush.model import Model
 __all__ = ['environ_keys', 'ConfigValue']
 
 #  _REG_ENV = r'(\${.*?})'
-_REG_ENV = r'\{(.+?)\}'
+#  _REG_ENV = r'\{(.+?)\}'
 _REG_ENV2 = r'\${(.+?)\}'
 
 @singledispatch
@@ -27,7 +27,7 @@ def environ_keys(text):
 
 @environ_keys.register(str)
 def _(text):
-    return set(re.findall(_REG_ENV, text))
+    return set(re.findall(_REG_ENV2, text))
 
 @environ_keys.register(dict)
 def _(data):
@@ -65,8 +65,8 @@ class ConfigValue():
     def __init__(self, value):
         self.value = value
 
-        self.REG_ENV = r'(\${.*?})'
-        self.REG_ENV2 = r'({.*?})'
+        #  self.REG_ENV = r'(\${.*?})'
+        #  self.REG_ENV2 = r'({.*?})'
         self.REG_PARSE = r'(^\b(json|yml|xml)\b@.*?)'
         self.env = dict(os.environ)
         self.functions = {}
@@ -189,7 +189,10 @@ class ConfigValue():
 
         k = groups[0]
         if '(' not  in k and ')' not in k:
-            return self.env.get(k)
+            env_value = self.env.get(k, "")
+            if isinstance(env_value, dict) or isinstance(env_value, list):
+                return json.dumps(env_value)
+            return str(env_value)
 
         k = k.strip(')').strip(' ')
         func_name, args_str = k.split('(')
@@ -213,6 +216,11 @@ class ConfigValue():
             return text
 
         text = re.sub(_REG_ENV2, self._replace, text)
-        text = re.sub(_REG_ENV, self._replace, text)
+        #  text = re.sub(_REG_ENV, self._replace, text)
         return text
 
+if __name__ == "__main__":
+    text_value = {"name": "wxnacy"}
+    text = 'json@${text_value}'
+    data = ConfigValue(text).set_env(text_value = text_value).format()
+    assert data == {"name": "wxnacy"}
