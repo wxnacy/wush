@@ -17,6 +17,7 @@ from wpy import randoms
 
 from wush.common import utils
 from wush.common.loggers import get_logger
+from wush.web.cookie import Cookie
 
 logger = get_logger('function')
 
@@ -99,6 +100,16 @@ def print_table(config):
     if after_table:
         console.print(after_table)
 
+@FunctionFactory.register()
+def get_browser_cookies(domains, cookie_name=None):
+    """
+    获取浏览器的 cookies
+    """
+    res = Cookie.get_browser_cookie(*domains) or {}
+    if cookie_name:
+        return res.get(cookie_name)
+    return res
+
 class Function(object):
     get_completion_words = None
     random_int = None
@@ -143,4 +154,5 @@ def load_function():
     return _function
 
 if __name__ == "__main__":
-    load_super_function()
+    #  load_super_function()
+    print(get_browser_cookies(['pandora.intra.yiducloud.cn'], 'session'))
