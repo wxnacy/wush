@@ -14,6 +14,7 @@ from wush.web.enums import ContentTypeEnum
 
 class ResponseField(BaseEnum):
     HEADERS = 'headers'
+    COOKIES = 'cookies'
     OK = 'ok'
     URL = 'url'
     CONTENT = 'content'
@@ -30,6 +31,7 @@ class ResponseClient(BaseObject):
     url = None
     ok = None
     headers = None
+    cookies = None
 
     def __init__(self, request_builder, response):
         self.request_builder = request_builder
