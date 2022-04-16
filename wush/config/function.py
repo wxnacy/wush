@@ -154,5 +154,4 @@ def load_function():
     return _function
 
 if __name__ == "__main__":
-    #  load_super_function()
-    print(get_browser_cookies(['pandora.intra.yiducloud.cn'], 'session'))
+    pass

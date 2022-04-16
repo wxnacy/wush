@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "wush"
+version = "0.1.1"
+description = "Useful api client on terminal"
+authors = ["wxnacy <wxnacy@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.scripts]
+wush="wush.cli.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+requests = "^2.27.1"
+PyYAML = "^6.0"
+browsercookie = "^0.7.7"
+prompt-toolkit = "^3.0.29"
+csarg = "^0.1.0"
+wpy = "^0.6.1"
+rich = "^10.6.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
