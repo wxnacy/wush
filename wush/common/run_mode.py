@@ -4,6 +4,7 @@
 """
 
 """
+#  import json
 
 from wpy.base import BaseEnum
 
@@ -11,7 +12,7 @@ class ModeEnum(BaseEnum):
     COMMAND = 'command'
     SHELL = 'shell'
 
-class RunMode(object):
+class RunMode:
     #  name = 'run_mode'
     _mode = None
 
@@ -38,6 +39,12 @@ class RunMode(object):
 
     def set_shell(self):
         self._mode = ModeEnum.SHELL.value
+
+    #  def dict(self):
+        #  return { "mode": self.mode }
+
+    #  def json(self):
+        #  return json.dumps(self.dict())
 
 
 RUN_MODE = RunMode()

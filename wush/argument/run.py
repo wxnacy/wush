@@ -7,6 +7,7 @@ run 命令的参数解析
 import os
 from csarg import Action
 from csarg import CommandArgumentParserFactory
+from csarg.parser import Argument
 
 from wush.common import utils
 from wush.common.constants import Constants
@@ -15,6 +16,9 @@ from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
 from wush.common.config_value import environ_keys
 from wush.config import load_config
+from wush.config.models import RequestModel
+from wush.web.cookie import Cookie
+from wush.web.enums import RequestsParamsEnum
 from wush.web.request import RequestClient
 from wush.web.request import RequestBuilder
 from wush.web.response import ResponseHandler
@@ -129,9 +133,9 @@ class RunArgumentParser(CmdArgumentParser):
         self.config = load_config()
         args = self.parse_args(text)
         # curl 模式下打开一个文件并输入文本供后续使用
-        builder = RequestBuilder()
-        builder.set_run_mode(RUN_MODE.mode)
+        builder: RequestBuilder = None
         if args.curl:
+            builder = RequestBuilder()
             filepath = Constants.build_tmpfile('curl')
             run_shell(f'echo "# 请输入 cUrl 文本\n" > {filepath}')
             vim_cmd = f'vim {filepath}'
@@ -139,20 +143,20 @@ class RunArgumentParser(CmdArgumentParser):
             builder = RequestBuilder.load_curl(filepath)
 
         if args.url:
-            builder.url = args.url
-            builder.format()
+            builder = RequestBuilder(url = args.url)
 
         if args.name:
             builder = self._get_request_builder(args)
         builder.argument = args
+        builder.set_run_mode(RUN_MODE.mode)
 
-        self.logger.info('builder {}'.format(builder.to_dict()))
+        #  self.logger.info('builder {}'.format(builder.json()))
 
         req_client = RequestClient(builder)
         res = req_client.request()
         self._run(args, builder, res)
 
-    def _get_request_builder(self, args):
+    def _get_request_builder(self, args: Argument) -> RequestBuilder:
         """获取请求构造体"""
         params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
@@ -166,7 +170,7 @@ class RunArgumentParser(CmdArgumentParser):
         request_model.add_params(**params)
         request_model.add_json(**json_data)
 
-        builder = RequestBuilder.loads_request_model(request_model,
+        builder = self._load_builder_from_request(request_model,
             args.with_browser_cookie)
         builder.argument = args
         return builder
@@ -219,3 +223,26 @@ class RunArgumentParser(CmdArgumentParser):
         port = self.config.server_port
         url = f"http://localhost:{port}/api/version/{version}"
         utils.open_url(url)
+
+    @classmethod
+    def _load_builder_from_request(cls, request_model: RequestModel,
+            with_browser_cookie: bool = False
+        ) -> RequestBuilder:
+        """加载 RequestModel 模型"""
+        request_dict = request_model.to_dict()
+        ins_dict = {}
+        for key in RequestsParamsEnum.values():
+            val = request_dict.get(key)
+            ins_dict[key] = val
+
+        ins = RequestBuilder(**ins_dict)
+        request_cookies = {}
+        # 对 cookie_domains 进行解析
+        cookie_domains = request_model.cookie_domains
+        if cookie_domains and with_browser_cookie:
+            cookies  = Cookie.get_browser_cookie(*cookie_domains)
+            request_cookies.update(cookies)
+        request_cookies.update(ins.cookies)
+        ins.cookies = request_cookies
+
+        return ins

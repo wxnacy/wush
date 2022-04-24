@@ -47,7 +47,7 @@ class History(object):
         h = HistoryModel()
         h.version = response_client.request_builder.version
         h._id = h.version
-        h.request = response_client.request_builder.to_dict()
+        h.request = response_client.request_builder.to_requests()
         res = {
             'is_json': response_client.is_json,
             'text': response_client.text
