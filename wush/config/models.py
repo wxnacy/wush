@@ -5,7 +5,12 @@
 配置模型
 """
 import os
-#  from collections import defaultdict
+from typing import (
+    Dict, Any, List, Union
+)
+from pydantic import (
+    BaseModel as PydanticModel, Field, validator, root_validator
+)
 
 from wpy.base import BaseObject
 
@@ -193,39 +198,100 @@ class ModuleModel(Model, BaseModel):
                     f'{self.url_prefix}{req.path}'
         return req
 
-class ConfigModel(Model):
+
+#  class ConfigModel(Model):
+    #  """客户端全局配置模型"""
+    #  __all__ = ['api_history_dir','server_port', 'server_host']
+    #  modules = datatype.List(model = ModuleModel)
+    #  env = datatype.Object(model = EnvModel)
+    #  cookies = datatype.Dict()
+    #  headers = datatype.Dict()
+    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
+    #  modules_include = datatype.List()
+    #  function_modules = datatype.List()
+    #  server_port = datatype.Str(default = Constants.SERVER_PORT)
+    #  server_host = datatype.Str(default = Constants.SERVER_HOST)
+    #  api_history_dir = datatype.Str(default = Constants.API_HISTORY_DIR)
+
+class ConfigModel(PydanticModel):
     """客户端全局配置模型"""
     __all__ = ['api_history_dir','server_port', 'server_host']
+    modules: List[Union[ModuleModel, dict]] = Field([], title="模块列表")
+    env: EnvModel = Field(None, title="环境变量")
+    cookies: Dict[str, Any] = Field({}, title="cookies 参数")
+    headers: Dict[str, Any] = Field({}, title="headers 参数")
+    cookie_domains: List[str] = Field([], title="获取 cookie 域名列表")
+    modules_include: List[str] = Field([], title="模块加载列表")
+    function_modules: List[str] = Field([], title="工具模块加载列表")
+    server_port: str = Field(Constants.SERVER_PORT, title="服务默认端口")
+    server_host: str = Field(Constants.SERVER_HOST, title="服务默认地址")
+    api_history_dir: str = Field(Constants.API_HISTORY_DIR,
+        title="请求历史记录存在目录")
 
-    modules = datatype.List(model = ModuleModel)
-    env = datatype.Object(model = EnvModel)
-    cookies = datatype.Dict()
-    headers = datatype.Dict()
-    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    modules_include = datatype.List()
-    function_modules = datatype.List()
-    server_port = datatype.Str(default = Constants.SERVER_PORT)
-    server_host = datatype.Str(default = Constants.SERVER_HOST)
-    api_history_dir = datatype.Str(default = Constants.API_HISTORY_DIR)
+    class Config:
+        arbitrary_types_allowed = True
+
+    class Meta:
+        module_map: Dict[str, ModuleModel]
+
+    #  @validator('env')
+    #  def format_env(cls, env: Union[EnvModel, dict]) -> EnvModel:
+        #  print('-' * 100)
+        #  print(env)
+        #  if isinstance(env, dict):
+            #  print(env)
+            #  return EnvModel(**env)
+        #  return env
+
+    @validator('modules')
+    def format_modules(cls, modules: list) -> List[ModuleModel]:
+        new_modules = []
+        for module in modules:
+            if isinstance(module, dict):
+                new_modules.append(ModuleModel(**module))
+            if isinstance(module, ModuleModel):
+                new_modules.append(module)
+        cls.Meta.module_map = {o.name: o for o in new_modules}
+        return new_modules
+
+    @root_validator
+    def format_values(cls, values):
+        print('-' * 100)
+        if 'env' in values:
+            env = values.get("env")
+            print(type(env))
+            if isinstance(env, dict):
+                values['env'] = EnvModel(**env)
+        print(values)
+
+        return values
+
+    def add_module(self, module: Union[ModuleModel, dict]):
+        if isinstance(module, dict):
+            module = ModuleModel(**module)
+        self.modules.append(module)
+        self.Meta.module_map[module.name] = module
+
+
+
 
     def format(self):
         """重载 format
         先进行 modules 处理
         """
-        super().format()
+        #  super().format()
         # 对变量进行格式化
         default_env = EnvModel.default()
         for i, _module in enumerate(self.function_modules):
             self.function_modules[i] = ConfigValue(_module
                 ).set_env(**default_env.to_dict()).format()
-        #  ConfigValue(self).format()
-        self.__mod__ = {o.name: o for o in self.modules}
+        #  self.Meta.module_map = {o.name: o for o in self.modules}
 
     def get_module(self, name):
         """获取模块"""
-        if not self.__is_format__:
-            raise Exception('ConfigModel must format first')
-        module = self.__mod__.get(name)
+        #  if not self.__is_format__:
+            #  raise Exception('ConfigModel must format first')
+        module = self.Meta.module_map.get(name)
         if module:
             inherit_keys = ['headers', 'cookies', 'cookie_domains']
             module.inherit(self, inherit_keys)
