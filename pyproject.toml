@@ -17,6 +17,8 @@ prompt-toolkit = "^3.0.29"
 csarg = "^0.1.0"
 wpy = "^0.6.1"
 rich = "^10.6.0"
+Flask = "^2.0.1"
+pydantic = "^1.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
