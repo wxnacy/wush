@@ -25,7 +25,7 @@ class Config(object):
     _function = None
     module_name = None
     space_name = None
-    builtin_env = EnvModel()
+    #  builtin_env = EnvModel()
 
     @classmethod
     def read_yml(cls, filepath):
@@ -66,8 +66,6 @@ class Config(object):
             module = cls.read_yml(module_path)
             ins._config.add_module(module)
 
-        # 格式化模型
-        ins._config.format()
         # 加载插件模块
         for module_name in ins._config.function_modules:
             load_module(module_name)
@@ -126,7 +124,6 @@ class Config(object):
         if set_env:
             req = ConfigValue(req).set_env(**env).set_functions(
                 **self.function.get_functions()).format()
-        #  req.format()
         return req
 
 

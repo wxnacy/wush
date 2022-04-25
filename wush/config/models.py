@@ -20,8 +20,6 @@ from wpy.base import BaseObject
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
 from wush.common.loggers import get_logger
-from wush.model import datatype
-from wush.model import Model
 from wush.web.enums import MethodEnum
 from wush.web.enums import ProtocolEnum
 
@@ -287,7 +285,7 @@ class ConfigModel:
     """客户端全局配置模型"""
     __all__ = ['api_history_dir','server_port', 'server_host']
     modules: List[Union[ModuleModel, dict]] = Field([], title="模块列表")
-    env: EnvModel = Field(EnvModel.default(), title="环境变量")
+    env: EnvModel = Field(EnvModel(), title="环境变量")
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
     headers: Dict[str, Any] = Field({}, title="headers 参数")
     cookie_domains: List[str] = Field([], title="获取 cookie 域名列表")
@@ -340,19 +338,6 @@ class ConfigModel:
         self.modules.append(module)
         self.Meta.module_map[module.name] = module
 
-    def format(self):
-        """重载 format
-        先进行 modules 处理
-        """
-        #  super().format()
-        # 对变量进行格式化
-        #  default_env = EnvModel.default()
-        #  for i, _module in enumerate(self.function_modules):
-            #  self.function_modules[i] = ConfigValue(_module
-                #  ).set_env(**default_env.to_dict()).format()
-        #  self.Meta.module_map = {o.name: o for o in self.modules}
-        pass
-
     def get_module(self, name):
         """获取模块"""
         #  if not self.__is_format__:
@@ -361,8 +346,6 @@ class ConfigModel:
         if module:
             inherit_keys = ['headers', 'cookies', 'cookie_domains']
             module.inherit(self, inherit_keys)
-
-        module = ConfigValue(module).set_env(**self.env.to_dict()).format()
 
         return module
 

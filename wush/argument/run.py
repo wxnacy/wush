@@ -229,7 +229,7 @@ class RunArgumentParser(CmdArgumentParser):
             with_browser_cookie: bool = False
         ) -> RequestBuilder:
         """加载 RequestModel 模型"""
-        request_dict = request_model.to_dict()
+        request_dict = request_model.dict()
         ins_dict = {}
         for key in RequestsParamsEnum.values():
             val = request_dict.get(key)

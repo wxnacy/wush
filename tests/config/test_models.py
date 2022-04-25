@@ -107,7 +107,8 @@ def test_config_model():
     assert module.get_request('65432') == None
     req = module.get_request('test_get')
     assert req.path == '/test'
-    assert req.url == 'http://localhost:6060/api/test'
+    assert req.url == 'http://localhost:${WUSH_PORT}/api/test'
+    #  assert req.url == 'http://localhost:6060/api/test'
     #  assert req.params.id == 12
     #  assert req.params.name == os.getenv("HOME")
 
@@ -131,18 +132,18 @@ def test_request_model():
     item.add_json(name = 'test')
     assert item.json_data.name.value == 'test'
 
-def test_get_request():
-    request = config.get_request('wush', 'test_get')
-    assert isinstance(request, RequestModel)
+#  def test_get_request():
+    #  request = config.get_request('wush', 'test_get')
+    #  assert isinstance(request, RequestModel)
 
-    assert request.name == 'test_get'
-    assert request.path == '/test'
-    req_dict = request.dict()
-    assert req_dict.get("params") == { "id": 12, 'home': os.getenv("HOME") }
-    assert req_dict.get("json") == {}
+    #  assert request.name == 'test_get'
+    #  assert request.path == '/test'
+    #  req_dict = request.dict()
+    #  assert req_dict.get("params") == { "id": 12, 'home': os.getenv("HOME") }
+    #  assert req_dict.get("json") == {}
 
-    request = config.get_request('wush', 'test_post')
-    assert request.name == 'test_post'
-    req_dict = request.dict()
-    assert req_dict.get("json") == { "id": 12 }
-    assert req_dict.get("params") == {}
+    #  request = config.get_request('wush', 'test_post')
+    #  assert request.name == 'test_post'
+    #  req_dict = request.dict()
+    #  assert req_dict.get("json") == { "id": 12 }
+    #  assert req_dict.get("params") == {}

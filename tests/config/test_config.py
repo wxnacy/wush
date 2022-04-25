@@ -20,7 +20,7 @@ request_name = 'test_get'
 
 def test_config_init():
     _config = ConfigModel()
-    _config.format()
+    #  _config.format()
     assert _config.modules == []
 
 def test_load():
@@ -35,23 +35,32 @@ def test_get_request():
     assert req.url == 'http://localhost:6060/api/test'
     assert req.domain == 'localhost:6060'
 
+    req_dict = req.dict()
+    assert req_dict.get("params") == { "id": 12, 'home': os.getenv("HOME") }
+    assert req_dict.get("json") == {}
+
+    request = test_config.get_request('wush', 'test_post')
+    assert request.name == 'test_post'
+    req_dict = request.dict()
+    assert req_dict.get("json") == { "id": 12 }
+    assert req_dict.get("params") == {}
+
     req = test_config.get_request('wush', 'test_get')
     assert req.path == '/test'
     #  req.format()
     #  req.params.format()
-    assert req.params.id._value == 12
+    assert req.params.id.value == 12
 
-    req_dict = req.params.to_dict()
-    req_dict = req.to_dict()['params']
+    req_dict = req.params.dict()
+    req_dict = req.dict()['params']
     assert req_dict['id'] == 12
-    #  assert req.params.id._value == 12
 
     test_req = test_config.get_request(module_name, 'test')
-    assert test_req.json.id._value == 12
-    assert test_req.json.type._value == 0
-    assert test_req.json.name._value == ''
-    assert test_req.json.biz_id._value == 1234
-    assert test_req.json.is_sync._value == False
+    assert test_req.json_data.id.value == 12
+    assert test_req.json_data.type.value == 0
+    assert test_req.json_data.name.value == ''
+    assert test_req.json_data.biz_id.value == 1234
+    assert test_req.json_data.is_sync.value == False
     data = test_req.dict()
     assert data['json']['id'] == 12
     assert data['json']['type'] == 0
