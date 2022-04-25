@@ -22,6 +22,7 @@ modules:
           request_name: 'test'
         params:
           id: 12
+          home: '${HOME}'
 
       - name: 'test_post'
         title: 'wush 测试接口 POST'

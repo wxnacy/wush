@@ -126,7 +126,7 @@ class Config(object):
         if set_env:
             req = ConfigValue(req).set_env(**env).set_functions(
                 **self.function.get_functions()).format()
-        req.format()
+        #  req.format()
         return req
 
 

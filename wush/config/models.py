@@ -5,6 +5,7 @@
 配置模型
 """
 import os
+import json
 from collections import defaultdict
 from typing import (
     Dict, Any, List, Union
@@ -43,13 +44,15 @@ class BaseModel(BaseObject):
                 if isinstance(super_value, dict):
                     super_value = dict(super_value)
                     super_value.update(sub_value)
+                    setattr(self, key, super_value)
+
                 # 列表结构进行拼接
                 if isinstance(super_value, list):
                     super_value = list(super_value)
                     super_value.extend(sub_value)
                     super_value = list(set(super_value))
 
-                setattr(self, key, super_value)
+                    setattr(self, key, super_value)
 
 @dataclass
 class EnvModel(BaseObject):
@@ -76,148 +79,149 @@ class EnvModel(BaseObject):
             cls._default = cls(**_env)
         return cls._default
 
-class FieldModel(Model):
+class FieldModel(PydanticModel):
     """配置字段
     在配置中，单一值无法描述字段时，可以使用该模型
     """
 
-    AUTO_FORMAT = True
+    doc: str = Field("", title="字段描述", alias="_doc")
+    value: Any = Field("", title="值", alias="_value")
+    data_type: Any = Field(None, title="类型", alias="_data_type")
 
-    _doc = datatype.Str()
-    _value = datatype.Object()
-    _data_type = datatype.Object()
+    @validator('data_type')
+    def format_data_type(cls, data_type):
 
-class AutoFieldModel(Model):
+        type_map = {
+            "int": int,
+            "str": str,
+            "string": str,
+            "float": float,
+            "list": list,
+            "dict": dict,
+        }
+        data_type = type_map.get(data_type, data_type)
+
+        return data_type
+
+    @root_validator
+    def _root_validator(cls, values: dict):
+        value = values.get('value')
+        data_type = values.get('data_type')
+
+        # 如果 data_type 为空，依照 value 来矫正
+        if not data_type:
+            data_type = type(value)
+            values['data_type'] = data_type
+
+        # format value
+        if not isinstance(value, data_type):
+
+            if data_type in (int, str):
+                value = data_type(value)
+            if data_type in (list, dict):
+                try:
+                    value = json.loads(value)
+                except:
+                    raise ValueError(f"{value} is not {data_type}")
+
+            values['value'] = value
+
+        return values
+
+@dataclass
+class AutoFieldModel():
     """该模型自动使用 FieldModel"""
-    AUTO_FORMAT = True
-    DEFAULT_DATATYPE = datatype.Object(model = FieldModel)
-
+    __annotations__ = {}
 
     def __init__(self, **kwargs):
         """对数据进行前置过滤"""
         for k, v in kwargs.items():
-            v = self._format_value(v)
-            kwargs[k] = v
+            setattr(self, k, v)
 
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value):
+        if key not in self.__annotations__:
+            self.__annotations__[key] = FieldModel
+        value = self._format_value(value)
+        super().__setattr__(key, value)
 
-    def to_dict(self):
+
+    def dict(self):
         """重载方法
         value 值只保留 _value 部分
         """
-        logger.info('AutoFieldModel.to_dict')
-        data = super().to_dict()
-        for k, v in data.items():
-            if isinstance(v, FieldModel):
-                data[k] = v._value
-            if isinstance(v, dict):
-                data[k] = v.get("_value")
+        data = {}
+        for key in self.__annotations__.keys():
+            if not hasattr(self, key):
+                continue
+            data[key] = getattr(self, key).value
         return data
 
     def _format_value(self, v):
-        if isinstance(v, dict) and '_value' in v:
-            # 如果对象字段已经包含当前结构，进行格式转换
-            data_type = v.get("_data_type", str)
-            # 针对字符串转为基础类型
-            if isinstance(data_type, str):
-                data_type = Constants.str_to_basetype(data_type)
-            v['_value'] = data_type(v['_value'])
-        else:
-            # 如果结构不对，则进行结构转换
-            v = { "_value": v, "_data_type": type(v) }
+        if isinstance(v, dict):
+            v = FieldModel(**v)
+        if not isinstance(v, FieldModel):
+            v = FieldModel(_value = v)
         return v
-
-#  class RequestModel(Model, BaseModel):
-    #  """请求配置模型"""
-    #  AUTO_FORMAT = True
-
-    #  name = datatype.Str()
-    #  title = datatype.Str()
-    #  path = datatype.Str()
-    #  method = datatype.Str(enum = MethodEnum, default=MethodEnum.GET.value,
-        #  upper=True)
-    #  protocol = datatype.Str()
-    #  domain = datatype.Str()
-    #  cookies = datatype.Dict()
-    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    #  headers = datatype.Dict()
-    #  json = datatype.Object(model=AutoFieldModel)
-    #  params = datatype.Object(model=AutoFieldModel)
-    #  data = datatype.Str()
-    #  url = datatype.Str()
 
 
 class RequestModel(PydanticModel, BaseModel):
     """请求配置模型"""
 
     name: str = Field(..., title="请求名称")
-    title: str = Field(None, title="请求标题")
+    title: str = Field('', title="请求标题")
     protocol: str = Field(ProtocolEnum.HTTP.value, title="请求协议")
-    path: str = Field(None, title="路径")
-    url: str = Field(None, title="地址")
-    domain: str = Field(None, title="域名")
-    url_prefix: str = Field(None, title="地址前缀")
+    method: str = Field(MethodEnum.GET.value, title="请求方式")
+    path: str = Field('', title="路径")
+    url_prefix: str = Field('', title="地址前缀")
+    url: str = Field('', title="地址")
+    domain: str = Field('', title="域名")
     cookie_domains: List[str] = Field([], title="获取 cookie 的域名列表")
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
     headers: Dict[str, Any] = Field({}, title="headers 参数")
-    requests: List[Union[RequestModel, dict]] = Field([], title="请求列表")
+    params: AutoFieldModel = Field(AutoFieldModel(), title="地址参数")
+    json_data: AutoFieldModel = Field(AutoFieldModel(), title="json 参数", alias="json")
+    #  data: str = Field(None, title="域名")
 
-    method = datatype.Str(enum = MethodEnum, default=MethodEnum.GET.value,
-        upper=True)
-    domain = datatype.Str()
-    cookies = datatype.Dict()
-    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    headers = datatype.Dict()
-    json = datatype.Object(model=AutoFieldModel)
-    params = datatype.Object(model=AutoFieldModel)
-    data = datatype.Str()
-    url = datatype.Str()
+    class Config:
+        arbitrary_types_allowed = True
+
+    @validator('protocol')
+    def check_protocol(cls, v: str):
+        ProtocolEnum.validate(v)
+        return v
+
+    @validator('method')
+    def check_method(cls, v: str):
+        v = v.upper()
+        MethodEnum.validate(v)
+        return v
 
     def add_params(self, **kwargs):
         """添加 params 参数"""
         for k, v in kwargs.items():
-            origin_value = None
-            if hasattr(self.params, k):
-                origin_value = getattr(self.params, k)
-                v = origin_value._data_type(v)
-            v = self.params._format_value(v)
             setattr(self.params, k, v)
-        self.params.format()
 
     def add_json(self, **kwargs):
         """添加 params 参数"""
         for k, v in kwargs.items():
-            origin_value = None
-            if hasattr(self.json, k):
-                origin_value = getattr(self.json, k)
-                v = origin_value._data_type(v)
-            v = self.json._format_value(v)
-            setattr(self.json, k, v)
-        self.json.format()
+            setattr(self.json_data, k, v)
+
+    def dict(self):
+        data = super().dict()
+        data['params'] = self.params.dict()
+        data.pop('json_data')
+        data['json'] = self.json_data.dict()
+
+        return data
 
 
-#  class ModuleModel(Model, BaseModel):
-    #  AUTO_FORMAT = True
-
-    #  name = datatype.Str()
-    #  protocol = datatype.Str(enum = ProtocolEnum,
-            #  default=ProtocolEnum.HTTP.value)
-    #  domain = datatype.Str()
-    #  url_prefix = datatype.Str()
-    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    #  cookies = datatype.Dict()
-    #  headers = datatype.Dict()
-    #  requests = datatype.List(model=RequestModel)
-    #  include = datatype.Str()
-
-#  @dataclass(config = PydanticConfig)
 class ModuleModel(PydanticModel, BaseModel):
     #  __req__: dict = {}
 
     name: str = Field(..., title="模块名称")
     protocol: str = Field(ProtocolEnum.HTTP.value, title="请求协议")
-    domain: str = Field(None, title="域名")
-    url_prefix: str = Field(None, title="地址前缀")
+    domain: str = Field('', title="域名")
+    url_prefix: str = Field('', title="地址前缀")
     cookie_domains: List[str] = Field([], title="获取 cookie 的域名列表")
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
     headers: Dict[str, Any] = Field({}, title="headers 参数")
@@ -268,7 +272,7 @@ class ModuleModel(PydanticModel, BaseModel):
         if req:
             # 继承 module 的字段
             inherit_keys = ('protocol', 'domain', 'cookies', 'headers',
-                'cookie_domains')
+                'cookie_domains', 'url_prefix')
             req.inherit(self, inherit_keys)
 
             # 拼装 url
@@ -357,6 +361,8 @@ class ConfigModel:
         if module:
             inherit_keys = ['headers', 'cookies', 'cookie_domains']
             module.inherit(self, inherit_keys)
+
+        module = ConfigValue(module).set_env(**self.env.to_dict()).format()
 
         return module
 

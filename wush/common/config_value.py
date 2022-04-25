@@ -121,6 +121,8 @@ class ConfigValue():
         if not hasattr(obj, '__annotations__'):
             return
         for key in obj.__annotations__.keys():
+            if not hasattr(obj, key):
+                continue
             val = ConfigValue(getattr(obj, key)).set_env(**self.env
                 ).set_functions(**self.functions).format()
             setattr(obj, key, val)
