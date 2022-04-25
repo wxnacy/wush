@@ -71,6 +71,10 @@ def test_auto_field():
     assert dict_data.get("id") == 1
     assert dict_data.get("pagesize") == 10
 
+    # 重新赋值
+    af.page = "1"
+    assert af.page.value == 1
+
 test_config_path = 'tests/data/config/config.yml'
 config = Config.load(test_config_path)
 _config = config._config
