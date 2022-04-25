@@ -19,9 +19,11 @@ wpy = "^0.6.1"
 rich = "^10.6.0"
 Flask = "^2.0.1"
 pydantic = "^1.9.0"
+w3lib = "^1.22.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
+Sphinx = "^4.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
