@@ -112,8 +112,19 @@ class FieldModel(PydanticModel):
             values['data_type'] = data_type
 
         # format value
-        if not isinstance(value, data_type):
+        values['value'] = cls._format_value(data_type, value)
 
+        return values
+
+    def __setattr__(self, key, value):
+        if key == 'value':
+            value = self._format_value(self.data_type, value)
+
+        super().__setattr__(key, value)
+
+    @staticmethod
+    def _format_value(data_type, value):
+        if not isinstance(value, data_type):
             if data_type in (int, str):
                 value = data_type(value)
             if data_type in (list, dict):
@@ -121,10 +132,7 @@ class FieldModel(PydanticModel):
                     value = json.loads(value)
                 except:
                     raise ValueError(f"{value} is not {data_type}")
-
-            values['value'] = value
-
-        return values
+        return value
 
 @dataclass
 class AutoFieldModel():
@@ -139,8 +147,14 @@ class AutoFieldModel():
     def __setattr__(self, key, value):
         if key not in self.__annotations__:
             self.__annotations__[key] = FieldModel
-        value = self._format_value(value)
-        super().__setattr__(key, value)
+
+        if not hasattr(self, key) or isinstance(value, FieldModel):
+            value = self._format_value(value)
+            super().__setattr__(key, value)
+        else:
+            print(key)
+            origin_field = getattr(self, key)
+            origin_field.value = value
 
 
     def dict(self):

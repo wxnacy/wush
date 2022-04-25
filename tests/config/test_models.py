@@ -38,6 +38,8 @@ def test_field_model():
 
     field = FieldModel(_value='["a", "b"]', _data_type = list)
     assert field.value == ["a", "b"]
+    field.value = '["wxnacy"]'
+    assert field.value == ['wxnacy']
 
     field = FieldModel(_value='{"name": "value"}', _data_type = 'dict')
     assert field.value == {"name": "value"}
@@ -74,6 +76,9 @@ def test_auto_field():
     # 重新赋值
     af.page = "1"
     assert af.page.value == 1
+
+    af.id = FieldModel(_value="wxn")
+    assert af.id.value == 'wxn'
 
 test_config_path = 'tests/data/config/config.yml'
 config = Config.load(test_config_path)
@@ -135,6 +140,15 @@ def test_request_model():
 
     item.add_json(name = 'test')
     assert item.json_data.name.value == 'test'
+
+    req = config.get_request('wush', 'test')
+    assert req.json_data.user_ids.value == ['a', 'b']
+    req.add_json(user_ids = '["wxnacy"]')
+    assert req.json_data.user_ids.value == ['wxnacy']
+
+    req_dict = req.dict()
+    assert req_dict['json']['user_ids'] == ['wxnacy']
+
 
 #  def test_get_request():
     #  request = config.get_request('wush', 'test_get')

@@ -44,6 +44,10 @@ modules:
             _doc: '项目id'
             _value: '1234'
             _data_type: int
+          user_ids:
+            _doc: '用户id列表'
+            _value: ['a', 'b']
+            _data_type: list
 
   - name: 'api_github'
     protocol: 'https'
