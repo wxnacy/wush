@@ -5,6 +5,7 @@
 配置模型
 """
 import os
+from collections import defaultdict
 from typing import (
     Dict, Any, List, Union
 )
@@ -25,6 +26,9 @@ from wush.web.enums import ProtocolEnum
 
 logger = get_logger('config.models')
 
+class PydanticConfig:
+    arbitrary_types_allowed = True
+
 class BaseModel(BaseObject):
 
     def inherit(self, super_ins, keys):
@@ -43,8 +47,9 @@ class BaseModel(BaseObject):
                 if isinstance(super_value, list):
                     super_value = list(super_value)
                     super_value.extend(sub_value)
+                    super_value = list(set(super_value))
 
-                #  setattr(self, key, super_value)
+                setattr(self, key, super_value)
 
 @dataclass
 class EnvModel(BaseObject):
@@ -165,29 +170,75 @@ class RequestModel(Model, BaseModel):
         self.json.format()
 
 
-class ModuleModel(Model, BaseModel):
-    AUTO_FORMAT = True
+#  class ModuleModel(Model, BaseModel):
+    #  AUTO_FORMAT = True
 
-    name = datatype.Str()
-    protocol = datatype.Str(enum = ProtocolEnum,
-            default=ProtocolEnum.HTTP.value)
-    domain = datatype.Str()
-    url_prefix = datatype.Str()
-    cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    cookies = datatype.Dict()
-    headers = datatype.Dict()
-    requests = datatype.List(model=RequestModel)
-    include = datatype.Str()
+    #  name = datatype.Str()
+    #  protocol = datatype.Str(enum = ProtocolEnum,
+            #  default=ProtocolEnum.HTTP.value)
+    #  domain = datatype.Str()
+    #  url_prefix = datatype.Str()
+    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
+    #  cookies = datatype.Dict()
+    #  headers = datatype.Dict()
+    #  requests = datatype.List(model=RequestModel)
+    #  include = datatype.Str()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for req in self.requests:
-            logger.info('test %s', req.to_dict())
-        self.__req__ = {o.name: o for o in self.requests}
+#  @dataclass(config = PydanticConfig)
+class ModuleModel(PydanticModel, BaseModel):
+    #  __req__: dict = {}
+
+    name: str = Field(..., title="模块名称")
+    protocol: str = Field(ProtocolEnum.HTTP.value, title="请求协议")
+    domain: str = Field(None, title="域名")
+    url_prefix: str = Field(None, title="地址前缀")
+    cookie_domains: List[str] = Field([], title="获取 cookie 的域名列表")
+    cookies: Dict[str, Any] = Field({}, title="cookies 参数")
+    headers: Dict[str, Any] = Field({}, title="headers 参数")
+    requests: List[Union[RequestModel, dict]] = Field([], title="请求列表")
+    #  include = datatype.Str()
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    class Meta:
+        request_map: Dict[str, Dict[str, RequestModel]
+                ] = defaultdict(RequestModel)
+
+    @validator('protocol')
+    def check_protocol(cls, v: str):
+        ProtocolEnum.validate(v)
+        return v
+
+    @validator('requests')
+    def format_requests(cls, requests: list) -> List[RequestModel]:
+        new_items = []
+        for item in requests:
+            if isinstance(item, dict):
+                new_items.append(RequestModel(**item))
+            if isinstance(item, RequestModel):
+                new_items.append(item)
+        #  cls.Meta.request_map[] = {o.name: o for o in new_items}
+        return new_items
+
+    @root_validator
+    def _root_validator(cls, values):
+        # 初始化 request_map
+        name = values.get("name")
+        cls.Meta.request_map[name] = {
+            o.name: o for o in values.get("requests", [])}
+
+        return values
+
+    #  def __init__(self, *args, **kwargs):
+        #  super().__init__(*args, **kwargs)
+        #  self.__req__ = {o.name: o for o in self.requests}
 
     def get_request(self, name):
         """获取 request 模型"""
-        req = self.__req__.get(name)
+        #  req = self.__req__.get(name)
+        #  print(self.Meta.request_map)
+        req = self.Meta.request_map[self.name].get(name)
         if req:
             # 继承 module 的字段
             inherit_keys = ('protocol', 'domain', 'cookies', 'headers',
@@ -201,7 +252,8 @@ class ModuleModel(Model, BaseModel):
         return req
 
 
-class ConfigModel(PydanticModel):
+@dataclass(config = PydanticConfig)
+class ConfigModel:
     """客户端全局配置模型"""
     __all__ = ['api_history_dir','server_port', 'server_host']
     modules: List[Union[ModuleModel, dict]] = Field([], title="模块列表")
@@ -216,8 +268,8 @@ class ConfigModel(PydanticModel):
     api_history_dir: str = Field(Constants.API_HISTORY_DIR,
         title="请求历史记录存在目录")
 
-    class Config:
-        arbitrary_types_allowed = True
+    #  class Config:
+        #  arbitrary_types_allowed = True
 
     class Meta:
         module_map: Dict[str, ModuleModel] = {}
@@ -232,7 +284,8 @@ class ConfigModel(PydanticModel):
         #  return env
 
     @validator('modules')
-    def format_modules(cls, modules: list) -> List[ModuleModel]:
+    def format_modules(cls, modules: List[Union[ModuleModel, dict]]
+            ) -> List[ModuleModel]:
         new_modules = []
         for module in modules:
             if isinstance(module, dict):
@@ -250,19 +303,6 @@ class ConfigModel(PydanticModel):
                 ).set_env(**default_env.to_dict()).format()
 
         return modules
-
-    #  @root_validator
-    #  def format_values(cls, values):
-        #  print('-' * 100)
-        #  print(values)
-        #  if 'env' in values:
-            #  env = values.get("env")
-            #  print(type(env))
-            #  if isinstance(env, dict):
-                #  values['env'] = EnvModel(**env)
-        #  print(values)
-
-        #  return values
 
     def add_module(self, module: Union[ModuleModel, dict]):
         if isinstance(module, dict):

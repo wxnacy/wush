@@ -1,4 +1,4 @@
-module: 'default'
+name: 'default'
 requests:
   - name: 'get_test'
     title: 'get_test'

@@ -3,12 +3,17 @@ env:
   WUSH_PORT: 6060
 cookies:
   config_name: 'test'
+cookie_domains:
+  - '.baidu.com'
 modules:
   - name: 'wush'
     domain: 'localhost:${WUSH_PORT}'
     url_prefix: '/api'
     cookies:
       module_name: 'test'
+    cookie_domains:
+      - '.baidu.com'
+      - '.wxnacy.com'
     requests:
       - name: 'test_get'
         title: 'wush 测试接口 GET'

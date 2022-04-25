@@ -3,6 +3,7 @@
 # Author: wxnacy@gmail.com
 
 import os
+import pytest
 from wush.config.models import AutoFieldModel
 from wush.config.config import Config
 from wush.config.models import ConfigModel
@@ -27,14 +28,15 @@ def test_config_model():
     assert type(config.modules) == list
     module = config.modules[0]
     assert isinstance(module, ModuleModel)
-    assert module.cookies.get("config_name") == 'test'
-    assert module.cookies.get("module_name") == 'test'
 
     assert config.get_module('678') == None
 
     module = config.get_module('wush')
     assert module.name == 'wush'
     assert type(module.requests) == list
+    assert module.cookies.get("config_name") == 'test'
+    assert module.cookies.get("module_name") == 'test'
+    assert len(module.cookie_domains) == 2
 
     request = module.requests[0]
     assert isinstance(request, RequestModel)
@@ -45,35 +47,39 @@ def test_config_model():
     req = module.get_request('test_get')
     assert req.path == '/test'
 
-def test_auto_field():
-    data = { "json": {
-        "name": "wxnacy",
-        "age": { "_value": "1", "_data_type": int },
-        "page": { "_value": "1", "_data_type": 'int' }
-        } }
+def test_module_model():
+    with pytest.raises(ValueError):
+        ModuleModel(name = 'test', protocol='test')
 
-    af = AutoFieldModel(**data['json'])
-    assert af.name._value == 'wxnacy'
-    assert af.age._value == 1
-    assert af.page._value == 1
+#  def test_auto_field():
+    #  data = { "json": {
+        #  "name": "wxnacy",
+        #  "age": { "_value": "1", "_data_type": int },
+        #  "page": { "_value": "1", "_data_type": 'int' }
+        #  } }
 
-    dict_data = af.to_dict()
-    assert dict_data.get("name") == 'wxnacy'
-    assert dict_data.get("age") == 1
-    assert dict_data.get("page") == 1
+    #  af = AutoFieldModel(**data['json'])
+    #  assert af.name._value == 'wxnacy'
+    #  assert af.age._value == 1
+    #  assert af.page._value == 1
 
-def test_get_request():
-    request = config.get_request('wush', 'test_get')
-    assert isinstance(request, RequestModel)
+    #  dict_data = af.to_dict()
+    #  assert dict_data.get("name") == 'wxnacy'
+    #  assert dict_data.get("age") == 1
+    #  assert dict_data.get("page") == 1
 
-    assert request.name == 'test_get'
-    assert request.path == '/test'
-    req_dict = request.to_dict()
-    assert req_dict.get("params") == { "id": 12 }
-    assert req_dict.get("json") == {}
+#  def test_get_request():
+    #  request = config.get_request('wush', 'test_get')
+    #  assert isinstance(request, RequestModel)
 
-    request = config.get_request('wush', 'test_post')
-    assert request.name == 'test_post'
-    req_dict = request.to_dict()
-    assert req_dict.get("json") == { "id": 12 }
-    assert req_dict.get("params") == {}
+    #  assert request.name == 'test_get'
+    #  assert request.path == '/test'
+    #  req_dict = request.to_dict()
+    #  assert req_dict.get("params") == { "id": 12 }
+    #  assert req_dict.get("json") == {}
+
+    #  request = config.get_request('wush', 'test_post')
+    #  assert request.name == 'test_post'
+    #  req_dict = request.to_dict()
+    #  assert req_dict.get("json") == { "id": 12 }
+    #  assert req_dict.get("params") == {}
