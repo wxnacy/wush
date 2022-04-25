@@ -201,20 +201,6 @@ class ModuleModel(Model, BaseModel):
         return req
 
 
-#  class ConfigModel(Model):
-    #  """客户端全局配置模型"""
-    #  __all__ = ['api_history_dir','server_port', 'server_host']
-    #  modules = datatype.List(model = ModuleModel)
-    #  env = datatype.Object(model = EnvModel)
-    #  cookies = datatype.Dict()
-    #  headers = datatype.Dict()
-    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
-    #  modules_include = datatype.List()
-    #  function_modules = datatype.List()
-    #  server_port = datatype.Str(default = Constants.SERVER_PORT)
-    #  server_host = datatype.Str(default = Constants.SERVER_HOST)
-    #  api_history_dir = datatype.Str(default = Constants.API_HISTORY_DIR)
-
 class ConfigModel(PydanticModel):
     """客户端全局配置模型"""
     __all__ = ['api_history_dir','server_port', 'server_host']

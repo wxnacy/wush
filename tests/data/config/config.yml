@@ -1,14 +1,20 @@
 env:
   name: wxnacy
   WUSH_PORT: 6060
+cookies:
+  config_name: 'test'
 modules:
   - name: 'wush'
     domain: 'localhost:${WUSH_PORT}'
     url_prefix: '/api'
+    cookies:
+      module_name: 'test'
     requests:
       - name: 'test_get'
         title: 'wush 测试接口 GET'
         path: '/test'
+        cookies:
+          request_name: 'test'
         params:
           id: 12
 

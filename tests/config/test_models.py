@@ -27,11 +27,15 @@ def test_config_model():
     assert type(config.modules) == list
     module = config.modules[0]
     assert isinstance(module, ModuleModel)
+    assert module.cookies.get("config_name") == 'test'
+    assert module.cookies.get("module_name") == 'test'
 
     assert config.get_module('678') == None
+
     module = config.get_module('wush')
     assert module.name == 'wush'
     assert type(module.requests) == list
+
     request = module.requests[0]
     assert isinstance(request, RequestModel)
     assert request.name == 'test_get'
