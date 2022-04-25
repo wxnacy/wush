@@ -127,17 +127,43 @@ class AutoFieldModel(Model):
             v = { "_value": v, "_data_type": type(v) }
         return v
 
+#  class RequestModel(Model, BaseModel):
+    #  """请求配置模型"""
+    #  AUTO_FORMAT = True
 
-class RequestModel(Model, BaseModel):
+    #  name = datatype.Str()
+    #  title = datatype.Str()
+    #  path = datatype.Str()
+    #  method = datatype.Str(enum = MethodEnum, default=MethodEnum.GET.value,
+        #  upper=True)
+    #  protocol = datatype.Str()
+    #  domain = datatype.Str()
+    #  cookies = datatype.Dict()
+    #  cookie_domains = datatype.List()                # 获取 cookie 的域名列表
+    #  headers = datatype.Dict()
+    #  json = datatype.Object(model=AutoFieldModel)
+    #  params = datatype.Object(model=AutoFieldModel)
+    #  data = datatype.Str()
+    #  url = datatype.Str()
+
+
+class RequestModel(PydanticModel, BaseModel):
     """请求配置模型"""
-    AUTO_FORMAT = True
 
-    name = datatype.Str()
-    title = datatype.Str()
-    path = datatype.Str()
+    name: str = Field(..., title="请求名称")
+    title: str = Field(None, title="请求标题")
+    protocol: str = Field(ProtocolEnum.HTTP.value, title="请求协议")
+    path: str = Field(None, title="路径")
+    url: str = Field(None, title="地址")
+    domain: str = Field(None, title="域名")
+    url_prefix: str = Field(None, title="地址前缀")
+    cookie_domains: List[str] = Field([], title="获取 cookie 的域名列表")
+    cookies: Dict[str, Any] = Field({}, title="cookies 参数")
+    headers: Dict[str, Any] = Field({}, title="headers 参数")
+    requests: List[Union[RequestModel, dict]] = Field([], title="请求列表")
+
     method = datatype.Str(enum = MethodEnum, default=MethodEnum.GET.value,
         upper=True)
-    protocol = datatype.Str()
     domain = datatype.Str()
     cookies = datatype.Dict()
     cookie_domains = datatype.List()                # 获取 cookie 的域名列表

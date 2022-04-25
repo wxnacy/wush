@@ -51,35 +51,35 @@ def test_module_model():
     with pytest.raises(ValueError):
         ModuleModel(name = 'test', protocol='test')
 
-#  def test_auto_field():
-    #  data = { "json": {
-        #  "name": "wxnacy",
-        #  "age": { "_value": "1", "_data_type": int },
-        #  "page": { "_value": "1", "_data_type": 'int' }
-        #  } }
+def test_auto_field():
+    data = { "json": {
+        "name": "wxnacy",
+        "age": { "_value": "1", "_data_type": int },
+        "page": { "_value": "1", "_data_type": 'int' }
+        } }
 
-    #  af = AutoFieldModel(**data['json'])
-    #  assert af.name._value == 'wxnacy'
-    #  assert af.age._value == 1
-    #  assert af.page._value == 1
+    af = AutoFieldModel(**data['json'])
+    assert af.name._value == 'wxnacy'
+    assert af.age._value == 1
+    assert af.page._value == 1
 
-    #  dict_data = af.to_dict()
-    #  assert dict_data.get("name") == 'wxnacy'
-    #  assert dict_data.get("age") == 1
-    #  assert dict_data.get("page") == 1
+    dict_data = af.to_dict()
+    assert dict_data.get("name") == 'wxnacy'
+    assert dict_data.get("age") == 1
+    assert dict_data.get("page") == 1
 
-#  def test_get_request():
-    #  request = config.get_request('wush', 'test_get')
-    #  assert isinstance(request, RequestModel)
+def test_get_request():
+    request = config.get_request('wush', 'test_get')
+    assert isinstance(request, RequestModel)
 
-    #  assert request.name == 'test_get'
-    #  assert request.path == '/test'
-    #  req_dict = request.to_dict()
-    #  assert req_dict.get("params") == { "id": 12 }
-    #  assert req_dict.get("json") == {}
+    assert request.name == 'test_get'
+    assert request.path == '/test'
+    req_dict = request.to_dict()
+    assert req_dict.get("params") == { "id": 12 }
+    assert req_dict.get("json") == {}
 
-    #  request = config.get_request('wush', 'test_post')
-    #  assert request.name == 'test_post'
-    #  req_dict = request.to_dict()
-    #  assert req_dict.get("json") == { "id": 12 }
-    #  assert req_dict.get("params") == {}
+    request = config.get_request('wush', 'test_post')
+    assert request.name == 'test_post'
+    req_dict = request.to_dict()
+    assert req_dict.get("json") == { "id": 12 }
+    assert req_dict.get("params") == {}
