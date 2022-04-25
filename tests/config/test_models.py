@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 # Author: wxnacy@gmail.com
 
+import os
 from wush.config.models import AutoFieldModel
 from wush.config.config import Config
 from wush.config.models import ConfigModel
@@ -12,7 +13,14 @@ test_config_path = 'tests/data/config/config.yml'
 config = Config.load(test_config_path)
 _config = config._config
 
-def test_format():
+def test_config_model():
+    item = ConfigModel(
+            env = { "name": "wxnacy" },
+            function_modules = ['${HOME}/test'],
+    )
+    assert item.env.name == 'wxnacy'
+    assert item.function_modules[0] == os.path.join(os.getenv("HOME"), 'test')
+
     config = Config.load(test_config_path)
     config = config._config
 
@@ -53,7 +61,6 @@ def test_auto_field():
 def test_get_request():
     request = config.get_request('wush', 'test_get')
     assert isinstance(request, RequestModel)
-    print(request.to_dict())
 
     assert request.name == 'test_get'
     assert request.path == '/test'

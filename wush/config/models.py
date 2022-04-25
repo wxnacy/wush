@@ -8,6 +8,7 @@ import os
 from typing import (
     Dict, Any, List, Union
 )
+from pydantic.dataclasses import dataclass
 from pydantic import (
     BaseModel as PydanticModel, Field, validator, root_validator
 )
@@ -45,6 +46,7 @@ class BaseModel(BaseObject):
 
                 #  setattr(self, key, super_value)
 
+@dataclass
 class EnvModel(BaseObject):
     _default = None
 
@@ -217,7 +219,7 @@ class ConfigModel(PydanticModel):
     """客户端全局配置模型"""
     __all__ = ['api_history_dir','server_port', 'server_host']
     modules: List[Union[ModuleModel, dict]] = Field([], title="模块列表")
-    env: EnvModel = Field(None, title="环境变量")
+    env: EnvModel = Field(EnvModel.default(), title="环境变量")
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
     headers: Dict[str, Any] = Field({}, title="headers 参数")
     cookie_domains: List[str] = Field([], title="获取 cookie 域名列表")
@@ -232,11 +234,11 @@ class ConfigModel(PydanticModel):
         arbitrary_types_allowed = True
 
     class Meta:
-        module_map: Dict[str, ModuleModel]
+        module_map: Dict[str, ModuleModel] = {}
 
     #  @validator('env')
     #  def format_env(cls, env: Union[EnvModel, dict]) -> EnvModel:
-        #  print('-' * 100)
+        #  print('=' * 100)
         #  print(env)
         #  if isinstance(env, dict):
             #  print(env)
@@ -254,17 +256,27 @@ class ConfigModel(PydanticModel):
         cls.Meta.module_map = {o.name: o for o in new_modules}
         return new_modules
 
-    @root_validator
-    def format_values(cls, values):
-        print('-' * 100)
-        if 'env' in values:
-            env = values.get("env")
-            print(type(env))
-            if isinstance(env, dict):
-                values['env'] = EnvModel(**env)
-        print(values)
+    @validator('function_modules')
+    def format_function_modules(cls, modules: list) -> list:
+        default_env = EnvModel.default()
+        for i, _module in enumerate(modules):
+            modules[i] = ConfigValue(_module
+                ).set_env(**default_env.to_dict()).format()
 
-        return values
+        return modules
+
+    #  @root_validator
+    #  def format_values(cls, values):
+        #  print('-' * 100)
+        #  print(values)
+        #  if 'env' in values:
+            #  env = values.get("env")
+            #  print(type(env))
+            #  if isinstance(env, dict):
+                #  values['env'] = EnvModel(**env)
+        #  print(values)
+
+        #  return values
 
     def add_module(self, module: Union[ModuleModel, dict]):
         if isinstance(module, dict):
@@ -272,20 +284,18 @@ class ConfigModel(PydanticModel):
         self.modules.append(module)
         self.Meta.module_map[module.name] = module
 
-
-
-
     def format(self):
         """重载 format
         先进行 modules 处理
         """
         #  super().format()
         # 对变量进行格式化
-        default_env = EnvModel.default()
-        for i, _module in enumerate(self.function_modules):
-            self.function_modules[i] = ConfigValue(_module
-                ).set_env(**default_env.to_dict()).format()
+        #  default_env = EnvModel.default()
+        #  for i, _module in enumerate(self.function_modules):
+            #  self.function_modules[i] = ConfigValue(_module
+                #  ).set_env(**default_env.to_dict()).format()
         #  self.Meta.module_map = {o.name: o for o in self.modules}
+        pass
 
     def get_module(self, name):
         """获取模块"""

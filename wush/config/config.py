@@ -56,7 +56,7 @@ class Config(object):
     def loads(cls, data):
         """通过 dict 数据加载"""
         ins = cls()
-        print(data)
+        #  print(data)
         ins._config = ConfigModel(**data)
 
         # 对模块地址进行解析
