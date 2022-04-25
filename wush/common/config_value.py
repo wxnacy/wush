@@ -21,9 +21,15 @@ __all__ = ['environ_keys', 'ConfigValue']
 _REG_ENV2 = r'\${(.+?)\}'
 
 @singledispatch
-def environ_keys(text):
+def environ_keys(obj):
     """获取环境变量 keys"""
-    return []
+    res = set()
+    for key, typ in obj.__annotations__.items():
+        env_keys = environ_keys(getattr(obj, key))
+        for _key in env_keys:
+            res.add(_key)
+
+    return res
 
 @environ_keys.register(str)
 def _(text):
@@ -99,13 +105,21 @@ class ConfigValue():
             for k, v in value.to_dict().items():
                 v = self._format(v)
                 setattr(value, k, v)
+            return value
 
         #  if isinstance(value, BaseObject):
             #  for k, v in value.to_dict().items():
                 #  v = self._format(v)
                 #  setattr(value, k, v)
 
+        self._format_object(value)
         return value
+
+    def _format_object(self, obj):
+        for key in obj.__annotations__.keys():
+            val = ConfigValue(getattr(obj, key)).set_env(**self.env
+                ).set_functions(**self.functions).format()
+            setattr(obj, key, val)
 
     def _format_dict(self, value):
         """格式化字典"""

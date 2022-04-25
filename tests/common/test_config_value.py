@@ -26,6 +26,7 @@ class User(Model):
     params = datatype.Dict()
     domains = datatype.List()
 
+
 def test_format_model():
     u = User()
     u.name = '${test_name}'
@@ -39,6 +40,14 @@ def test_format_model():
     assert fu.name == 'wxnacy'
     assert fu.params.get("name") == 'wxnacy'
     assert fu.domains[0].get("name") == 'wxnacy'
+
+class ObjectClass:
+    name: str = "${name}"
+
+def test_format_object():
+    ins = ObjectClass()
+    ins = ConfigValue(ins).set_env(name = 'test').format()
+    assert ins.name == 'test'
 
 def test_format_environ():
     """测试格式化环境变量"""
@@ -94,6 +103,9 @@ def test_environ_keys():
     u.domains = ['${domain}']
 
     assert environ_keys(u) == { 'test_name', 'name', 'domain'}
+
+    ins = ObjectClass()
+    assert environ_keys(ins) == { 'name' }
 
 def test_parse_type():
     text_value = {"name": "wxnacy"}
