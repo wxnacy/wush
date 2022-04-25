@@ -23,8 +23,10 @@ _REG_ENV2 = r'\${(.+?)\}'
 @singledispatch
 def environ_keys(obj):
     """获取环境变量 keys"""
+    if not hasattr(obj, '__annotations__'):
+        return
     res = set()
-    for key, typ in obj.__annotations__.items():
+    for key in obj.__annotations__.keys():
         env_keys = environ_keys(getattr(obj, key))
         for _key in env_keys:
             res.add(_key)
@@ -116,6 +118,8 @@ class ConfigValue():
         return value
 
     def _format_object(self, obj):
+        if not hasattr(obj, '__annotations__'):
+            return
         for key in obj.__annotations__.keys():
             val = ConfigValue(getattr(obj, key)).set_env(**self.env
                 ).set_functions(**self.functions).format()
