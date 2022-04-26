@@ -93,7 +93,7 @@ class RequestClient:
     def request(self):
         """发送请求"""
         params = self.builder.to_requests()
-        self.logger.info('request builder %s', json.dumps(params, indent=4))
+        self.logger.info(f'request builder {json.dumps(params, indent=4)}')
         res = self._request(**params)
         res_client = ResponseClient(self.builder, res)
         if res_client.status_code in (301, 302):

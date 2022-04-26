@@ -147,7 +147,7 @@ class ConfigValue():
             text = self._format_environ(text)
         if text.startswith('@'):
             text = text[1:]
-            self.logger.debug(text)
+            #  self.logger.debug(text)
             if text.startswith('{') and text.endswith('}'):
                 return json.loads(text)
             if text.startswith('[') and text.endswith(']'):
@@ -217,7 +217,7 @@ class ConfigValue():
         k = k.strip(')').strip(' ')
         func_name, args_str = k.split('(')
         func = self.functions.get(func_name)
-        self.logger.info('func_name %s %s', func_name, func)
+        #  self.logger.info(f'func_name {func_name} {func}')
 
         if not func:
             return

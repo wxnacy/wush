@@ -14,6 +14,8 @@ from prompt_toolkit import print_formatted_text
 
 from csarg import CommandArgumentParser
 
+from wpy.functools import clock
+from wush.common.constants import Constants
 from wush.common.loggers import create_logger
 from wush.common.run_mode import RUN_MODE
 from wush.config import load_config
@@ -51,18 +53,26 @@ class CmdArgumentParser(CommandArgumentParser):
     def parse_args(self, text):
         """解析参数"""
         args = super().parse_args(text)
+
+        # 输出日志
+        arg_dict = {}
         arg_list = self.get_arguments()
         for arg in arg_list:
-            log_text = f'{self.cmd} argument {arg.name}' \
-                f' {getattr(args, arg.name.replace("-", "_"))}'
-            self.logger.info(log_text)
+            #  log_text = f'{self.cmd} argument {arg.name}' \
+                #  f' {getattr(args, arg.name.replace("-", "_"))}'
+            arg_dict[arg.name] = getattr(args, arg.name.replace('-', '_'))
+            #  self.logger.info(log_text)
+        self.logger.info(f'{self.cmd} arguments {arg_dict}')
         return args
 
     def _print(self, text):
         tokens = list(pygments.lex(text, lexer=PythonLexer()))
         print_formatted_text(PygmentsTokens(tokens), end='')
 
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def run(self, args):
+        begin_text = "cmd begin "
+        self.logger.info(f"{begin_text:=<50}")
         self.config = load_config()
         func_name = f'run_{RUN_MODE.mode}'
         func = None
@@ -75,3 +85,5 @@ class CmdArgumentParser(CommandArgumentParser):
             func = getattr(self, 'run')
 
         func(args)
+        end_text = "cmd end "
+        self.logger.info(f"{end_text:=<50}")

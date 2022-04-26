@@ -161,9 +161,9 @@ class RunArgumentParser(CmdArgumentParser):
         params = utils.list_key_val_to_dict(args.params or [])
         json_data = utils.list_key_val_to_dict(args.json or [])
         environs = utils.list_key_val_to_dict(args.env or [])
-        self.logger.info('arg params %s', params)
-        self.logger.info('arg json %s', json_data)
-        self.logger.info('arg env %s', environs)
+        self.logger.info(f'arg params {params}')
+        self.logger.info(f'arg json {json_data}')
+        self.logger.info(f'arg env {environs}')
 
         request_model = self.config.get_request(args.module, args.name,
                 environs = environs)

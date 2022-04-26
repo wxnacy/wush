@@ -68,10 +68,11 @@ class Shell():
     def _run_shell(self):
         while True:
             try:
-                left_prompt = 'wush/{space}/{module}> '.format(
-                    space = self.config.space_name,
-                    module = self.config.module_name
-                )
+                #  left_prompt = 'wush/{space}/{module}> '.format(
+                    #  space = self.config.space_name,
+                    #  module = self.config.module_name
+                #  )
+                left_prompt = 'wush> '
                 right_prompt = ''
                 text = self.session.prompt(
                     left_prompt,

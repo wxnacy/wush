@@ -34,6 +34,7 @@ def main():
     print(re.findall(_REG_ENV, text))
     res = re.sub(_REG_ENV, replace, text)
     print(res)
+    #  logger.info(res)
 
 
 if __name__ == "__main__":
