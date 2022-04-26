@@ -6,13 +6,16 @@ cookie 相关模块
 """
 import traceback
 
+from wpy.functools import clock
 from wush.common.loggers import get_logger
+from wush.common.constants import Constants
 
 class Cookie(object):
 
     logger = get_logger('Cookie')
 
     @classmethod
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def get_browser_cookie(cls, *domains, browser='chrome'):
         """获取留来的 cookie
         :param list domains: 域名列表

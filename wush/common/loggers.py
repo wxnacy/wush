@@ -8,7 +8,7 @@ from datetime import datetime
 from loguru import logger
 
 LOG_FILE = '/tmp/wush.log'
-LOG_FORMAT = '[<g>{time:MM-DD HH:mm:ss.SSS}</g>][<y>{elapsed}</y>]' \
+LOG_FORMAT = '[<g>{time:HH:mm:ss.SSS}</g>][<y>{elapsed}</y>]' \
     '[<level>{level}</level>][<c>{name}:{function}:{line}</c>] ' \
     '<level>{message}</level>'
 

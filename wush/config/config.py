@@ -7,6 +7,7 @@
 import os
 import yaml
 import copy
+from wpy.functools import clock
 
 from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
@@ -17,6 +18,8 @@ from wush.config.models import EnvModel
 from wush.config.function import load_function
 
 __all__ = ['load_config']
+
+logger = get_logger()
 
 class Config(object):
     logger = get_logger('Config')
@@ -98,6 +101,7 @@ class Config(object):
         """获取请求列表"""
         return self._config.get_module(module_name).requests
 
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def get_request(self, module_name, request_name, set_env=True, environs=None):
         """获取请求模型
         :param bool set_env: 是否设置环境变量
@@ -145,6 +149,7 @@ def _get_config_path(config_path=None):
 _config = None
 _config_dict = {}
 
+@clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
 def load_config(config_path = None):
     """加载配置
     :param str config_path: 配置文件路径

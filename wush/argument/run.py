@@ -8,6 +8,7 @@ import os
 from csarg import Action
 from csarg import CommandArgumentParserFactory
 from csarg.parser import Argument
+from wpy.functools import clock
 
 from wush.common import utils
 from wush.common.constants import Constants
@@ -225,6 +226,7 @@ class RunArgumentParser(CmdArgumentParser):
         utils.open_url(url)
 
     @classmethod
+    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
     def _load_builder_from_request(cls, request_model: RequestModel,
             with_browser_cookie: bool = False
         ) -> RequestBuilder:
