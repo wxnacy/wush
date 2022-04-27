@@ -15,7 +15,7 @@ from wush.common.loggers import get_logger
 from wush.common.utils import load_module
 from wush.config.models import ConfigModel
 from wush.config.models import EnvModel
-from wush.config.function import load_function
+from wush.config.function import load_function, Function
 
 __all__ = ['load_config']
 
@@ -25,7 +25,7 @@ class Config(object):
     logger = get_logger('Config')
 
     _config = None
-    _function = None
+    _function: Function = None
     module_name = None
     space_name = None
     #  builtin_env = EnvModel()
@@ -90,7 +90,7 @@ class Config(object):
         return self._config.env.to_dict()
 
     @property
-    def function(self):
+    def function(self) -> Function:
         return self._function
 
     def get_modules(self):

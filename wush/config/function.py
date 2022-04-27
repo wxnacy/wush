@@ -9,6 +9,9 @@ import traceback
 import os
 import hashlib
 import json
+from typing import (
+    Dict, Callable
+)
 
 from rich.console import Console
 from rich.table import Table
@@ -36,12 +39,12 @@ class FunctionFactory(BaseFactory):
         return _super_factory
 
 @FunctionFactory.register()
-def random_int(length, min_int=None, max_int=None):
+def random_int(length: int, min_int: int=None, max_int: int=None):
     """随机 int 值"""
     return randoms.random_int(length, min_int, max_int)
 
 @FunctionFactory.register()
-def random_str(length, source=None):
+def random_str(length: int, source=None):
     """随机 int 值"""
     return randoms.random_str(length, source)
 
@@ -117,7 +120,7 @@ class Function(object):
     handler_response = None
     test = None
 
-    _functions = {}
+    _functions: Dict[str, Callable] = {}
 
     def __init__(self, functions):
         self._functions = functions
@@ -126,12 +129,12 @@ class Function(object):
                 raise Exception('func {} can not be str'.format(name))
             setattr(self, name, func)
 
-    def add_function(self, func):
+    def add_function(self, func: Callable):
         """添加方法"""
         setattr(self, func.__name__, func)
         self._functions[func.__name__] = func
 
-    def get_functions(self):
+    def get_functions(self) -> Dict[str, Callable]:
         """获取方法字段"""
         return self._functions
 

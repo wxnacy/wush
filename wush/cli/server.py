@@ -36,6 +36,20 @@ def detail_type(version, type):
     else:
         return res.get("text")
 
+@app.route('/api/callback')
+def get_callback():
+    config = load_config()
+    params = dict(request.args)
+    func_name = params.pop("func", None)
+    if not func_name:
+        return { "func": None }
+
+    func = config.function.get_functions().get(func_name)
+    if not func:
+        return { "func": None }
+
+    return func(**params)
+
 @app.route('/api/test', methods=['post', 'get'])
 def test():
     res = {
