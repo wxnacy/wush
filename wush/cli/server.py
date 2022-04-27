@@ -60,16 +60,19 @@ def clear_stdout():
         os.dup2(write_null.fileno(), sys.stdout.fileno())
         os.dup2(write_null.fileno(), sys.stderr.fileno())
 
-def run_server(port=None):
+def run_server(clear_logger: bool = True, config_path: str = None):
     # 清空输出
-    clear_stdout()
+    if clear_logger:
+        clear_stdout()
     # 获取配置
-    config = load_config()
-    port = config.server_port
+    config = load_config(config_path)
+    port = int(config.server_port)
     host = config.server_host
     # 如果端口还没有启动，则启动服务
-    if not telnet(host, port):
-        app.run(host = host, port=port)
+    if telnet(host, port):
+        print('服务已经启动')
+        return
+    app.run(host = host, port=port)
 
 if __name__ == "__main__":
     run_server()

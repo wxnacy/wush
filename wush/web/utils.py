@@ -6,9 +6,13 @@
 """
 
 import socket
+import traceback
+from wush.common.loggers import get_logger
+
+logger = get_logger()
 
 
-def telnet(server_ip, port):
+def telnet(server_ip: str, port: int):
     """链接服务"""
     sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sk.settimeout(1) #设置超时时间
@@ -17,5 +21,7 @@ def telnet(server_ip, port):
         sk.close()
         return True
     except Exception:
+        logger.error(traceback.format_exc())
+        logger.error(traceback.format_stack())
         sk.close()
         return False
