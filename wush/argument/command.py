@@ -5,6 +5,7 @@
 
 """
 #  import abc
+from datetime import datetime
 import pygments
 
 #  from pygments.token import Token
@@ -74,6 +75,11 @@ class CmdArgumentParser(CommandArgumentParser):
         begin_text = "cmd begin "
         self.logger.info(f"{begin_text:=<50}")
         self.config = load_config()
+
+        # 添加历史记录
+        if RUN_MODE.is_command:
+            self.add_history(args)
+
         func_name = f'run_{RUN_MODE.mode}'
         func = None
         if hasattr(self, func_name):
@@ -87,3 +93,32 @@ class CmdArgumentParser(CommandArgumentParser):
         func(args)
         end_text = "cmd end "
         self.logger.info(f"{end_text:=<50}")
+
+    @classmethod
+    def add_history(cls, cmd):
+        if isinstance(cmd, list):
+            cmd = ' '.join(cmd)
+
+        cmd.strip()
+
+        if cmd.startswith('history'):
+            return
+
+        with open(Constants.HISTORY_PATH, 'r') as f:
+            lines = f.readlines()
+
+        historys = []
+        for line in lines:
+            if not line.startswith('+'):
+                continue
+            historys.append(line.strip('\n')[1:])
+
+        if historys and historys[-1] == cmd:
+            return
+
+        lines = []
+        lines.append(f"\n# {str(datetime.now())}")
+        lines.append(f"\n+{cmd}\n")
+        with open(Constants.HISTORY_PATH, 'a') as f:
+            f.write(''.join(lines))
+
