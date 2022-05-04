@@ -32,8 +32,8 @@ def test_load():
 def test_get_request():
     req = test_config.get_request(module_name, request_name)
     assert isinstance(req, RequestModel)
-    assert req.url == 'http://localhost:6060/api/test'
-    assert req.domain == 'localhost:6060'
+    assert req.url == 'http://localhost:6666/api/test'
+    assert req.domain == 'localhost:6666'
 
     req_dict = req.dict()
     assert req_dict.get("params") == { "id": 12, 'home': os.getenv("HOME") }

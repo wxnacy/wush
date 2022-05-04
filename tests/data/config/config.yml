@@ -1,6 +1,7 @@
+server_host: 6666
 env:
   name: wxnacy
-  WUSH_PORT: 6060
+  WUSH_PORT: 6666
 cookies:
   config_name: 'test'
 cookie_domains:

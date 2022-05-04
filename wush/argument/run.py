@@ -5,6 +5,9 @@
 run 命令的参数解析
 """
 import os
+from typing import (
+    Dict, Any
+)
 from csarg import Action
 from csarg import CommandArgumentParserFactory
 from csarg.parser import Argument
@@ -27,6 +30,9 @@ from wush.web.history import History
 
 from .command import CmdArgumentParser
 
+__all__ = ['RunArgumentParser', 'run_in_shell']
+
+logger = create_logger()
 
 @CommandArgumentParserFactory.register()
 class RunArgumentParser(CmdArgumentParser):
@@ -248,3 +254,30 @@ class RunArgumentParser(CmdArgumentParser):
         ins.cookies = request_cookies
 
         return ins
+
+
+def run_in_shell(
+        module_name: str, request_name: str, params: Dict[str, Any] = {},
+        env: Dict[str, Any] = {}, json: Dict[str, Any] = {},
+        config: str = None,
+        **kwargs
+) -> tuple:
+    cmd = f'wush run --module {module_name} --name {request_name}'
+
+    dict_params = {
+        'params': params,
+        'json': json,
+        'env': env,
+    }
+
+    for name, _dict_params in dict_params.items():
+        if not _dict_params:
+            continue
+        _dict_cmd = ' '.join([
+            f'--{name} {key}={value}' for key, value in _dict_params.items()])
+        cmd = f"{cmd} {_dict_cmd}"
+    if config:
+        cmd += f' --config {config}'
+
+    logger.info(f'run cmd {cmd}')
+    return run_shell(cmd)
