@@ -1,4 +1,4 @@
-server_host: 6666
+server_port: 6666
 env:
   name: wxnacy
   WUSH_PORT: 6666

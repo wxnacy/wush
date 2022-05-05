@@ -5,16 +5,15 @@
 """
 
 import json
-from typing import MutableMapping, Any, Dict, Callable
+from typing import Any, Dict, Callable
 from requests.cookies import RequestsCookieJar
 from requests import Response
 
 from wpy.base import BaseEnum
 from wpy.base import BaseObject
 
-from wush.web.enums import HeaderEnum
 from wush.web.enums import ContentTypeEnum
-from .models import RequestBuilder
+from .models import RequestBuilder, Header
 
 __all__ = ['ResponseClient']
 
@@ -36,7 +35,7 @@ class ResponseClient(BaseObject):
     status_code: int
     url: str
     ok: bool = None
-    headers: MutableMapping[str, str] = None
+    headers: Header
     cookies: RequestsCookieJar = None
     response: Response
 
@@ -44,15 +43,19 @@ class ResponseClient(BaseObject):
         self.request_builder = request_builder
         self.response = response
         for key in ResponseField.values():
-            setattr(self, key, getattr(self.response, key))
+            value = getattr(self.response, key)
+            if key == ResponseField.HEADERS.value:
+                value = Header(**value)
+
+            setattr(self, key, value)
 
     @property
     def content_type(self) -> str:
-        return self.headers[HeaderEnum.CONTENT_TYPE.value]
+        return self.headers.content_type
 
-    @property
-    def location(self) -> str:
-        return self.headers[HeaderEnum.LOCATION.value]
+    #  @property
+    #  def location(self) -> str:
+        #  return self.headers[HeaderEnum.LOCATION.value]
 
     @property
     def is_html(self) -> bool:
@@ -61,9 +64,7 @@ class ResponseClient(BaseObject):
     @property
     def is_json(self) -> bool:
         """判断结果是否为 json 格式"""
-        if ContentTypeEnum.APPLICATION_JSON.value in self.content_type:
-            return True
-        return False
+        return ContentTypeEnum.APPLICATION_JSON.value in self.content_type
 
     def json(self, **kwargs) -> Any:
         return self.response.json(**kwargs)

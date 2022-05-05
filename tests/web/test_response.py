@@ -1,28 +1,29 @@
 
-import pytest
-from wush.web import RequestBuilder
-from wush.config.models import RequestModel
+import json
+from wush.web import RequestClient
+from wush.config.config import Config
+from wush.argument.run import RunArgumentParser
 
-#  def test_load_curl():
+TEST_CONFIG_PATH = 'tests/data/config/config.yml'
 
-    #  builder = RequestBuilder.load_curl('tests/web/curl_text')
-    #  assert builder.version != None
-    #  assert builder.method == 'GET'
-    #  assert builder.url == 'https://collector.githubapp.com/github/collect'
-    #  #  assert builder.params == 'https://collector.githubapp.com/github/collect'
+def test_response_client():
+    test_config = Config.load(TEST_CONFIG_PATH)
+    request_model = test_config.get_request('wush', 'test_get')
+    request_builder = RunArgumentParser._load_builder_from_request(request_model)
 
-def test_check_and_format_method():
-    with pytest.raises(ValueError):
-        RequestBuilder(url = 'test', method = 'ss')
+    req = RequestClient(request_builder)
+    res = req.request()
 
-    builder = RequestBuilder(url = 'test', method = 'get')
-    assert builder.method == 'GET'
+    assert isinstance(res.content, bytes)
+    assert isinstance(res.text, str)
 
-def test_root_validatory():
-    builder = RequestBuilder(
-        url = 'test',
-        method = 'get',
-        json = { "name": "wxnacy" }
-    )
+    assert res.json() == json.loads(res.content)
+    assert res.json() == json.loads(res.text)
 
-    assert builder.json_data == { "name": "wxnacy"  }
+    assert res.headers.content_type == 'application/json'
+    assert res.content_type == 'application/json'
+
+    assert not res.is_html
+    assert res.is_json
+
+

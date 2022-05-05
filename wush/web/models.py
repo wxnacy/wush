@@ -64,3 +64,32 @@ class RequestBuilder(BaseModel):
                 pass
         data['json'] = self.json_data
         return data
+
+
+class Header(BaseModel):
+    content_type: str = Field(None, alias='Content-Type')
+    content_length: int = Field(None, alias='Content-Length')
+    server: str = Field(None, alias='Server')
+    date: str = Field(None, alias='Date')
+    connection: str = Field(None, alias='Connection')
+
+    class Meta:
+        origin_data: Dict[str, str] = {}
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.Meta.origin_data = kwargs
+
+    def __getitem__(self, key: str) -> str:
+        return self.Meta.origin_data[key]
+
+    def get(self, key: str) -> str:
+        return self.Meta.origin_data.get(key)
+
+    def __setattr__(self, key: str, value: str) -> AttributeError:
+        raise AttributeError('\'Header\' object does not support attribute assignment')
+
+
+
+
