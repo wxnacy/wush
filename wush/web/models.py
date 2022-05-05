@@ -72,6 +72,11 @@ class Header(BaseModel):
     server: str = Field(None, alias='Server')
     date: str = Field(None, alias='Date')
     connection: str = Field(None, alias='Connection')
+    accept_ranges: str = Field(None, alias='Accept-Ranges')
+    etag: str = Field(None, alias='ETag')
+    cache_control: str = Field(None, alias='Cache-Control')
+    expires: str = Field(None, alias='Expires')
+    last_modified: str = Field(None, alias='Last-Modified',)
 
     class Meta:
         origin_data: Dict[str, str] = {}
