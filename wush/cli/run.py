@@ -10,7 +10,7 @@ from wush.common.utils import run_shell
 from wush.common.loggers import get_logger
 from wush.config import load_config
 from wush.web.request import RequestClient
-from wush.web.request import RequestBuilder
+from wush.web import RequestBuilder
 
 logger = get_logger('wush.run')
 

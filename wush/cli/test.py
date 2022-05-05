@@ -6,7 +6,7 @@
 """
 
 from wush.web.request import RequestClient
-from wush.web.request import RequestBuilder
+from wush.web import RequestBuilder
 import re
 
 

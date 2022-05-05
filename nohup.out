@@ -1,0 +1,45 @@
+ * Serving Flask app 'wush.cli.server' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on http://localhost:6060/ (Press CTRL+C to quit)
+127.0.0.1 - - [05/May/2022 16:56:36] "GET /api/test?id=12 HTTP/1.1" 200 -
+ * Serving Flask app 'wush.cli.server' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+Traceback (most recent call last):
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/bin/wush", line 5, in <module>
+    main()
+  File "/Users/wxnacy/Projects/wxnacy/dev/wush/wush/cli/main.py", line 17, in main
+    cmd.run()
+  File "/Users/wxnacy/Projects/wxnacy/dev/wush/wush/cli/command.py", line 83, in run
+    parser.run(sys_args)
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/wpy/functools.py", line 20, in _wraper
+    result = func(*args, **kwargs)
+  File "/Users/wxnacy/Projects/wxnacy/dev/wush/wush/argument/command.py", line 93, in run
+    func(args)
+  File "/Users/wxnacy/Projects/wxnacy/dev/wush/wush/argument/server.py", line 33, in run_command
+    run_server(clear_logger = False)
+  File "/Users/wxnacy/Projects/wxnacy/dev/wush/wush/cli/server.py", line 89, in run_server
+    app.run(host = host, port=port)
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/flask/app.py", line 920, in run
+    run_simple(t.cast(str, host), port, self, **options)
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/werkzeug/serving.py", line 1017, in run_simple
+    inner()
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/werkzeug/serving.py", line 966, in inner
+    fd=fd,
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/werkzeug/serving.py", line 790, in make_server
+    host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+  File "/Users/wxnacy/Library/Caches/pypoetry/virtualenvs/wush-8wfop9Xy-py3.6/lib/python3.6/site-packages/werkzeug/serving.py", line 693, in __init__
+    super().__init__(server_address, handler)  # type: ignore
+  File "/Users/wxnacy/.pyenv/versions/3.6.10/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/socketserver.py", line 456, in __init__
+    self.server_bind()
+  File "/Users/wxnacy/.pyenv/versions/3.6.10/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/server.py", line 136, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/Users/wxnacy/.pyenv/versions/3.6.10/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/socketserver.py", line 470, in server_bind
+    self.socket.bind(self.server_address)
+OSError: [Errno 49] Can't assign requested address
+127.0.0.1 - - [05/May/2022 16:59:58] "GET /api/test?id=12 HTTP/1.1" 200 -

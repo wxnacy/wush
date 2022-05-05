@@ -10,7 +10,7 @@ import os
 import hashlib
 import json
 from typing import (
-    Dict, Callable
+    Dict, Callable, Any
 )
 
 from rich.console import Console
@@ -21,6 +21,7 @@ from wpy import randoms
 from wush.common import utils
 from wush.common.loggers import get_logger
 from wush.web.cookie import Cookie
+from wush.web import ResponseClient
 
 logger = get_logger('function')
 
@@ -59,9 +60,8 @@ def get_completion_words(word_for_completion):
     return []
 
 @FunctionFactory.register()
-def handler_response(response):
-    #  print('Response:')
-    # 判断是否为 html 结果
+def handler_response(response: ResponseClient):
+    """统一处理返回结果"""
     try:
         data = response.json()
         data = json.dumps(data, indent=4, ensure_ascii=False)
@@ -73,6 +73,7 @@ def handler_response(response):
     if response.is_html and not response.request_builder.argument.no_browser:
         print('Html page see in browser')
         utils.open_url(url)
+
 
 @FunctionFactory.register()
 def print_table(config):
@@ -117,7 +118,7 @@ class Function(object):
     get_completion_words = None
     random_int = None
     random_str = None
-    handler_response = None
+    handler_response: Callable[[ResponseClient], Any] = None
     test = None
 
     _functions: Dict[str, Callable] = {}

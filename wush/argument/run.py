@@ -24,7 +24,7 @@ from wush.config.models import RequestModel
 from wush.web.cookie import Cookie
 from wush.web.enums import RequestsParamsEnum
 from wush.web.request import RequestClient
-from wush.web.request import RequestBuilder
+from wush.web import RequestBuilder
 from wush.web.response import ResponseHandler
 from wush.web.history import History
 
