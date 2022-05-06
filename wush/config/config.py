@@ -24,7 +24,7 @@ logger = get_logger()
 class Config(object):
     logger = get_logger('Config')
 
-    _config = None
+    _config: ConfigModel = None
     _function: Function = None
     module_name = None
     space_name = None

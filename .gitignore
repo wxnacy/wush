@@ -106,3 +106,4 @@ ENV/
 
 # other
 *.DS_Store
+nohup.out

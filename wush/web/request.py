@@ -7,6 +7,7 @@
 import requests
 import json
 
+from requests import Response
 from wpy.functools import clock
 
 from wush.common.constants import Constants
@@ -39,7 +40,12 @@ class RequestClient:
 
         return res_client
 
-    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
-    def _request(self, **params):
-        return requests.request(**params)
+    #  @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
+    def _request(self, **params) -> Response:
+        res = requests.request(**params)
+        elapsed = res.elapsed.total_seconds()
+        method = params.get('method')
+        url = params.get('url')
+        self.logger.info(f'{method} {url} elapsed {elapsed}')
+        return res
 

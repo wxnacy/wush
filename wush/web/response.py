@@ -51,7 +51,7 @@ class ResponseClient(BaseObject):
 
     @property
     def content_type(self) -> str:
-        return self.headers.content_type
+        return self.headers.content_type or ''
 
     #  @property
     #  def location(self) -> str:

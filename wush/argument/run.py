@@ -38,6 +38,7 @@ logger = create_logger()
 class RunArgumentParser(CmdArgumentParser):
     cmd = 'run'
     logger = create_logger('RunArgumentParser')
+    _cookie: Cookie = None
 
     @classmethod
     def default(cls):
@@ -248,7 +249,9 @@ class RunArgumentParser(CmdArgumentParser):
         # 对 cookie_domains 进行解析
         cookie_domains = request_model.cookie_domains
         if cookie_domains and with_browser_cookie:
-            cookies  = Cookie.get_browser_cookie(*cookie_domains)
+            if not cls._cookie:
+                cls._cookie = Cookie()
+            cookies  = cls._cookie.get_cookies(*cookie_domains)
             request_cookies.update(cookies)
         request_cookies.update(ins.cookies)
         ins.cookies = request_cookies

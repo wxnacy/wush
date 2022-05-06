@@ -272,14 +272,8 @@ class ModuleModel(PydanticModel, BaseModel):
 
         return values
 
-    #  def __init__(self, *args, **kwargs):
-        #  super().__init__(*args, **kwargs)
-        #  self.__req__ = {o.name: o for o in self.requests}
-
-    def get_request(self, name):
+    def get_request(self, name: str) -> RequestModel:
         """获取 request 模型"""
-        #  req = self.__req__.get(name)
-        #  print(self.Meta.request_map)
         req = self.Meta.request_map[self.name].get(name)
         if req:
             # 继承 module 的字段
@@ -352,10 +346,8 @@ class ConfigModel:
         self.modules.append(module)
         self.Meta.module_map[module.name] = module
 
-    def get_module(self, name):
+    def get_module(self, name: str) -> ModuleModel:
         """获取模块"""
-        #  if not self.__is_format__:
-            #  raise Exception('ConfigModel must format first')
         module = self.Meta.module_map.get(name)
         if module:
             inherit_keys = ['headers', 'cookies', 'cookie_domains']

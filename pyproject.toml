@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wush"
-version = "0.2.0"
+version = "0.2.2"
 description = "Useful api client on terminal"
 authors = ["wxnacy <wxnacy@gmail.com>"]
 license = "MIT"
