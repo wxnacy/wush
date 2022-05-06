@@ -12,7 +12,7 @@ from functools import singledispatch
 
 from wpy.path import read_dict
 from wush.common.loggers import create_logger
-from wush.model import Model
+#  from wush.model import Model
 
 __all__ = ['environ_keys', 'ConfigValue']
 
@@ -58,14 +58,14 @@ def _(data):
                 res.add(name)
     return res
 
-@environ_keys.register(Model)
-def _(model):
-    res = set()
-    for value in model.dict().values():
-        for name in environ_keys(value):
-            if name not in res:
-                res.add(name)
-    return res
+#  @environ_keys.register(Model)
+#  def _(model):
+    #  res = set()
+    #  for value in model.dict().values():
+        #  for name in environ_keys(value):
+            #  if name not in res:
+                #  res.add(name)
+    #  return res
 
 class ConfigValue():
     logger = create_logger('ConfigValue')
@@ -103,11 +103,11 @@ class ConfigValue():
                 return getattr(self, func_name)(value)
 
         # 格式化模型
-        if isinstance(value, Model):
-            for k, v in value.to_dict().items():
-                v = self._format(v)
-                setattr(value, k, v)
-            return value
+        #  if isinstance(value, Model):
+            #  for k, v in value.to_dict().items():
+                #  v = self._format(v)
+                #  setattr(value, k, v)
+            #  return value
 
         #  if isinstance(value, BaseObject):
             #  for k, v in value.to_dict().items():

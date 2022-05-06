@@ -10,10 +10,6 @@ from wush.common.config_value import environ_keys
 from wush.config.function import FunctionFactory
 from wush.config.models import EnvModel
 
-from wush.model import datatype
-from wush.model.model import Model
-
-
 
 @FunctionFactory.register()
 def test(a=None, b=None):
@@ -21,25 +17,12 @@ def test(a=None, b=None):
 
 env_functions = FunctionFactory.get_factory()
 
-class User(Model):
-    name = datatype.Str()
-    params = datatype.Dict()
-    domains = datatype.List()
-
 
 def test_format_model():
-    u = User()
-    u.name = '${test_name}'
-    u.params = { "name": "${test_name}" }
-    u.domains = [u.params]
 
     env_dict = EnvModel(test_name = 'wxnacy').to_dict()
     print(env_dict.get('test_name'))
 
-    fu = ConfigValue(u).set_env(**env_dict).format()
-    assert fu.name == 'wxnacy'
-    assert fu.params.get("name") == 'wxnacy'
-    assert fu.domains[0].get("name") == 'wxnacy'
 
 class ObjectClass:
     name: str = "${name}"
@@ -97,12 +80,6 @@ def test_environ_keys():
     keys = environ_keys(data)
     assert keys == {'name', 'value', 'test()', 'id'}
 
-    u = User()
-    u.name = '${test_name}'
-    u.params = { "name": "${name}" }
-    u.domains = ['${domain}']
-
-    assert environ_keys(u) == { 'test_name', 'name', 'domain'}
 
     ins = ObjectClass()
     assert environ_keys(ins) == { 'name' }
