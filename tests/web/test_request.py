@@ -1,6 +1,7 @@
 
 import pytest
 from wush.web import RequestBuilder
+from wush.web import RequestClient
 from wush.config.models import RequestModel
 
 #  def test_load_curl():
@@ -11,18 +12,10 @@ from wush.config.models import RequestModel
     #  assert builder.url == 'https://collector.githubapp.com/github/collect'
     #  #  assert builder.params == 'https://collector.githubapp.com/github/collect'
 
-def test_check_and_format_method():
-    with pytest.raises(ValueError):
-        RequestBuilder(url = 'test', method = 'ss')
 
-    builder = RequestBuilder(url = 'test', method = 'get')
-    assert builder.method == 'GET'
+def test_request():
+    builder = RequestBuilder(url = 'https://baidu.com')
+    req = RequestClient(builder)
+    res = req.request()
+    assert res.is_html
 
-def test_root_validatory():
-    builder = RequestBuilder(
-        url = 'test',
-        method = 'get',
-        json = { "name": "wxnacy" }
-    )
-
-    assert builder.json_data == { "name": "wxnacy"  }

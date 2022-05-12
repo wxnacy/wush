@@ -34,8 +34,9 @@ class RequestClient:
         res = self._request(**params)
         res_client = ResponseClient(self.builder, res)
         if res_client.status_code in (301, 302):
-            url = res_client.location
-            res = self._request(url = url)
+            url = res_client.headers.location
+            params['url'] = url
+            res = self._request(**params)
             res_client = ResponseClient(self.builder, res)
 
         return res_client

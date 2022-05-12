@@ -12,7 +12,7 @@ from wush.common.loggers import get_logger
 logger = get_logger()
 
 
-def telnet(server_ip: str, port: int):
+def telnet(server_ip: str, port: int) -> bool:
     """链接服务"""
     sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sk.settimeout(1) #设置超时时间

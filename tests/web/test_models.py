@@ -1,6 +1,7 @@
 import pytest
 
 from wush.web.models import Header
+from wush.web import RequestBuilder
 
 def test_header():
 
@@ -21,3 +22,18 @@ def test_header():
     with pytest.raises(AttributeError):
         header.id = 1
 
+def test_check_and_format_method():
+    with pytest.raises(ValueError):
+        RequestBuilder(url = 'test', method = 'ss')
+
+    builder = RequestBuilder(url = 'test', method = 'get')
+    assert builder.method == 'GET'
+
+def test_root_validatory():
+    builder = RequestBuilder(
+        url = 'test',
+        method = 'get',
+        json = { "name": "wxnacy" }
+    )
+
+    assert builder.json_data == { "name": "wxnacy"  }

@@ -76,7 +76,8 @@ class Header(BaseModel):
     etag: str = Field(None, alias='ETag')
     cache_control: str = Field(None, alias='Cache-Control')
     expires: str = Field(None, alias='Expires')
-    last_modified: str = Field(None, alias='Last-Modified',)
+    last_modified: str = Field(None, alias='Last-Modified')
+    location: str = Field(None, alias='Location')
 
     class Meta:
         origin_data: Dict[str, str] = {}

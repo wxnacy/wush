@@ -1,6 +1,7 @@
 
 import json
 from wush.web import RequestClient
+from wush.web.response import ResponseHandler
 from wush.config.config import Config
 from wush.argument.run import RunArgumentParser
 
@@ -27,3 +28,10 @@ def test_response_client():
     assert res.is_json
 
 
+@ResponseHandler.register('wush', 'test')
+def handler(response):
+    pass
+
+def test_response_handler():
+    _handler = ResponseHandler.get_handler('wush', 'test')
+    assert _handler.__name__ == 'handler'
