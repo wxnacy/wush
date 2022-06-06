@@ -20,6 +20,8 @@ def telnet(server_ip: str, port: int) -> bool:
         sk.connect((server_ip,port))
         sk.close()
         return True
+    except ConnectionRefusedError:
+        return False
     except Exception:
         logger.error(traceback.format_exc())
         logger.error(traceback.format_stack())

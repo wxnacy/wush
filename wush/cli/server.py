@@ -84,8 +84,9 @@ def run_server(clear_logger: bool = True, config_path: str = None):
     host = config.server_host
     # 如果端口还没有启动，则启动服务
     if telnet(host, port):
-        print('服务已经启动')
+        logger.info('{}:{} 服务已经启动'.format(host, port))
         return
+    logger.info('{}:{} 服务开始启动'.format(host, port))
     app.run(host = host, port=port)
 
 if __name__ == "__main__":
