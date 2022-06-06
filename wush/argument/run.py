@@ -102,13 +102,13 @@ class RunArgumentParser(CmdArgumentParser):
         elif word_for_completion == '--params':
             # 参数补全
             request = self.config.get_request(arg.module, arg.name)
-            params = request.params.to_dict()
+            params = request.params.dict()
             words = self._dict_to_completions(params)
             return words
         elif word_for_completion == '--json':
             # 参数补全
             request = self.config.get_request(arg.module, arg.name)
-            words = self._dict_to_completions(request.json.to_dict())
+            words = self._dict_to_completions(request.json_data.dict())
             return words
         elif word_for_completion == '--env':
             # 环境变量

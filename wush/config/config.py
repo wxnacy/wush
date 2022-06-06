@@ -13,8 +13,9 @@ from wush.common.config_value import ConfigValue
 from wush.common.constants import Constants
 from wush.common.loggers import get_logger
 from wush.common.utils import load_module
-from wush.config.models import ConfigModel
-from wush.config.models import EnvModel
+from wush.config.models import (
+    ConfigModel, RequestModel
+)
 from wush.config.function import load_function, Function
 
 __all__ = ['load_config']
@@ -102,7 +103,8 @@ class Config(object):
         return self._config.get_module(module_name).requests
 
     @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
-    def get_request(self, module_name, request_name, set_env=True, environs=None):
+    def get_request(self, module_name, request_name, set_env=True, environs=None
+    ) -> RequestModel:
         """获取请求模型
         :param bool set_env: 是否设置环境变量
         :param dict environs: 编辑变量
