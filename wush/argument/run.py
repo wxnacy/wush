@@ -199,7 +199,7 @@ class RunArgumentParser(CmdArgumentParser):
         self._print('Request: {}'.format(args.name))
         self._print('Url: {}'.format(builder.url))
         self._print('Params: {}'.format(builder.params))
-        self._print('Json: {}'.format(builder.json))
+        self._print('Json: {}'.format(builder.json_data))
         self._print('请求中。。。')
 
         res = request_client.request()
