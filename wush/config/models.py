@@ -25,8 +25,10 @@ from wush.web.enums import ProtocolEnum
 
 logger = get_logger('config.models')
 
+
 class PydanticConfig:
     arbitrary_types_allowed = True
+
 
 class BaseModel(BaseObject):
 
@@ -52,6 +54,7 @@ class BaseModel(BaseObject):
 
                     setattr(self, key, super_value)
 
+
 @dataclass
 class EnvModel(BaseObject):
     _default = None
@@ -76,6 +79,7 @@ class EnvModel(BaseObject):
         if not cls._default:
             cls._default = cls(**_env)
         return cls._default
+
 
 class FieldModel(PydanticModel):
     """配置字段
@@ -134,6 +138,7 @@ class FieldModel(PydanticModel):
                     raise ValueError(f"{value} is not {data_type}")
         return value
 
+
 @dataclass
 class AutoFieldModel():
     """该模型自动使用 FieldModel"""
@@ -156,7 +161,6 @@ class AutoFieldModel():
             origin_field = getattr(self, key)
             origin_field.value = value
 
-
     def dict(self):
         """重载方法
         value 值只保留 _value 部分
@@ -172,7 +176,7 @@ class AutoFieldModel():
         if isinstance(v, dict):
             v = FieldModel(**v)
         if not isinstance(v, FieldModel):
-            v = FieldModel(_value = v)
+            v = FieldModel(_value=v)
         return v
 
 
@@ -191,8 +195,8 @@ class RequestModel(PydanticModel, BaseModel):
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
     headers: Dict[str, Any] = Field({}, title="headers 参数")
     params: AutoFieldModel = Field(AutoFieldModel(), title="地址参数")
-    json_data: AutoFieldModel = Field(AutoFieldModel(), title="json 参数", alias="json")
-    #  data: str = Field(None, title="域名")
+    json_data: AutoFieldModel = Field(
+        AutoFieldModel(), title="json 参数", alias="json")
 
     class Config:
         arbitrary_types_allowed = True
@@ -245,7 +249,7 @@ class ModuleModel(PydanticModel, BaseModel):
 
     class Meta:
         request_map: Dict[str, Dict[str, RequestModel]
-                ] = defaultdict(RequestModel)
+                          ] = defaultdict(RequestModel)
 
     @validator('protocol')
     def check_protocol(cls, v: str):
@@ -278,7 +282,7 @@ class ModuleModel(PydanticModel, BaseModel):
         if req:
             # 继承 module 的字段
             inherit_keys = ('protocol', 'domain', 'cookies', 'headers',
-                'cookie_domains', 'url_prefix')
+                            'cookie_domains', 'url_prefix')
             req.inherit(self, inherit_keys)
 
             # 拼装 url
@@ -288,10 +292,10 @@ class ModuleModel(PydanticModel, BaseModel):
         return req
 
 
-@dataclass(config = PydanticConfig)
+@dataclass(config=PydanticConfig)
 class ConfigModel:
     """客户端全局配置模型"""
-    __all__ = ['api_history_dir','server_port', 'server_host']
+    __all__ = ['api_history_dir', 'server_port', 'server_host']
     modules: List[Union[ModuleModel, dict]] = Field([], title="模块列表")
     env: EnvModel = Field(EnvModel(), title="环境变量")
     cookies: Dict[str, Any] = Field({}, title="cookies 参数")
@@ -302,10 +306,10 @@ class ConfigModel:
     server_port: str = Field(Constants.SERVER_PORT, title="服务默认端口")
     server_host: str = Field(Constants.SERVER_HOST, title="服务默认地址")
     api_history_dir: str = Field(Constants.API_HISTORY_DIR,
-        title="请求历史记录存在目录")
+                                 title="请求历史记录存在目录")
 
     #  class Config:
-        #  arbitrary_types_allowed = True
+    #  arbitrary_types_allowed = True
 
     class Meta:
         module_map: Dict[str, ModuleModel] = {}
@@ -315,13 +319,13 @@ class ConfigModel:
         #  print('=' * 100)
         #  print(env)
         #  if isinstance(env, dict):
-            #  print(env)
-            #  return EnvModel(**env)
+        #  print(env)
+        #  return EnvModel(**env)
         #  return env
 
     @validator('modules')
     def format_modules(cls, modules: List[Union[ModuleModel, dict]]
-            ) -> List[ModuleModel]:
+                       ) -> List[ModuleModel]:
         new_modules = []
         for module in modules:
             if isinstance(module, dict):
@@ -335,8 +339,8 @@ class ConfigModel:
     def format_function_modules(cls, modules: list) -> list:
         default_env = EnvModel.default()
         for i, _module in enumerate(modules):
-            modules[i] = ConfigValue(_module
-                ).set_env(**default_env.to_dict()).format()
+            modules[i] = ConfigValue(
+                _module).set_env(**default_env.to_dict()).format()
 
         return modules
 
@@ -377,4 +381,3 @@ class ConfigModel:
                 if not path.endswith('.yml'):
                     continue
                 yield path
-

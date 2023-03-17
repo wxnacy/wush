@@ -7,6 +7,7 @@
 
 from wpy.base import BaseEnum
 
+
 class MethodEnum(BaseEnum):
     GET = 'GET'
     POST = 'POST'
@@ -16,18 +17,22 @@ class MethodEnum(BaseEnum):
     OPTIONS = 'OPTIONS'
     PATCH = 'PATCH'
 
+
 class ProtocolEnum(BaseEnum):
     HTTP = 'http'
     HTTPS = 'https'
+
 
 class HeaderEnum(BaseEnum):
     CONTENT_TYPE = 'Content-Type'
     CONTENT_LENGTH = 'Content-Length'
     LOCATION = 'Location'
 
+
 class ContentTypeEnum(BaseEnum):
     APPLICATION_JSON = 'application/json'
     TEXT_HTML = 'text/html'
+
 
 class RequestsParamsEnum(BaseEnum):
     METHOD = 'method'

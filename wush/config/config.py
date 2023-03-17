@@ -22,6 +22,7 @@ __all__ = ['load_config']
 
 logger = get_logger()
 
+
 class Config(object):
     logger = get_logger('Config')
 
@@ -102,9 +103,9 @@ class Config(object):
         """获取请求列表"""
         return self._config.get_module(module_name).requests
 
-    @clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
+    @clock(fmt=Constants.CLOCK_FMT, logger_func=logger.info)
     def get_request(self, module_name, request_name, set_env=True, environs=None
-    ) -> RequestModel:
+                    ) -> RequestModel:
         """获取请求模型
         :param bool set_env: 是否设置环境变量
         :param dict environs: 编辑变量
@@ -148,11 +149,13 @@ def _get_config_path(config_path=None):
     Config.logger.info('配置文件: 系统 {}'.format(config_path))
     return config_path
 
+
 _config = None
 _config_dict = {}
 
-@clock(fmt = Constants.CLOCK_FMT, logger_func = logger.info)
-def load_config(config_path = None):
+
+@clock(fmt=Constants.CLOCK_FMT, logger_func=logger.info)
+def load_config(config_path=None):
     """加载配置
     :param str config_path: 配置文件路径
 
