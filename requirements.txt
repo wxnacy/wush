@@ -2,5 +2,5 @@
 
 # wapi/wapi/models.py: 18
 # wapi/wapi/wapi.py: 11
-requests == 2.25.1
+requests == 2.31.0
 
